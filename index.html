@@ -670,7 +670,7 @@ function catchText(c){
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ') || 'ohne Maße';
   const club=state.club? state.club.name : 'Fang-Logbuch';
   return [
-    `🎣 Petri Heil! ${c.species} — ${size}`,
+    `\u{1F3A3} Petri Heil! ${c.species} — ${size}`,
     c.location? `Gewässer: ${c.location}` : null,
     `${fmtDateLong(c.date)} · ${c.angler}`,
     `— geloggt mit Fang-Logbuch (${club})`,
