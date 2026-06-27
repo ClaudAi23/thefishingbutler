@@ -16,6 +16,17 @@
     --danger:#B23A3A; --shadow:0 10px 34px rgba(28,27,24,.12);
     --head:'Barlow Condensed',var(--body); --body:'Barlow',system-ui,sans-serif;
   }
+  :root, [data-theme="light"]{ color-scheme:light; }
+  [data-theme="dark"]{
+    color-scheme:dark;
+    --teal:#3E6FA1; --teal-dark:#34608C; --teal-tint:#22303D;
+    --rust:#D9663B; --rust-tint:#33261F;
+    --sand:#15181C; --surface:#1E242B; --surface-2:#232A31;
+    --text:#ECEAE3; --muted:#9BA1A3; --border:#2C333B; --border-2:#3A434C;
+    --danger:#E0716B; --shadow:0 12px 36px rgba(0,0,0,.5);
+  }
+  [data-theme="dark"] body{ background:#0E1013; }
+  input::placeholder, textarea::placeholder{ color:var(--muted); opacity:.8; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
   body{
@@ -360,6 +371,15 @@
     <div class="scroll pad">
       <div class="sectionlabel">Anzeige</div>
       <div class="card-box">
+        <label style="margin-bottom:10px;">Darstellung</label>
+        <div class="seg" id="theme-seg">
+          <button data-t="light" onclick="setTheme('light')">Hell</button>
+          <button data-t="dark" onclick="setTheme('dark')">Dunkel</button>
+          <button data-t="system" onclick="setTheme('system')">System</button>
+        </div>
+        <p class="hint">„System" folgt automatisch der Hell/Dunkel-Einstellung deines Geräts.</p>
+      </div>
+      <div class="card-box">
         <label style="margin-bottom:10px;">Standard-Maß in Übersicht &amp; Statistik</label>
         <div class="seg" id="measure-seg">
           <button data-m="length" onclick="setMeasure('length')">Länge</button>
@@ -446,24 +466,39 @@ function seed(){
 }
 
 let state = { club:null, user:null, catches:[], editPhoto:null, current:null,
-  measure:"length", logos:{}, filter:emptyFilter() };
+  measure:"length", theme:"system", logos:{}, filter:emptyFilter() };
 
 function emptyFilter(){ return {year:"",month:"",from:"",to:"",species:"",angler:"",ort:"",lmin:"",lmax:"",wmin:"",wmax:""}; }
 
 // ---------- persistence ----------
 function save(){ try{ localStorage.setItem("fanglog_demo", JSON.stringify(
-  {catches:state.catches, measure:state.measure, logos:state.logos})); }catch(e){} }
+  {catches:state.catches, measure:state.measure, theme:state.theme, logos:state.logos})); }catch(e){} }
 function load(){
   try{
     const r=JSON.parse(localStorage.getItem("fanglog_demo"));
     if(r){
       if(r.measure) state.measure=r.measure;
+      if(r.theme) state.theme=r.theme;
       if(r.logos) state.logos=r.logos;
       if(r.catches) return r.catches;
     }
   }catch(e){}
   return seed();
 }
+
+// ---------- theme ----------
+const darkMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function applyTheme(){
+  const resolved = state.theme==='system'
+    ? ((darkMq && darkMq.matches) ? 'dark' : 'light')
+    : state.theme;
+  document.documentElement.setAttribute('data-theme', resolved);
+}
+function setTheme(t){ state.theme=t; applyTheme(); syncThemeSeg(); save(); }
+function syncThemeSeg(){
+  document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('on', b.dataset.t===state.theme));
+}
+if(darkMq){ darkMq.addEventListener('change', ()=>{ if(state.theme==='system') applyTheme(); }); }
 function clubLogoHTML(cl){
   if(state.logos[cl.id]) return `<img src="${state.logos[cl.id]}" alt="">`;
   if(cl.logo) return cl.logo;
@@ -700,6 +735,7 @@ function openSettings(){
   document.getElementById('set-clubname').textContent=state.club?state.club.name:'';
   document.getElementById('set-logo').innerHTML=clubLogoHTML(state.club);
   syncMeasureSeg();
+  syncThemeSeg();
   go('settings');
 }
 function syncMeasureSeg(){
@@ -763,6 +799,7 @@ function resetFilter(){ state.filter=emptyFilter(); renderList(); go('list'); }
 
 // ---------- init ----------
 state.catches=load();
+applyTheme();
 renderClubs();
 if((navigator.maxTouchPoints||0)>0 && navigator.share){ document.getElementById('share-btn').style.display=''; }
 document.getElementById('club-logo').innerHTML=`<svg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'><rect width='120' height='120' rx='26' fill='#16263F'/><g fill='#F2EEE6'><path d='M46 60 C58 45 78 45 90 60 C78 75 58 75 46 60 Z'/><path d='M48 60 L30 49 L35 60 L30 71 Z'/></g><circle cx='80' cy='56' r='3.2' fill='#16263F'/></svg>`;
