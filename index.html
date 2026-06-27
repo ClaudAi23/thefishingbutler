@@ -331,7 +331,8 @@
   <section id="s-detail" class="screen">
     <div class="topbar">
       <button class="iconbtn" onclick="go('list')" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div><h1>Fang-Details</h1><p class="sub">Eintrag</p></div>
+      <div style="flex:1; min-width:0;"><h1>Fang-Details</h1><p class="sub">Eintrag</p></div>
+      <button class="iconbtn" onclick="shareCatch()" title="Teilen" aria-label="Teilen"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
     <div class="scroll">
       <div id="d-hero" class="hero" style="display:none;"></div>
@@ -649,6 +650,7 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.combo')) closeSpec
 // ---------- detail ----------
 function openDetail(id){
   const c=state.catches.find(x=>x.id===id); if(!c) return;
+  state.current=c;
   const hero=document.getElementById('d-hero');
   if(c.photo){ hero.style.display='flex'; hero.innerHTML=`<img src="${c.photo}" alt="">`; }
   else { hero.style.display='none'; hero.innerHTML=''; }
@@ -660,6 +662,47 @@ function openDetail(id){
   const nw=document.getElementById('d-notes-wrap');
   if(c.notes){ nw.style.display='block'; document.getElementById('d-notes').textContent=c.notes; } else nw.style.display='none';
   go('detail');
+}
+
+// ---------- share ----------
+const APP_URL='https://fang-logbuch-demo.vercel.app';
+function catchText(c){
+  const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ') || 'ohne Maße';
+  const club=state.club? state.club.name : 'Fang-Logbuch';
+  return [
+    `🎣 Petri Heil! ${c.species} — ${size}`,
+    c.location? `Gewässer: ${c.location}` : null,
+    `${fmtDateLong(c.date)} · ${c.angler}`,
+    `— geloggt mit Fang-Logbuch (${club})`,
+    APP_URL
+  ].filter(Boolean).join('\n');
+}
+function openWhatsApp(text){
+  const url='https://wa.me/?text='+encodeURIComponent(text);
+  const w=window.open(url, '_blank');
+  if(!w) location.href=url;
+}
+async function shareCatch(){
+  const c=state.current; if(!c) return;
+  const text=catchText(c);
+  const touch=(navigator.maxTouchPoints||0)>0;
+  // Mobile: native share sheet (with photo) → user picks WhatsApp
+  if(touch && navigator.share){
+    try{
+      let data={text};
+      if(c.photo && navigator.canShare){
+        try{
+          const blob=await (await fetch(c.photo)).blob();
+          const file=new File([blob], 'fang.jpg', {type:blob.type||'image/jpeg'});
+          if(navigator.canShare({files:[file]})) data={text, files:[file]};
+        }catch(err){}
+      }
+      await navigator.share(data);
+      return;
+    }catch(err){ if(err && err.name==='AbortError') return; }
+  }
+  // Desktop / fallback: open WhatsApp Web directly
+  openWhatsApp(text);
 }
 
 // ---------- settings ----------
