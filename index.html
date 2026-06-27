@@ -146,6 +146,7 @@
   .catch .val{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px; color:var(--text); white-space:nowrap;}
   .catch .meta{font-size:13px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .catch .chev{margin-left:4px; color:var(--border-2); flex:0 0 auto;}
+  .ctxbadge{display:inline-block; font-size:10px; font-weight:600; color:var(--teal); background:var(--teal-tint); border-radius:20px; padding:1px 7px; margin-right:6px; vertical-align:middle;}
 
   .sectionlabel{font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:4px 4px 10px;}
   .empty{text-align:center; color:var(--muted); padding:42px 24px;}
@@ -360,7 +361,7 @@
   <!-- ============ DETAIL ============ -->
   <section id="s-detail" class="screen">
     <div class="topbar">
-      <button class="iconbtn" onclick="go('list')" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="iconbtn" onclick="detailBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <div style="flex:1; min-width:0;"><h1 data-i18n="details">Fang-Details</h1><p class="sub" data-i18n="entry">Eintrag</p></div>
       <button id="share-btn" class="iconbtn" onclick="shareCatch()" data-i18n-title="ttShare" title="Teilen" aria-label="Teilen" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
@@ -470,6 +471,7 @@
       <div class="sectionlabel" style="margin-top:6px;" data-i18n="properties">Eigenschaften</div>
       <div class="field"><label data-i18n="species">Fischart</label><select id="flt-species"></select></div>
       <div class="field" id="flt-angler-field"><label data-i18n="angler">Angler</label><select id="flt-angler"></select></div>
+      <div class="field" id="flt-ctx-field" style="display:none;"><label data-i18n="ctxFilter">Bereich</label><select id="flt-ctx"></select></div>
       <div class="field"><label data-i18n="locationContains">Ort / Gewässer enthält</label><input id="flt-ort" type="text" placeholder="z. B. Vereinsteich" data-i18n-ph="locationPh" /></div>
       <div class="row">
         <div class="field"><label data-i18n="lengthFrom">Länge von (cm)</label><input id="flt-lmin" type="number" inputmode="numeric" placeholder="min" data-i18n-ph="minPh" /></div>
@@ -497,11 +499,8 @@
       </button>
     </div>
     <div class="scroll pad">
-      <div id="stats-cards" style="display:flex; gap:10px; margin-bottom:20px;"></div>
-      <div class="sectionlabel" data-i18n="byContext">Nach Verein / Solo</div>
-      <div id="stats-byctx" style="margin-bottom:20px;"></div>
-      <div class="sectionlabel" data-i18n="bySpecies">Nach Fischart</div>
-      <div id="stats-byspecies"></div>
+      <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
+      <div id="stats-list"></div>
       <div style="height:24px"></div>
     </div>
   </section>
@@ -528,7 +527,7 @@ const MONTHS = {
 const I18N = {
   de:{
     appName:"Fang-Logbuch", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
-    personal:"Persönlich", clubs:"Vereine", statsTile:"Meine Statistik", statsTileSub:"Alle Fänge, vereinsübergreifend", soloTile:"Solo — ohne Verein", soloTileSub:"Eigenes Logbuch, privat",
+    personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge, alle Bereiche", soloTile:"Solo — ohne Verein", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
     catches:"Fänge", ttFilter:"Filter", ttSettings:"Einstellungen", ttLogout:"Abmelden", addCatch:"Fang eintragen", recent:"Neueste Fänge", filtered:"Gefilterte Fänge", total:"Fänge gesamt", hits:"Treffer", longestStat:"Längster Fang", heaviestStat:"Schwerster Fang", emptyNone:"Noch keine Fänge.<br>Trag deinen ersten Fang ein!", emptyFilter:"Keine Fänge für diesen Filter.",
@@ -536,12 +535,12 @@ const I18N = {
     details:"Fang-Details", entry:"Eintrag", dAngler:"Angler", dWater:"Gewässer", dLength:"Länge", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Keine Maße erfasst", ttShare:"Teilen",
     settings:"Einstellungen", display:"Anzeige", appearance:"Darstellung", themeLight:"Hell", themeDark:"Dunkel", themeSystem:"System", themeHint:"„System\" folgt automatisch der Hell/Dunkel-Einstellung deines Geräts.", measureLabel:"Standard-Maß in Übersicht & Statistik", mLength:"Länge", mWeight:"Gewicht", measureHint:"Bestimmt, welches Maß in der Fangliste angezeigt wird und wonach der größte Fang berechnet wird.", language:"Sprache", clubLogoAdmin:"Vereinslogo · Admin", currentLogo:"Aktuelles Logo", uploadLogo:"Logo hochladen", logoHint:"Nur der Vereinsadmin sollte das Logo ändern. (In dieser Demo für alle freigeschaltet.)", myImage:"Mein Bild", initialsDefault:"Standard: deine Initialen", uploadImage:"Bild hochladen",
     filter:"Filter", narrow:"Fänge eingrenzen", ttReset:"Zurücksetzen", period:"Zeitraum", year:"Jahr", month:"Monat", from:"Von", to:"Bis", periodHint:"Entweder Jahr/Monat <em>oder</em> Von–Bis — sie schließen sich gegenseitig aus.", properties:"Eigenschaften", locationContains:"Ort / Gewässer enthält", locationPh:"z. B. Vereinsteich", lengthFrom:"Länge von (cm)", lengthTo:"Länge bis (cm)", weightFrom:"Gewicht von (kg)", weightTo:"Gewicht bis (kg)", minPh:"min", maxPh:"max", applyFilter:"Filter anwenden", reset:"Zurücksetzen", all:"Alle",
-    myStats:"Meine Statistik", statsSub:"Vereinsübergreifend + Solo", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.",
+    myStats:"Meine Fänge", statsSub:"Alle Bereiche zusammen", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.", speciesCount:"Arten", thisYear:"Dieses Jahr", ctxFilter:"Bereich",
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit Fang-Logbuch", shareNoMeasure:"ohne Maße"
   },
   en:{
     appName:"Catch Log", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
-    personal:"Personal", clubs:"Clubs", statsTile:"My stats", statsTileSub:"All catches, across clubs", soloTile:"Solo — no club", soloTileSub:"Your own private log",
+    personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo — no club", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
     catches:"Catches", ttFilter:"Filter", ttSettings:"Settings", ttLogout:"Sign out", addCatch:"Log a catch", recent:"Latest catches", filtered:"Filtered catches", total:"Total catches", hits:"Matches", longestStat:"Longest catch", heaviestStat:"Heaviest catch", emptyNone:"No catches yet.<br>Log your first catch!", emptyFilter:"No catches for this filter.",
@@ -549,12 +548,12 @@ const I18N = {
     details:"Catch details", entry:"Entry", dAngler:"Angler", dWater:"Water", dLength:"Length", dWeight:"Weight", dDate:"Date", noMeasures:"No measurements", ttShare:"Share",
     settings:"Settings", display:"Display", appearance:"Appearance", themeLight:"Light", themeDark:"Dark", themeSystem:"System", themeHint:"\"System\" follows your device's light/dark setting.", measureLabel:"Default measure in list & stats", mLength:"Length", mWeight:"Weight", measureHint:"Sets which measure shows in the catch list and how the biggest catch is determined.", language:"Language", clubLogoAdmin:"Club logo · admin", currentLogo:"Current logo", uploadLogo:"Upload logo", logoHint:"Only the club admin should change the logo. (Enabled for everyone in this demo.)", myImage:"My picture", initialsDefault:"Default: your initials", uploadImage:"Upload picture",
     filter:"Filter", narrow:"Narrow down catches", ttReset:"Reset", period:"Period", year:"Year", month:"Month", from:"From", to:"To", periodHint:"Either year/month <em>or</em> from–to — they're mutually exclusive.", properties:"Properties", locationContains:"Location / water contains", locationPh:"e.g. Club pond", lengthFrom:"Length from (cm)", lengthTo:"Length to (cm)", weightFrom:"Weight from (kg)", weightTo:"Weight to (kg)", minPh:"min", maxPh:"max", applyFilter:"Apply filter", reset:"Reset", all:"All",
-    myStats:"My stats", statsSub:"Across clubs + solo", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.",
+    myStats:"My catches", statsSub:"All areas combined", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.", speciesCount:"Species", thisYear:"This year", ctxFilter:"Area",
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with Catch Log", shareNoMeasure:"no measurements"
   },
   nl:{
     appName:"Vangstlogboek", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
-    personal:"Persoonlijk", clubs:"Verenigingen", statsTile:"Mijn statistiek", statsTileSub:"Alle vangsten, alle verenigingen", soloTile:"Solo — geen vereniging", soloTileSub:"Eigen logboek, privé",
+    personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo — geen vereniging", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
     catches:"Vangsten", ttFilter:"Filter", ttSettings:"Instellingen", ttLogout:"Uitloggen", addCatch:"Vangst toevoegen", recent:"Laatste vangsten", filtered:"Gefilterde vangsten", total:"Totaal vangsten", hits:"Treffers", longestStat:"Langste vangst", heaviestStat:"Zwaarste vangst", emptyNone:"Nog geen vangsten.<br>Voeg je eerste vangst toe!", emptyFilter:"Geen vangsten voor dit filter.",
@@ -562,7 +561,7 @@ const I18N = {
     details:"Vangstdetails", entry:"Vermelding", dAngler:"Visser", dWater:"Water", dLength:"Lengte", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Geen maten", ttShare:"Delen",
     settings:"Instellingen", display:"Weergave", appearance:"Weergave", themeLight:"Licht", themeDark:"Donker", themeSystem:"Systeem", themeHint:"\"Systeem\" volgt de licht/donker-instelling van je apparaat.", measureLabel:"Standaardmaat in lijst & statistiek", mLength:"Lengte", mWeight:"Gewicht", measureHint:"Bepaalt welke maat in de vangstlijst staat en hoe de grootste vangst wordt bepaald.", language:"Taal", clubLogoAdmin:"Verenigingslogo · beheer", currentLogo:"Huidig logo", uploadLogo:"Logo uploaden", logoHint:"Alleen de verenigingsbeheerder zou het logo moeten wijzigen. (In deze demo voor iedereen.)", myImage:"Mijn foto", initialsDefault:"Standaard: je initialen", uploadImage:"Foto uploaden",
     filter:"Filter", narrow:"Vangsten filteren", ttReset:"Resetten", period:"Periode", year:"Jaar", month:"Maand", from:"Van", to:"Tot", periodHint:"Of jaar/maand <em>of</em> van–tot — ze sluiten elkaar uit.", properties:"Eigenschappen", locationContains:"Plek / water bevat", locationPh:"bijv. Verenigingsvijver", lengthFrom:"Lengte van (cm)", lengthTo:"Lengte tot (cm)", weightFrom:"Gewicht van (kg)", weightTo:"Gewicht tot (kg)", minPh:"min", maxPh:"max", applyFilter:"Filter toepassen", reset:"Resetten", all:"Alle",
-    myStats:"Mijn statistiek", statsSub:"Over verenigingen + solo", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.",
+    myStats:"Mijn vangsten", statsSub:"Alle gebieden samen", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.", speciesCount:"Soorten", thisYear:"Dit jaar", ctxFilter:"Gebied",
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met Vangstlogboek", shareNoMeasure:"zonder maten"
   }
 };
@@ -573,6 +572,18 @@ function curLang(){
 }
 function t(k){ const L=curLang(); return (I18N[L] && I18N[L][k]!=null) ? I18N[L][k] : (I18N.en[k]!=null ? I18N.en[k] : k); }
 function trSpecies(name){ const m=SPECIES_TR[name]; return m ? m[curLang()] : name; }
+const GROUPS = [
+  {id:"ijburg", name:"Ijburg Fishing Crew", loc:"Amsterdam · IJmeer", mono:"IF"},
+  {id:"feierabend", name:"Feierabendrunde", loc:"Stadtkanal", mono:"FA"}
+];
+function seedGroup(id){
+  if(id!=='ijburg') return [];
+  const now=new Date(); const d=h=>new Date(now.getTime()-h*3600e3).toISOString();
+  return [
+    {id:101, species:"Barsch", weight:0.8, length:28, location:"IJmeer, Steg", angler:"JC", date:d(50), notes:"", photo:null, userId:"demo-user"},
+    {id:102, species:"Hecht", weight:4.2, length:78, location:"IJburg, Brücke", angler:"Tom", date:d(120), notes:"", photo:null, userId:"demo-other"}
+  ];
+}
 const FISH_IC=`<svg class="fishic" viewBox="0 0 120 120"><path d="M46 60 C58 45 78 45 90 60 C78 75 58 75 46 60 Z"/><path d="M48 60 L30 49 L35 60 L30 71 Z"/></svg>`;
 const CHEV_IC=`<svg class="ic ic-sm chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;
 const SOLO_IC=`<svg class="ic" viewBox="0 0 24 24" style="width:24px;height:24px;"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.4-5.5 7-5.5s7 1.9 7 5.5"/></svg>`;
@@ -598,7 +609,7 @@ let state = { club:null, mode:"club", soloName:null, user:null, userId:null, me:
   catches:[], editPhoto:null, current:null, speciesKey:null, filterTarget:"list",
   measure:"length", theme:"system", lang:"system", logos:{}, soloAvatar:null, filter:emptyFilter() };
 
-function emptyFilter(){ return {year:"",month:"",from:"",to:"",species:"",angler:"",ort:"",lmin:"",lmax:"",wmin:"",wmax:""}; }
+function emptyFilter(){ return {year:"",month:"",from:"",to:"",species:"",angler:"",ort:"",lmin:"",lmax:"",wmin:"",wmax:"",ctx:""}; }
 
 // ---------- persistence ----------
 function savePrefs(){ try{ localStorage.setItem("fanglog_prefs", JSON.stringify(
@@ -616,15 +627,16 @@ function loadPrefs(){
     }
   }catch(e){}
 }
-function ctxKey(mode, clubId){ return mode==='solo' ? 'fanglog_solo' : ('fanglog_club_'+clubId); }
+function ctxKey(mode, id){ return mode==='solo' ? 'fanglog_solo' : ('fanglog_'+mode+'_'+id); }
 function saveCatches(){ try{ localStorage.setItem(ctxKey(state.mode, state.club&&state.club.id), JSON.stringify({catches:state.catches})); }catch(e){} }
-function loadCatchesFor(mode, clubId){
+function loadCatchesFor(mode, id){
   try{
-    const r=JSON.parse(localStorage.getItem(ctxKey(mode, clubId)));
+    const r=JSON.parse(localStorage.getItem(ctxKey(mode, id)));
     if(r && r.catches) return r.catches;
   }catch(e){}
   if(mode==='solo') return [];
-  return clubId==='steife' ? seed() : [];   // sample data only for the first club
+  if(mode==='group') return seedGroup(id);
+  return id==='steife' ? seed() : [];   // sample data only for the first club
 }
 
 // ---------- theme ----------
@@ -691,9 +703,18 @@ function renderClubs(){
     b.onclick=()=>chooseClub(cl);
     c.appendChild(b);
   });
+  c.appendChild(lbl(t('groups')));
+  GROUPS.forEach(g=>{
+    const b=document.createElement('button'); b.className='club';
+    b.innerHTML=`<span class="av">${clubLogoHTML(g)}</span>
+      <span style="min-width:0;"><span class="nm">${g.name}</span><br><span class="loc">${g.loc}</span></span>
+      ${CHEV_IC}`;
+    b.onclick=()=>chooseClub(g,'group');
+    c.appendChild(b);
+  });
 }
-function chooseClub(cl){
-  state.club=cl;
+function chooseClub(cl, kind){
+  state.club=cl; state.mode=kind||'club';
   document.getElementById('login-club').textContent=cl.name;
   document.getElementById('login-hdr').innerHTML=clubLogoHTML(cl);
   go('login');
@@ -705,9 +726,9 @@ function doLogin(){
   let name="Mitglied";
   if(email){ name = email.split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,m=>m.toUpperCase()); }
   const uid = (email ? email.toLowerCase() : 'name:'+name);
-  state.mode='club'; state.user=name; state.soloName=null;
+  state.user=name; state.soloName=null;
   state.userId=uid; state.me={id:uid, name}; savePrefs();
-  state.catches=loadCatchesFor('club', state.club.id); state.filter=emptyFilter();
+  state.catches=loadCatchesFor(state.mode, state.club.id); state.filter=emptyFilter();
   document.getElementById('list-sub').textContent=`${state.club.name} · ${name}`;
   document.getElementById('list-hdr').innerHTML=clubLogoHTML(state.club);
   renderList();
@@ -751,6 +772,7 @@ function secondaryStr(c){ return state.measure==='length'? fmtWeight(c.weight) :
 // ---------- filtering ----------
 function matchesFilter(c){
   const f=state.filter; const d=new Date(c.date);
+  if(f.ctx && c._ctx!==f.ctx) return false;
   if(f.year && d.getFullYear()!==+f.year) return false;
   if(f.month!=='' && d.getMonth()!==+f.month) return false;
   if(f.from && d < new Date(f.from+'T00:00')) return false;
@@ -816,6 +838,9 @@ function myCatches(){
   CLUBS.forEach(cl=>{
     loadCatchesFor('club', cl.id).forEach(c=>{ if(c.userId==='demo-user' || (myId && c.userId===myId)) out.push(Object.assign({}, c, {_ctx:cl.name})); });
   });
+  GROUPS.forEach(g=>{
+    loadCatchesFor('group', g.id).forEach(c=>{ if(c.userId==='demo-user' || (myId && c.userId===myId)) out.push(Object.assign({}, c, {_ctx:g.name})); });
+  });
   loadCatchesFor('solo').forEach(c=>{ out.push(Object.assign({}, c, {_ctx:'Solo'})); });
   return out;
 }
@@ -828,21 +853,35 @@ function renderStats(){
   const isLen=state.measure==='length';
   let big=null;
   items.forEach(c=>{ const v=isLen?c.length:c.weight; if(v!=null && (big==null || v>(isLen?big.length:big.weight))) big=c; });
-  document.getElementById('stats-cards').innerHTML=`
-    <div style="flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
-      <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);">${t('total')}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:700; line-height:1.1;">${items.length}</div>
-    </div>
-    <div style="flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
-      <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);">${isLen?t('longest'):t('heaviest')}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:700; line-height:1.1; color:var(--rust);">${big? (isLen?fmtLen(big.length):fmtWeight(big.weight)):'—'}</div>
-    </div>`;
-  const byCtx={}; items.forEach(c=>{ byCtx[c._ctx]=(byCtx[c._ctx]||0)+1; });
-  document.getElementById('stats-byctx').innerHTML = Object.keys(byCtx).sort((a,b)=>byCtx[b]-byCtx[a]).map(k=>
-    `<div class="drow"><span class="k">${k}</span><span class="v">${byCtx[k]}</span></div>`).join('') || `<div class="hint" style="margin:0;">${t('noneYet')}</div>`;
-  const bySp={}; items.forEach(c=>{ bySp[c.species]=(bySp[c.species]||0)+1; });
-  document.getElementById('stats-byspecies').innerHTML = Object.keys(bySp).sort((a,b)=>bySp[b]-bySp[a]).map(k=>
-    `<div class="drow"><span class="k">${trSpecies(k)}</span><span class="v">${bySp[k]}</span></div>`).join('') || `<div class="hint" style="margin:0;">—</div>`;
+  const speciesCount=new Set(items.map(c=>c.species)).size;
+  const yr=new Date().getFullYear();
+  const thisYearCount=items.filter(c=>new Date(c.date).getFullYear()===yr).length;
+  const kpi=(label,val,rust)=>`<div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+    <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">${label}</div>
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; line-height:1.1;${rust?' color:var(--rust);':''}">${val}</div></div>`;
+  document.getElementById('stats-cards').innerHTML =
+    kpi(t('total'), items.length) +
+    kpi(isLen?t('longest'):t('heaviest'), big? (isLen?fmtLen(big.length):fmtWeight(big.weight)):'—', true) +
+    kpi(t('speciesCount'), speciesCount) +
+    kpi(t('thisYear'), thisYearCount);
+  const list=document.getElementById('stats-list'); list.innerHTML='';
+  const sorted=[...items].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  if(sorted.length===0){
+    list.innerHTML=`<div class="empty"><svg viewBox="0 0 120 120" style="width:52px; height:52px; fill:var(--border-2); margin:0 auto 6px; display:block;"><path d="M46 60 C58 45 78 45 90 60 C78 75 58 75 46 60 Z"/><path d="M48 60 L30 49 L35 60 L30 71 Z"/></svg><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
+    return;
+  }
+  sorted.forEach(c=>{
+    const b=document.createElement('button'); b.className='catch';
+    const thumb = c.photo ? `<img class="thumb" src="${c.photo}" alt="">` : `<span class="thumb">${FISH_IC}</span>`;
+    b.innerHTML=`${thumb}
+      <span style="flex:1; min-width:0;">
+        <span class="top"><span class="sp">${trSpecies(c.species)}</span><span class="val">${primaryStr(c)}</span></span>
+        <span class="meta"><span class="ctxbadge">${c._ctx}</span>${c.angler} · ${fmtDate(c.date)}</span>
+      </span>
+      ${CHEV_IC}`;
+    b.onclick=()=>openDetailObj(c,'stats');
+    list.appendChild(b);
+  });
 }
 
 // ---------- form ----------
@@ -931,9 +970,10 @@ function closeSpecies(){ document.getElementById('combo-list').classList.remove(
 document.addEventListener('click',e=>{ if(!e.target.closest('.combo')) closeSpecies(); });
 
 // ---------- detail ----------
-function openDetail(id){
-  const c=state.catches.find(x=>x.id===id); if(!c) return;
-  state.current=c;
+function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
+function detailBack(){ go(state.detailFrom||'list'); }
+function openDetailObj(c, from){
+  state.current=c; state.detailFrom=from||'list';
   const hero=document.getElementById('d-hero');
   if(c.photo){ hero.style.display='flex'; hero.innerHTML=`<img src="${c.photo}" alt="">`; }
   else { hero.style.display='none'; hero.innerHTML=''; }
@@ -981,9 +1021,9 @@ async function shareCatch(){
 function openSettings(){
   const solo = state.mode==='solo';
   document.getElementById('set-sub').textContent = solo ? ('Solo · '+state.soloName) : (state.club?state.club.name:'');
-  document.getElementById('logo-admin').style.display = solo ? 'none' : '';
+  document.getElementById('logo-admin').style.display = state.mode==='club' ? '' : 'none';
   document.getElementById('solo-avatar').style.display = solo ? '' : 'none';
-  if(!solo && state.club){
+  if(state.mode==='club' && state.club){
     document.getElementById('set-clubname').textContent=state.club.name;
     document.getElementById('set-logo').innerHTML=clubLogoHTML(state.club);
   }
@@ -1034,6 +1074,11 @@ function openFilter(target){
   const ang=[...new Set(data.map(c=>c.angler))].sort();
   fillSelect('flt-angler', [['',t('all')]].concat(ang.map(a=>[a,a])), state.filter.angler);
   document.getElementById('flt-angler-field').style.display = state.filterTarget==='stats' ? 'none' : '';
+  if(state.filterTarget==='stats'){
+    const ctxs=[...new Set(myCatches().map(c=>c._ctx))];
+    fillSelect('flt-ctx', [['',t('all')]].concat(ctxs.map(x=>[x,x])), state.filter.ctx);
+    document.getElementById('flt-ctx-field').style.display='';
+  } else { document.getElementById('flt-ctx-field').style.display='none'; }
   const td=new Date(); td.setMinutes(td.getMinutes()-td.getTimezoneOffset()); const todayStr=td.toISOString().slice(0,10);
   document.getElementById('flt-from').max=todayStr;
   document.getElementById('flt-to').max=todayStr;
@@ -1066,6 +1111,7 @@ function applyFilter(){
     lmax:document.getElementById('flt-lmax').value,
     wmin:document.getElementById('flt-wmin').value,
     wmax:document.getElementById('flt-wmax').value,
+    ctx: state.filterTarget==='stats' ? document.getElementById('flt-ctx').value : '',
   };
   if(state.filterTarget==='stats'){ renderStats(); go('stats'); }
   else { renderList(); go('list'); }
