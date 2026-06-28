@@ -697,14 +697,40 @@ function loadPrefs(){
 }
 function ctxKey(mode, id){ return mode==='solo' ? 'fanglog_solo' : ('fanglog_'+mode+'_'+id); }
 function saveCatches(){ try{ localStorage.setItem(ctxKey(state.mode, state.club&&state.club.id), JSON.stringify({catches:state.catches})); }catch(e){} }
+
+// Bump SEED_VERSION whenever demo/seed catches change and you want the update
+// pushed to people who already have the app open. User-added catches and
+// user-edited seed catches are never overwritten.
+const SEED_VERSION = 2;
+function baseSeedFor(mode, id){
+  let arr;
+  if(mode==='solo') arr=[];
+  else if(mode==='group') arr=seedGroup(id);
+  else arr = (id==='steife') ? seed() : [];   // sample data only for the first club
+  return arr.map(c=>Object.assign({}, c, {seed:true}));
+}
 function loadCatchesFor(mode, id){
-  try{
-    const r=JSON.parse(localStorage.getItem(ctxKey(mode, id)));
-    if(r && r.catches) return r.catches;
-  }catch(e){}
-  if(mode==='solo') return [];
-  if(mode==='group') return seedGroup(id);
-  return id==='steife' ? seed() : [];   // sample data only for the first club
+  const key=ctxKey(mode, id);
+  const seedArr=baseSeedFor(mode, id);
+  let stored=null;
+  try{ const r=JSON.parse(localStorage.getItem(key)); if(r && Array.isArray(r.catches)) stored=r.catches; }catch(e){}
+  if(!stored) return seedArr;                       // first visit → full seed
+  const vkey=key+'_sv';
+  let appliedV=0; try{ appliedV=+(localStorage.getItem(vkey)||0); }catch(e){}
+  const refresh = appliedV < SEED_VERSION;          // new seed content to push
+  const byId=new Map(stored.map(c=>[c.id,c]));
+  let changed=false;
+  seedArr.forEach(s=>{
+    const ex=byId.get(s.id);
+    if(!ex){ stored.push(Object.assign({}, s)); changed=true; }   // add newly-seeded catch
+    else if(refresh && !ex._userEdited){                          // refresh untouched seed catch
+      const keepWeather = ex.weather && !s.weather ? ex.weather : null;
+      Object.assign(ex, s); if(keepWeather) ex.weather=keepWeather; changed=true;
+    }
+  });
+  if(refresh){ try{ localStorage.setItem(vkey, String(SEED_VERSION)); }catch(e){} }
+  if(changed){ try{ localStorage.setItem(key, JSON.stringify({catches:stored})); }catch(e){} }
+  return stored;
 }
 
 // ---------- theme ----------
@@ -1104,7 +1130,8 @@ function renderWeatherInto(weather, date, boxId, wrapId){
   const num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',sep);
   const condKey=weatherCodeKey(cur.code);
   const moonKey=moonPhaseKey(new Date(date));
-  const moonDir={m_wc:'moonWax',m_fq:'moonWax',m_wg:'moonWax',m_ng:'moonWane',m_lq:'moonWane',m_nc:'moonWane'}[moonKey];
+  // only quarter phases need an explicit direction; crescent/gibbous names already say waxing/waning
+  const moonDir={m_fq:'moonWax',m_lq:'moonWane'}[moonKey];
   let html=`
     <div class="wrow"><span class="k">${t('wCond')}</span><span class="v">${condKey?t(condKey):'—'}</span></div>
     <div class="wrow"><span class="k">${t('wTemp')}</span><span class="v">${num(cur.temp,1)} °C</span></div>
@@ -1231,7 +1258,9 @@ function saveCatch(){
   };
   if(state.editId){
     const idx=state.catches.findIndex(x=>x.id===state.editId);
-    if(idx>=0){ obj.userId=state.catches[idx].userId; state.catches[idx]=obj; }
+    if(idx>=0){ obj.userId=state.catches[idx].userId;
+      if(state.catches[idx].seed){ obj.seed=true; obj._userEdited=true; }   // keep edited seed catches from being overwritten by future pushes
+      state.catches[idx]=obj; }
     state.editId=null; saveCatches(); renderList(); openDetailObj(obj,'list');
   } else {
     state.catches.push(obj); saveCatches(); renderList(); go('list');
