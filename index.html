@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <style>
   :root{
     --teal:#16263F; --teal-dark:#0F1B2D; --teal-tint:#E7EAF0;
@@ -147,6 +149,15 @@
   .catch .meta{font-size:13px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .catch .chev{margin-left:4px; color:var(--border-2); flex:0 0 auto;}
   .ctxbadge{display:inline-block; font-size:10px; font-weight:600; color:var(--teal); background:var(--teal-tint); border-radius:20px; padding:1px 7px; margin-right:6px; vertical-align:middle;}
+  .map{height:200px; border-radius:10px; overflow:hidden; border:1px solid var(--border-2); background:var(--surface-2); z-index:0;}
+  .map-detail{height:170px;}
+  .map-stats{height:240px; margin-bottom:18px;}
+  .coord{font-size:12px; color:var(--muted);}
+  .leaflet-container{font-family:inherit; background:var(--surface-2);}
+  .wrow{display:flex; justify-content:space-between; gap:16px; padding:11px 0; border-bottom:1px solid var(--border);}
+  .wrow .k{color:var(--muted); font-size:14px;}
+  .wrow .v{font-weight:500; font-size:14px; text-align:right;}
+  .spark{display:block; width:100%; height:46px;}
 
   .sectionlabel{font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:4px 4px 10px;}
   .empty{text-align:center; color:var(--muted); padding:42px 24px;}
@@ -322,6 +333,15 @@
         <input id="f-location" type="text" placeholder="z. B. Vereinsteich, Platz 4" data-i18n-ph="waterPh" />
       </div>
 
+      <div class="field">
+        <label data-i18n="mapPin">Standort auf Karte</label>
+        <div id="f-map" class="map"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px;">
+          <span id="f-coord" class="coord" data-i18n="tapMap">Tippe auf die Karte, um den Fangort zu setzen.</span>
+          <button type="button" class="btn secondary sm" style="width:auto; padding:8px 12px; white-space:nowrap;" onclick="useMyLocation()" data-i18n="myLocation">Mein Standort</button>
+        </div>
+      </div>
+
       <div class="row">
         <div class="field">
           <label><span data-i18n="datetime">Datum &amp; Zeit</span> <span class="req">*</span></label>
@@ -361,6 +381,14 @@
       </div>
       <div class="pad">
         <div id="d-rows"></div>
+        <div id="d-map-wrap" style="display:none; margin-top:16px;">
+          <div id="d-map" class="map map-detail"></div>
+          <button type="button" class="btn secondary sm" style="margin-top:8px;" onclick="openInMaps()" data-i18n="openInMaps">In Karten öffnen</button>
+        </div>
+        <div id="d-weather-wrap" style="display:none; margin-top:18px;">
+          <div class="sectionlabel" data-i18n="weather">Wetter</div>
+          <div id="d-weather"></div>
+        </div>
         <div id="d-notes-wrap" style="margin-top:18px; display:none;">
           <div class="sectionlabel" data-i18n="notes">Notizen</div>
           <p id="d-notes" style="margin:0; color:var(--text);">—</p>
@@ -488,6 +516,7 @@
     </div>
     <div class="scroll pad">
       <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
+      <div id="stats-map" class="map map-stats" style="display:none;"></div>
       <div style="display:flex; justify-content:flex-end; margin:0 4px 10px;">
         <select id="sort-stats" onchange="setSort(this.value)" style="width:auto; padding:6px 10px; font-size:13px; border-radius:8px;"></select>
       </div>
@@ -559,6 +588,15 @@ const I18N = {
 Object.assign(I18N.de, {editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Bereich wechseln", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name"});
 Object.assign(I18N.en, {editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch area", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name"});
 Object.assign(I18N.nl, {editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Gebied wisselen", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam"});
+Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Temperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.",
+  m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
+  wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
+Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.",
+  m_new:"New moon", m_wc:"Waxing crescent", m_fq:"First quarter", m_wg:"Waxing gibbous", m_full:"Full moon", m_ng:"Waning gibbous", m_lq:"Last quarter", m_nc:"Waning crescent",
+  wc_clear:"Clear", wc_partly:"Partly cloudy", wc_cloudy:"Cloudy", wc_fog:"Fog", wc_drizzle:"Drizzle", wc_rain:"Rain", wc_snow:"Snow", wc_thunder:"Thunderstorm"});
+Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Temperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.",
+  m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
+  wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 function curLang(){
   if(state && state.lang && state.lang!=='system') return state.lang;
   const n=(navigator.language||'en').slice(0,2).toLowerCase();
@@ -574,8 +612,8 @@ function seedGroup(id){
   if(id!=='ijburg') return [];
   const now=new Date(); const d=h=>new Date(now.getTime()-h*3600e3).toISOString();
   return [
-    {id:101, species:"Barsch", weight:0.8, length:28, location:"IJmeer, Steg", angler:"JC", date:d(50), notes:"", photo:null, userId:"demo-user"},
-    {id:102, species:"Hecht", weight:4.2, length:78, location:"IJburg, Brücke", angler:"Tom", date:d(120), notes:"", photo:null, userId:"demo-other"}
+    {id:101, species:"Barsch", weight:0.8, length:28, location:"IJmeer, Steg", angler:"JC", date:d(50), notes:"", photo:null, userId:"demo-user", lat:52.3540, lon:5.0050},
+    {id:102, species:"Hecht", weight:4.2, length:78, location:"IJburg, Brücke", angler:"Tom", date:d(120), notes:"", photo:null, userId:"demo-other", lat:52.3500, lon:4.9950}
   ];
 }
 const FISH_IC=`<svg class="fishic" viewBox="0 0 120 120"><path d="M46 60 C58 45 78 45 90 60 C78 75 58 75 46 60 Z"/><path d="M48 60 L30 49 L35 60 L30 71 Z"/></svg>`;
@@ -592,15 +630,15 @@ function seed(){
   const now = new Date();
   const d = (h)=> new Date(now.getTime()-h*3600e3).toISOString();
   return [
-    {id:1, species:"Karpfen", weight:5.5, length:38, location:"Vereinsteich, Platz 4", angler:"J. Claudi", date:d(4),    notes:"Mais am Rand, bewölkt.", photo:null, userId:"demo-user"},
-    {id:2, species:"Hecht",   weight:3.6, length:62, location:"Altarm, Boot",          angler:"M. Wagner", date:d(30),   notes:"Auf Gummifisch.",       photo:null, userId:"demo-other"},
-    {id:3, species:"Zander",  weight:2.1, length:55, location:"Altarm, Steg",          angler:"M. Wagner", date:d(400),  notes:"Dämmerung.",             photo:null, userId:"demo-other"},
-    {id:4, species:"Rotauge", weight:0.5, length:24, location:"Vereinsteich, Steg",    angler:"J. Claudi", date:d(78),   notes:"",                        photo:null, userId:"demo-user"},
+    {id:1, species:"Karpfen", weight:5.5, length:38, location:"Vereinsteich, Platz 4", angler:"J. Claudi", date:d(4),    notes:"Mais am Rand, bewölkt.", photo:null, userId:"demo-user", lat:52.4200, lon:13.2000},
+    {id:2, species:"Hecht",   weight:3.6, length:62, location:"Altarm, Boot",          angler:"M. Wagner", date:d(30),   notes:"Auf Gummifisch.",       photo:null, userId:"demo-other", lat:52.4255, lon:13.2110},
+    {id:3, species:"Zander",  weight:2.1, length:55, location:"Altarm, Steg",          angler:"M. Wagner", date:d(400),  notes:"Dämmerung.",             photo:null, userId:"demo-other", lat:52.4260, lon:13.2120},
+    {id:4, species:"Rotauge", weight:0.5, length:24, location:"Vereinsteich, Steg",    angler:"J. Claudi", date:d(78),   notes:"",                        photo:null, userId:"demo-user", lat:52.4190, lon:13.2015},
   ];
 }
 
 let state = { club:null, mode:"club", soloName:null, user:null, userId:null, me:null,
-  catches:[], editPhoto:null, current:null, speciesKey:null, editId:null, filterTarget:"list",
+  catches:[], editPhoto:null, current:null, speciesKey:null, editId:null, formLat:null, formLon:null, filterTarget:"list",
   measure:"length", theme:"system", lang:"system", sort:"newest", logos:{}, soloAvatar:null, filter:emptyFilter() };
 
 function emptyFilter(){ return {year:"",month:"",from:"",to:"",species:"",angler:"",ort:"",lmin:"",lmax:"",wmin:"",wmax:"",ctx:""}; }
@@ -846,6 +884,7 @@ function renderStats(){
   const fc=document.getElementById('stats-filter-count');
   if(cnt>0){ fc.style.display='inline-block'; fc.textContent=cnt; } else fc.style.display='none';
   const items=myCatches().filter(matchesFilter);
+  ensureStatsMap(items);
   const isLen=state.measure==='length';
   let big=null;
   items.forEach(c=>{ const v=isLen?c.length:c.weight; if(v!=null && (big==null || v>(isLen?big.length:big.weight))) big=c; });
@@ -881,6 +920,157 @@ function renderStats(){
   });
 }
 
+// ---------- maps & weather ----------
+let fMap=null, fMarker=null, dMap=null, dMarker=null, sMap=null, sMarkers=[];
+const DEFAULT_CENTER=[52.37, 4.90];
+const TILE='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_OPT={maxZoom:19, attribution:'© OpenStreetMap'};
+function ensureFormMap(lat, lon){
+  if(typeof L==='undefined') return;
+  const has=(lat!=null&&lon!=null);
+  const center=has?[lat,lon]:DEFAULT_CENTER;
+  if(!fMap){
+    fMap=L.map('f-map',{zoomControl:true}).setView(center, has?13:6);
+    L.tileLayer(TILE,TILE_OPT).addTo(fMap);
+    fMap.on('click', e=>setFormPin(e.latlng.lat, e.latlng.lng));
+  } else { fMap.setView(center, has?13:fMap.getZoom()); }
+  setTimeout(()=>{ try{fMap.invalidateSize();}catch(e){} }, 80);
+  if(has) setFormPin(lat,lon);
+  else { if(fMarker){ fMap.removeLayer(fMarker); fMarker=null; } state.formLat=null; state.formLon=null; document.getElementById('f-coord').textContent=t('tapMap'); }
+}
+function setFormPin(lat, lon){
+  state.formLat=lat; state.formLon=lon;
+  if(!fMarker){ fMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:2,fillColor:'#C2502A',fillOpacity:1}).addTo(fMap); }
+  else fMarker.setLatLng([lat,lon]);
+  document.getElementById('f-coord').textContent = lat.toFixed(5)+', '+lon.toFixed(5);
+}
+function useMyLocation(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(p=>{
+    const lat=p.coords.latitude, lon=p.coords.longitude;
+    if(fMap) fMap.setView([lat,lon],14);
+    setFormPin(lat,lon);
+  }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
+}
+function ensureDetailMap(lat,lon){
+  if(typeof L==='undefined'||lat==null) return;
+  if(!dMap){
+    dMap=L.map('d-map',{zoomControl:false, attributionControl:false, scrollWheelZoom:false}).setView([lat,lon],13);
+    L.tileLayer(TILE,TILE_OPT).addTo(dMap);
+    dMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:2,fillColor:'#C2502A',fillOpacity:1}).addTo(dMap);
+  } else { dMap.setView([lat,lon],13); dMarker.setLatLng([lat,lon]); }
+  setTimeout(()=>{ try{dMap.invalidateSize();}catch(e){} }, 80);
+}
+function ensureStatsMap(items){
+  const wrap=document.getElementById('stats-map');
+  const pts=items.filter(c=>c.lat!=null&&c.lon!=null);
+  if(typeof L==='undefined'||!pts.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  if(!sMap){
+    sMap=L.map('stats-map',{zoomControl:true}).setView([pts[0].lat,pts[0].lon],6);
+    L.tileLayer(TILE,TILE_OPT).addTo(sMap);
+  }
+  sMarkers.forEach(m=>sMap.removeLayer(m)); sMarkers=[];
+  const bounds=[];
+  pts.forEach(c=>{
+    const m=L.circleMarker([c.lat,c.lon],{radius:7,color:'#fff',weight:2,fillColor:'#16263F',fillOpacity:1}).addTo(sMap);
+    m.on('click', ()=>openDetailObj(c,'stats'));
+    sMarkers.push(m); bounds.push([c.lat,c.lon]);
+  });
+  if(bounds.length>1){ try{ sMap.fitBounds(bounds,{padding:[24,24], maxZoom:13}); }catch(e){} }
+  else sMap.setView(bounds[0],12);
+  setTimeout(()=>{ try{sMap.invalidateSize();}catch(e){} }, 80);
+}
+function openInMaps(){
+  const c=state.current; if(!c||c.lat==null) return;
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const url = ios ? `https://maps.apple.com/?ll=${c.lat},${c.lon}&q=${encodeURIComponent(c.location||trSpecies(c.species))}`
+                  : `https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lon}`;
+  window.open(url,'_blank');
+}
+function moonPhaseKey(date){
+  const lunar=29.530588853;
+  const ref=Date.UTC(2000,0,6,18,14);
+  let p=(((date.getTime()-ref)/86400000)%lunar)/lunar; if(p<0) p+=1;
+  return ['m_new','m_wc','m_fq','m_wg','m_full','m_ng','m_lq','m_nc'][Math.floor(p*8+0.5)%8];
+}
+function moonEmoji(key){ return {m_new:'\u{1F311}',m_wc:'\u{1F312}',m_fq:'\u{1F313}',m_wg:'\u{1F314}',m_full:'\u{1F315}',m_ng:'\u{1F316}',m_lq:'\u{1F317}',m_nc:'\u{1F318}'}[key]||''; }
+function isoDateOnly(d){ const x=new Date(d); x.setMinutes(x.getMinutes()-x.getTimezoneOffset()); return x.toISOString().slice(0,10); }
+function weatherCodeKey(code){
+  if(code==null) return null;
+  if(code===0) return 'wc_clear';
+  if(code<=2) return 'wc_partly';
+  if(code===3) return 'wc_cloudy';
+  if(code===45||code===48) return 'wc_fog';
+  if(code>=51&&code<=57) return 'wc_drizzle';
+  if((code>=61&&code<=67)||(code>=80&&code<=82)) return 'wc_rain';
+  if((code>=71&&code<=77)||(code>=85&&code<=86)) return 'wc_snow';
+  if(code>=95) return 'wc_thunder';
+  return 'wc_cloudy';
+}
+async function enrichWeather(c){
+  if(!c || c.lat==null || c.weather) return;
+  const dt=new Date(c.date);
+  const end=isoDateOnly(dt);
+  const start=isoDateOnly(new Date(dt.getTime()-7*86400000));
+  const recent=(Date.now()-dt.getTime())<6*86400000;
+  const base=recent?'https://api.open-meteo.com/v1/forecast':'https://archive-api.open-meteo.com/v1/archive';
+  const common='&hourly=temperature_2m,pressure_msl,weather_code,wind_speed_10m&daily=temperature_2m_mean,pressure_msl_mean&timezone=auto';
+  const url = recent
+    ? `${base}?latitude=${c.lat}&longitude=${c.lon}&past_days=8&forecast_days=1${common}`
+    : `${base}?latitude=${c.lat}&longitude=${c.lon}&start_date=${start}&end_date=${end}${common}`;
+  try{
+    const j=await (await fetch(url)).json();
+    let cur=null;
+    if(j.hourly && j.hourly.time && j.hourly.time.length){
+      const tt=dt.getTime(); let bi=0,bd=Infinity;
+      j.hourly.time.forEach((s,i)=>{ const dd=Math.abs(new Date(s).getTime()-tt); if(dd<bd){bd=dd;bi=i;} });
+      cur={temp:j.hourly.temperature_2m[bi], pressure:j.hourly.pressure_msl[bi], code:j.hourly.weather_code[bi], wind:j.hourly.wind_speed_10m[bi]};
+    }
+    let daily=[];
+    if(j.daily && j.daily.time){
+      daily=j.daily.time.map((d,i)=>({date:d, tmean:j.daily.temperature_2m_mean[i]}))
+            .filter(d=>d.date<=end).slice(-7);
+    }
+    c.weather={cur, daily};
+    saveCatches();
+    if(state.current && state.current===c) renderWeather(c);
+  }catch(e){}
+}
+function renderWeather(c){
+  const wrap=document.getElementById('d-weather-wrap'); const box=document.getElementById('d-weather');
+  if(!c.weather || !c.weather.cur){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const cur=c.weather.cur, daily=c.weather.daily||[];
+  const sep=curLang()==='en'?'.':',';
+  const num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',sep);
+  const condKey=weatherCodeKey(cur.code);
+  const moonKey=c.moon||moonPhaseKey(new Date(c.date));
+  let html=`
+    <div class="wrow"><span class="k">${t('wCond')}</span><span class="v">${condKey?t(condKey):'—'}</span></div>
+    <div class="wrow"><span class="k">${t('wTemp')}</span><span class="v">${num(cur.temp,1)} °C</span></div>
+    <div class="wrow"><span class="k">${t('wWind')}</span><span class="v">${num(cur.wind,0)} km/h</span></div>
+    <div class="wrow"><span class="k">${t('wPressure')}</span><span class="v">${num(cur.pressure,0)} hPa</span></div>
+    <div class="wrow"><span class="k">${t('moon')}</span><span class="v">${moonEmoji(moonKey)} ${t(moonKey)}</span></div>`;
+  if(daily.length){
+    const temps=daily.map(d=>d.tmean);
+    const last=temps[temps.length-1];
+    const d3=temps.length>=4?(last-temps[temps.length-4]):null;
+    const d7=temps.length>=2?(last-temps[0]):null;
+    const arrow=v=> v==null?'':(v>0.3?'↑':(v<-0.3?'↓':'→'));
+    html+=`<div class="wrow"><span class="k">${t('trend3')}</span><span class="v">${d3==null?'—':arrow(d3)+' '+num(Math.abs(d3),1)+' °C'}</span></div>`;
+    html+=`<div class="wrow" style="border-bottom:none;"><span class="k">${t('trend7')}</span><span class="v">${d7==null?'—':arrow(d7)+' '+num(Math.abs(d7),1)+' °C'}</span></div>`;
+    html+=sparklineSvg(temps);
+  }
+  box.innerHTML=html;
+}
+function sparklineSvg(vals){
+  const w=280,h=46,p=4, min=Math.min(...vals), max=Math.max(...vals), rng=(max-min)||1;
+  const step=(w-2*p)/((vals.length-1)||1);
+  const pts=vals.map((v,i)=>`${(p+i*step).toFixed(1)},${(h-p-((v-min)/rng)*(h-2*p)).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="var(--rust)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
 // ---------- form ----------
 function nowLocal(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
 function openForm(){
@@ -892,7 +1082,9 @@ function openForm(){
   document.getElementById('f-date').max=nowLocal();
   buildAnglerOptions();
   document.getElementById('form-err').style.display='none';
+  state.formLat=null; state.formLon=null;
   clearPhoto(); closeSpecies(); go('form');
+  ensureFormMap(null,null);
 }
 function isoToLocalInput(iso){ const d=new Date(iso); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
 function openEdit(c){
@@ -911,6 +1103,8 @@ function openEdit(c){
   if(sel.value!==c.angler){ sel.value='__other__'; const o=document.getElementById('f-angler-other'); o.style.display='block'; o.value=c.angler; }
   if(c.photo){ state.editPhoto=c.photo; document.getElementById('photo-img').src=c.photo;
     document.getElementById('photo-prev').style.display='block'; document.getElementById('photo-drop').style.display='none'; }
+  state.formLat = c.lat!=null?c.lat:null; state.formLon = c.lon!=null?c.lon:null;
+  ensureFormMap(state.formLat, state.formLon);
 }
 function deleteCatch(id){
   if(!window.confirm(t('delConfirm'))) return;
@@ -952,7 +1146,9 @@ function saveCatch(){
     location:document.getElementById('f-location').value.trim(),
     angler, date:new Date(date).toISOString(),
     notes:document.getElementById('f-notes').value.trim(),
-    photo: state.editPhoto, userId: state.userId || null
+    photo: state.editPhoto, userId: state.userId || null,
+    lat: state.formLat!=null?state.formLat:null, lon: state.formLon!=null?state.formLon:null,
+    moon: moonPhaseKey(new Date(date))
   };
   if(state.editId){
     const idx=state.catches.findIndex(x=>x.id===state.editId);
@@ -960,6 +1156,7 @@ function saveCatch(){
     state.editId=null; saveCatches(); renderList(); openDetailObj(obj,'list');
   } else {
     state.catches.push(obj); saveCatches(); renderList(); go('list');
+    if(obj.lat!=null) enrichWeather(obj);
   }
 }
 function onPhoto(e){
@@ -1015,7 +1212,12 @@ function openDetailObj(c, from){
   const editable = state.detailFrom==='list';
   document.getElementById('edit-btn').style.display = editable ? '' : 'none';
   document.getElementById('del-btn').style.display = editable ? '' : 'none';
+  const mw=document.getElementById('d-map-wrap');
+  mw.style.display = c.lat!=null ? 'block' : 'none';
+  if(c.weather) renderWeather(c);
+  else { document.getElementById('d-weather-wrap').style.display='none'; if(c.lat!=null) enrichWeather(c); }
   go('detail');
+  if(c.lat!=null) ensureDetailMap(c.lat,c.lon);
 }
 
 // ---------- share ----------
