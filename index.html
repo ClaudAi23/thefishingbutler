@@ -410,6 +410,11 @@
         </div>
       </div>
 
+      <div class="field" id="ff-watertemp">
+        <label data-i18n="watertemp">Wassertemperatur (°C)</label>
+        <input id="f-watertemp" type="number" inputmode="decimal" step="0.1" placeholder="z. B. 18" data-i18n-ph="watertempPh" />
+      </div>
+
       <div class="field" id="ff-mapPin">
         <label data-i18n="mapPin">Standort auf Karte</label>
         <div id="f-map" class="map"></div>
@@ -709,11 +714,11 @@ Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", ta
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
-Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"Boot", methodPh:"z. B. Spinnfischen", baitPh:"z. B. Gummifisch 12 cm", rodPh:"z. B. 2,70 m / 40 g", boatPh:"z. B. Schlauchboot", fieldsTitle:"Fang-Felder", fieldsHint:"Lege fest, welche Felder beim Eintragen erscheinen und welche Pflicht sind. Gilt für diesen Bereich. (In dieser Demo für alle freigeschaltet; im echten Verein nur für den Admin.)", stRequired:"Pflicht", stOptional:"Optional", stOff:"Aus", moreFields:"Weitere Felder", errRequired:"Bitte Pflichtfelder ausfüllen:", shareTitle:"Teilen-Vorlage", shareModeFields:"Felder", shareModeTemplate:"Eigene Vorlage", sharePreview:"Vorschau", shareLink:"Link zur App", shareHint:"Gilt für diesen Bereich (Solo / Gruppe / Verein).", sharePhHint:"Platzhalter: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Als CSV exportieren", exportPdf:"Als PDF exportieren (mit Fotos)", exportEmpty:"Keine Fänge zum Exportieren.", exportPdfErr:"PDF-Export konnte nicht geladen werden (Internet nötig)."});
+Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"Boot", watertemp:"Wassertemperatur (°C)", watertempPh:"z. B. 18", methodPh:"z. B. Spinnfischen", baitPh:"z. B. Gummifisch 12 cm", rodPh:"z. B. 2,70 m / 40 g", boatPh:"z. B. Schlauchboot", fieldsTitle:"Fang-Felder", fieldsHint:"Lege fest, welche Felder beim Eintragen erscheinen und welche Pflicht sind. Gilt für diesen Bereich. (In dieser Demo für alle freigeschaltet; im echten Verein nur für den Admin.)", stRequired:"Pflicht", stOptional:"Optional", stOff:"Aus", moreFields:"Weitere Felder", errRequired:"Bitte Pflichtfelder ausfüllen:", shareTitle:"Teilen-Vorlage", shareModeFields:"Felder", shareModeTemplate:"Eigene Vorlage", sharePreview:"Vorschau", shareLink:"Link zur App", shareHint:"Gilt für diesen Bereich (Solo / Gruppe / Verein).", sharePhHint:"Platzhalter: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Als CSV exportieren", exportPdf:"Als PDF exportieren (mit Fotos)", exportEmpty:"Keine Fänge zum Exportieren.", exportPdfErr:"PDF-Export konnte nicht geladen werden (Internet nötig)."});
 Object.assign(I18N.en, {demoHint:"Demo: fields are pre-filled — just tap Sign in.", photos:"Photos", cover:"Cover", setCover:"Set as cover", photoHint:"Up to 10 photos. With several, tap the star ☆ to choose the cover."});
-Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", boatPh:"e.g. dinghy", fieldsTitle:"Catch fields", fieldsHint:"Choose which fields appear when logging and which are required. Applies to this area. (Open to all in this demo; admin-only in a real club.)", stRequired:"Required", stOptional:"Optional", stOff:"Off", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Share template", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
+Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", watertemp:"Water temperature (°C)", watertempPh:"e.g. 18", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", boatPh:"e.g. dinghy", fieldsTitle:"Catch fields", fieldsHint:"Choose which fields appear when logging and which are required. Applies to this area. (Open to all in this demo; admin-only in a real club.)", stRequired:"Required", stOptional:"Optional", stOff:"Off", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Share template", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
 Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon op Inloggen.", photos:"Foto's", cover:"Omslag", setCover:"Als omslag", photoHint:"Tot 10 foto's. Tik bij meerdere op de ster ☆ om de omslag te kiezen."});
-Object.assign(I18N.nl, {method:"Methode", bait:"Aas", rod:"Hengel", boat:"Boot", methodPh:"bijv. Kunstaasvissen", baitPh:"bijv. shad 12 cm", rodPh:"bijv. 2,70 m / 40 g", boatPh:"bijv. rubberboot", fieldsTitle:"Vangstvelden", fieldsHint:"Bepaal welke velden verschijnen bij het loggen en welke verplicht zijn. Geldt voor dit gebied. (In deze demo voor iedereen; in een echte vereniging alleen de beheerder.)", stRequired:"Verplicht", stOptional:"Optioneel", stOff:"Uit", moreFields:"Meer velden", errRequired:"Vul de verplichte velden in:", shareTitle:"Deelsjabloon", shareModeFields:"Velden", shareModeTemplate:"Eigen sjabloon", sharePreview:"Voorbeeld", shareLink:"App-link", shareHint:"Geldt voor dit gebied (Solo / groep / vereniging).", sharePhHint:"Tijdelijke aanduidingen: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Exporteren als CSV", exportPdf:"Exporteren als PDF (met foto's)", exportEmpty:"Geen vangsten om te exporteren.", exportPdfErr:"Kon PDF-export niet laden (internet vereist)."});
+Object.assign(I18N.nl, {method:"Methode", bait:"Aas", rod:"Hengel", boat:"Boot", watertemp:"Watertemperatuur (°C)", watertempPh:"bijv. 18", methodPh:"bijv. Kunstaasvissen", baitPh:"bijv. shad 12 cm", rodPh:"bijv. 2,70 m / 40 g", boatPh:"bijv. rubberboot", fieldsTitle:"Vangstvelden", fieldsHint:"Bepaal welke velden verschijnen bij het loggen en welke verplicht zijn. Geldt voor dit gebied. (In deze demo voor iedereen; in een echte vereniging alleen de beheerder.)", stRequired:"Verplicht", stOptional:"Optioneel", stOff:"Uit", moreFields:"Meer velden", errRequired:"Vul de verplichte velden in:", shareTitle:"Deelsjabloon", shareModeFields:"Velden", shareModeTemplate:"Eigen sjabloon", sharePreview:"Voorbeeld", shareLink:"App-link", shareHint:"Geldt voor dit gebied (Solo / groep / vereniging).", sharePhHint:"Tijdelijke aanduidingen: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Exporteren als CSV", exportPdf:"Exporteren als PDF (met foto's)", exportEmpty:"Geen vangsten om te exporteren.", exportPdfErr:"Kon PDF-export niet laden (internet vereist)."});
 function curLang(){
   if(state && state.lang && state.lang!=='system') return state.lang;
   const n=(navigator.language||'en').slice(0,2).toLowerCase();
@@ -928,6 +933,7 @@ function signOut(){ state.me=null; savePrefs(); document.getElementById('login-n
 // ---------- formatting ----------
 function fmtWeight(w){ if(w==null) return '—'; const sep=curLang()==='en'?'.':','; return String(w).replace('.',sep)+' kg'; }
 function fmtLen(l){ return (l!=null)? l+' cm' : '—'; }
+function fmtTemp(v){ if(v==null) return '—'; const sep=curLang()==='en'?'.':','; return String(v).replace('.',sep)+' °C'; }
 function fmtDate(iso){ const d=new Date(iso); const dot=curLang()==='de'?'. ':' '; return d.getDate()+dot+MONTHS[curLang()].s[d.getMonth()]; }
 function fmtDateLong(iso){
   const d=new Date(iso); const p=n=>String(n).padStart(2,'0'); const dot=curLang()==='de'?'. ':' ';
@@ -980,7 +986,7 @@ function setSort(v){ state.sort=v; savePrefs(); try{renderList();}catch(e){} try
 function csvCell(v){ v=(v==null?'':String(v)).replace(/"/g,'""').replace(/[\r\n]+/g,' '); return '"'+v+'"'; }
 function buildCsv(items, target){
   const sep=';';
-  const head=['Datum','Fischart','Länge (cm)','Gewicht (kg)','Methode','Köder','Rute','Boot','Gewässer','Lat','Lon','Angler','Bereich','Mondphase','Wetter','Notizen'];
+  const head=['Datum','Fischart','Länge (cm)','Gewicht (kg)','Methode','Köder','Rute','Boot','Wassertemp (°C)','Gewässer','Lat','Lon','Angler','Bereich','Mondphase','Wetter','Notizen'];
   const lines=[head.map(csvCell).join(sep)];
   items.forEach(c=>{
     const d=new Date(c.date), p=n=>String(n).padStart(2,'0');
@@ -989,7 +995,8 @@ function buildCsv(items, target){
     const bereich = target==='stats' ? (c._ctx||'') : (state.mode==='solo'?t('solo'):(state.club?state.club.name:''));
     const vals=[dstr, trSpecies(c.species),
       c.length!=null?c.length:'', c.weight!=null?String(c.weight).replace('.',','):'',
-      c.method||'', c.bait||'', c.rod||'', c.boat||'', c.location||'',
+      c.method||'', c.bait||'', c.rod||'', c.boat||'',
+      c.watertemp!=null?String(c.watertemp).replace('.',','):'', c.location||'',
       c.lat!=null?c.lat:'', c.lon!=null?c.lon:'', c.angler||'', bereich,
       c.moon?t(c.moon):'', wetter, c.notes||''];
     lines.push(vals.map(csvCell).join(sep));
@@ -1041,6 +1048,7 @@ async function exportPdf(target){
     if(c.bait) det.push(t('bait')+': '+c.bait);
     if(c.rod) det.push(t('rod')+': '+c.rod);
     if(c.boat) det.push(t('boat')+': '+c.boat);
+    if(c.watertemp!=null) det.push(t('watertemp')+': '+fmtTemp(c.watertemp));
     det.push(t('dAngler')+': '+c.angler);
     det.push(t('dDate')+': '+fmtDateLong(c.date));
     if(c.weather&&c.weather.cur){ const cw=c.weather.cur,ck=weatherCodeKey(cw.code); det.push(t('weather')+': '+[ck?t(ck):null,cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', ')); }
@@ -1390,11 +1398,12 @@ const CFG_FIELDS=[
   {key:'bait',    i18n:'bait'},
   {key:'rod',     i18n:'rod'},
   {key:'boat',    i18n:'boat'},
+  {key:'watertemp',i18n:'watertemp'},
   {key:'mapPin',  i18n:'mapPin'},
   {key:'photos',  i18n:'photos'},
   {key:'notes',   i18n:'notes'},
 ];
-const DEFAULT_FIELD_CFG={length:'optional',weight:'optional',location:'optional',method:'optional',bait:'optional',rod:'off',boat:'off',mapPin:'optional',photos:'optional',notes:'optional'};
+const DEFAULT_FIELD_CFG={length:'optional',weight:'optional',location:'optional',method:'optional',bait:'optional',rod:'off',boat:'off',watertemp:'off',mapPin:'optional',photos:'optional',notes:'optional'};
 function fieldCfgKey(){ return 'fanglog_fields_'+ctxKey(state.mode, state.club&&state.club.id); }
 function getFieldCfg(){ let c=null; try{ c=JSON.parse(localStorage.getItem(fieldCfgKey())); }catch(e){} return Object.assign({}, DEFAULT_FIELD_CFG, c||{}); }
 function setFieldCfg(c){ try{ localStorage.setItem(fieldCfgKey(), JSON.stringify(c)); }catch(e){} }
@@ -1415,6 +1424,7 @@ function fieldHasValue(key){
     case 'bait': return document.getElementById('f-bait').value.trim()!=='';
     case 'rod': return document.getElementById('f-rod').value.trim()!=='';
     case 'boat': return document.getElementById('f-boat').value.trim()!=='';
+    case 'watertemp': return document.getElementById('f-watertemp').value.trim()!=='';
     case 'mapPin': return state.formLat!=null;
     case 'photos': return state.editPhotos.length>0;
     case 'notes': return document.getElementById('f-notes').value.trim()!=='';
@@ -1473,7 +1483,7 @@ function updateSharePreview(){ const el=document.getElementById('share-preview')
 // ---------- form ----------
 function nowLocal(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
 function openForm(skipAuto){
-  ['f-species','f-weight','f-length','f-location','f-notes','f-method','f-bait','f-rod','f-boat'].forEach(id=>document.getElementById(id).value='');
+  ['f-species','f-weight','f-length','f-location','f-notes','f-method','f-bait','f-rod','f-boat','f-watertemp'].forEach(id=>document.getElementById(id).value='');
   state.speciesKey=null; state.editId=null; state.showMore=false;
   fillMethodsDatalist(); applyFieldConfig();
   document.getElementById('f-title').textContent=t('logCatch');
@@ -1507,6 +1517,7 @@ function openEdit(c){
   document.getElementById('f-bait').value = c.bait||'';
   document.getElementById('f-rod').value = c.rod||'';
   document.getElementById('f-boat').value = c.boat||'';
+  document.getElementById('f-watertemp').value = c.watertemp!=null? c.watertemp : '';
   state.editPhotos = photosOf(c).slice(); renderFormPhotos();
   state.formLat = c.lat!=null?c.lat:null; state.formLon = c.lon!=null?c.lon:null;
   ensureFormMap(state.formLat, state.formLon);
@@ -1561,6 +1572,7 @@ function saveCatch(){
     bait:document.getElementById('f-bait').value.trim(),
     rod:document.getElementById('f-rod').value.trim(),
     boat:document.getElementById('f-boat').value.trim(),
+    watertemp: document.getElementById('f-watertemp').value.trim()!=='' ? parseFloat(document.getElementById('f-watertemp').value.replace(',','.')) : null,
     angler, date:new Date(date).toISOString(),
     notes:document.getElementById('f-notes').value.trim(),
     photos: state.editPhotos.slice(), photo: state.editPhotos[0] || null, userId: state.userId || null,
@@ -1674,6 +1686,7 @@ function openDetailObj(c, from){
   if(c.bait) rows.push([t('bait'), c.bait]);
   if(c.rod) rows.push([t('rod'), c.rod]);
   if(c.boat) rows.push([t('boat'), c.boat]);
+  if(c.watertemp!=null) rows.push([t('watertemp'), fmtTemp(c.watertemp)]);
   rows.push([t('dDate'),fmtDateLong(c.date)]);
   document.getElementById('d-rows').innerHTML=rows.map(r=>`<div class="drow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('');
   const nw=document.getElementById('d-notes-wrap');
@@ -1700,6 +1713,7 @@ const SHARE_FIELDS=[
   {key:'bait',    i18n:'bait'},
   {key:'rod',     i18n:'rod'},
   {key:'boat',    i18n:'boat'},
+  {key:'watertemp',i18n:'watertemp'},
   {key:'location',i18n:'water'},
   {key:'datetime',i18n:'datetime'},
   {key:'angler',  i18n:'angler'},
@@ -1709,7 +1723,7 @@ const SHARE_FIELDS=[
   {key:'link',    i18n:'shareLink'},
 ];
 const DEFAULT_SHARE_CFG={ mode:'fields',
-  fields:{species:true,length:true,weight:true,method:false,bait:false,rod:false,boat:false,location:true,datetime:true,angler:true,weather:false,moon:false,notes:false,link:true},
+  fields:{species:true,length:true,weight:true,method:false,bait:false,rod:false,boat:false,watertemp:false,location:true,datetime:true,angler:true,weather:false,moon:false,notes:false,link:true},
   template:'' };
 function shareCfgKeyFor(c){
   if(c && c._ctxType){
@@ -1735,7 +1749,7 @@ function shareTokens(c){
   const len=c.length!=null?fmtLen(c.length):'', gew=c.weight!=null?fmtWeight(c.weight):'';
   return {petri:t('petri'), art:trSpecies(c.species), 'länge':len, laenge:len, gewicht:gew,
     'maße':size, masse:size, methode:c.method||'', 'köder':c.bait||'', koeder:c.bait||'',
-    rute:c.rod||'', boot:c.boat||'', ort:c.location||'', datum:fmtDateLong(c.date), angler:c.angler||'',
+    rute:c.rod||'', boot:c.boat||'', wassertemp:c.watertemp!=null?fmtTemp(c.watertemp):'', ort:c.location||'', datum:fmtDateLong(c.date), angler:c.angler||'',
     wetter, mond, notiz:c.notes||'', link:APP_URL, bereich:ctxName};
 }
 function fillTemplate(tpl, tok){
@@ -1754,6 +1768,7 @@ function catchText(c){
   lines.push(l1);
   const mb=[]; if(f.method&&tok.methode) mb.push(t('method')+': '+tok.methode); if(f.bait&&tok['köder']) mb.push(t('bait')+': '+tok['köder']);
   if(f.rod&&tok.rute) mb.push(t('rod')+': '+tok.rute); if(f.boat&&tok.boot) mb.push(t('boat')+': '+tok.boot);
+  if(f.watertemp&&tok.wassertemp) mb.push(t('watertemp')+': '+tok.wassertemp);
   if(mb.length) lines.push(mb.join(' · '));
   if(f.location&&tok.ort) lines.push(t('shareWater')+' '+tok.ort);
   const dl=[]; if(f.datetime) dl.push(tok.datum); if(f.angler&&tok.angler) dl.push(tok.angler);
