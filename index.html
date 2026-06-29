@@ -255,8 +255,12 @@
   .ffrow:last-child{border-bottom:none;}
   .ffname{display:block; font-size:14px; font-weight:500; margin-bottom:8px;}
   .ffseg button{font-size:12px; padding:7px 4px;}
-  .chkrow{display:flex; align-items:center; gap:10px; padding:8px 0; font-size:14px; cursor:pointer;}
-  .chkrow input{width:18px; height:18px; accent-color:var(--teal); flex:0 0 auto;}
+  .chkrow{display:flex; align-items:center; gap:12px; padding:8px 0; font-size:14px; cursor:pointer;}
+  .chkrow input{appearance:none; -webkit-appearance:none; width:22px; height:22px; flex:0 0 auto; margin:0;
+    border:1.5px solid var(--border-2); border-radius:6px; background:var(--surface-2); position:relative; cursor:pointer;}
+  .chkrow input:checked{background:var(--teal); border-color:var(--teal);}
+  .chkrow input:checked::after{content:''; position:absolute; left:7px; top:3px; width:5px; height:10px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);}
   #share-template{width:100%; font-family:inherit; font-size:14px; resize:vertical;}
   .share-prev{white-space:pre-wrap; word-break:break-word; background:var(--surface-2); border:1px solid var(--border);
     border-radius:8px; padding:12px; font-size:13px; color:var(--text); font-family:inherit; margin:0;}
