@@ -1702,7 +1702,7 @@ function onPhoto(e){
   document.getElementById('f-photo').value='';
 }
 // ---------- EXIF auto-fill from an uploaded photo (opportunistic) ----------
-async function ensureExifr(){ if(window.exifr) return; await loadScript('https://cdnjs.cloudflare.com/ajax/libs/exifr/7.1.3/full.umd.js'); }
+async function ensureExifr(){ if(window.exifr) return; await loadScript('https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js'); }
 async function tryExifPrefill(file){
   if(!file || state.editId) return;
   try{
@@ -1934,7 +1934,7 @@ function openSettings(){
   syncMeasureSeg();
   syncThemeSeg();
   syncLangSel();
-  setSettingsTab(state.settingsTab || 'personal');
+  setSettingsTab('personal');
   go('settings');
 }
 function setSettingsTab(tab){
