@@ -496,6 +496,22 @@
       <div><h1 data-i18n="settings">Einstellungen</h1><p class="sub" id="set-sub">—</p></div>
     </div>
     <div class="scroll pad">
+      <div class="sectionlabel" data-i18n="profile">Profil</div>
+      <div class="card-box">
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+          <div id="prof-av" class="hdr-logo" style="width:54px; height:54px; border-radius:12px;"></div>
+          <div>
+            <div id="prof-name" style="font-weight:600;">—</div>
+            <div class="hint" style="margin:0;" data-i18n="initialsDefault">Standard: deine Initialen</div>
+          </div>
+        </div>
+        <label data-i18n="name">Name</label>
+        <input id="prof-name-input" type="text" autocomplete="off" oninput="onProfileName(this.value)" />
+        <p class="hint" data-i18n="nameHint">Wird bei deinen Fängen und als Initialen genutzt.</p>
+        <button class="btn secondary sm" onclick="document.getElementById('prof-av-file').click()" data-i18n="uploadImage">Bild hochladen</button>
+        <input id="prof-av-file" type="file" accept="image/*" style="display:none" onchange="onUserAvatar(event)" />
+      </div>
+
       <div class="sectionlabel" data-i18n="display">Anzeige</div>
       <div class="card-box">
         <label style="margin-bottom:10px;" data-i18n="appearance">Darstellung</label>
@@ -539,22 +555,6 @@
           <p class="hint" data-i18n="logoHint">Nur der Vereinsadmin sollte das Logo ändern. (In dieser Demo für alle freigeschaltet.)</p>
         </div>
       </div>
-      <div class="sectionlabel" data-i18n="profile">Profil</div>
-      <div class="card-box">
-        <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-          <div id="prof-av" class="hdr-logo" style="width:54px; height:54px; border-radius:12px;"></div>
-          <div>
-            <div id="prof-name" style="font-weight:600;">—</div>
-            <div class="hint" style="margin:0;" data-i18n="initialsDefault">Standard: deine Initialen</div>
-          </div>
-        </div>
-        <label data-i18n="name">Name</label>
-        <input id="prof-name-input" type="text" autocomplete="off" oninput="onProfileName(this.value)" />
-        <p class="hint" data-i18n="nameHint">Wird bei deinen Fängen und als Initialen genutzt.</p>
-        <button class="btn secondary sm" onclick="document.getElementById('prof-av-file').click()" data-i18n="uploadImage">Bild hochladen</button>
-        <input id="prof-av-file" type="file" accept="image/*" style="display:none" onchange="onUserAvatar(event)" />
-      </div>
-
       <div class="sectionlabel" data-i18n="fieldsTitle">Fang-Felder</div>
       <div class="card-box">
         <div id="fields-cfg-list"></div>
@@ -667,7 +667,7 @@ const I18N = {
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
     catches:"Fänge", ttFilter:"Filter", ttSettings:"Einstellungen", ttLogout:"Abmelden", addCatch:"Fang eintragen", recent:"Neueste Fänge", filtered:"Gefilterte Fänge", total:"Fänge gesamt", hits:"Treffer", longestStat:"Längster Fang", heaviestStat:"Schwerster Fang", emptyNone:"Noch keine Fänge.<br>Trag deinen ersten Fang ein!", emptyFilter:"Keine Fänge für diesen Filter.",
-    logCatch:"Fang eintragen", newCatch:"Neuer Fang", photo:"Foto", addPhoto:"Foto hinzufügen", species:"Fischart", speciesPh:"Art wählen oder eingeben", lengthCm:"Länge (cm)", weightKg:"Gewicht (kg)", lengthPh:"z. B. 38", weightPh:"z. B. 5,5", water:"Gewässer / Platz", waterPh:"z. B. Vereinsteich, Platz 4", datetime:"Datum & Zeit", angler:"Angler", anglerOtherPh:"Name eingeben", notes:"Notizen", notesPh:"Köder, Wetter, Bemerkungen …", saveCatch:"Fang speichern", errFields:"Bitte Fischart, Datum und Angler ausfüllen.", errFuture:"Das Datum darf nicht in der Zukunft liegen.", other:"Andere…", speciesNew:"neue Art hinzufügen",
+    logCatch:"Fang eintragen", newCatch:"Neuer Fang", photo:"Foto", addPhoto:"Foto hinzufügen", species:"Fischart", speciesPh:"Art wählen oder eingeben", lengthCm:"Länge (cm)", weightKg:"Gewicht (kg)", lengthPh:"z. B. 38", weightPh:"z. B. 5,5", water:"Gewässer / Platz", waterPh:"z. B. Vereinsteich, Platz 4", datetime:"Datum & Zeit", angler:"Angler", anglerOtherPh:"Name eingeben", notes:"Notizen", notesPh:"z. B. Drill, Uhrzeit, Beifang, Stimmung …", saveCatch:"Fang speichern", errFields:"Bitte Fischart, Datum und Angler ausfüllen.", errFuture:"Das Datum darf nicht in der Zukunft liegen.", other:"Andere…", speciesNew:"neue Art hinzufügen",
     details:"Fang-Details", entry:"Eintrag", dAngler:"Angler", dWater:"Gewässer", dLength:"Länge", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Keine Maße erfasst", ttShare:"Teilen",
     settings:"Einstellungen", display:"Anzeige", appearance:"Darstellung", themeLight:"Hell", themeDark:"Dunkel", themeSystem:"System", themeHint:"„System\" folgt automatisch der Hell/Dunkel-Einstellung deines Geräts.", measureLabel:"Standard-Maß in Übersicht & Statistik", mLength:"Länge", mWeight:"Gewicht", measureHint:"Bestimmt, welches Maß in der Fangliste angezeigt wird und wonach der größte Fang berechnet wird.", language:"Sprache", clubLogoAdmin:"Vereinslogo · Admin", currentLogo:"Aktuelles Logo", uploadLogo:"Logo hochladen", logoHint:"Nur der Vereinsadmin sollte das Logo ändern. (In dieser Demo für alle freigeschaltet.)", myImage:"Mein Bild", initialsDefault:"Standard: deine Initialen", uploadImage:"Bild hochladen",
     filter:"Filter", narrow:"Fänge eingrenzen", ttReset:"Zurücksetzen", period:"Zeitraum", year:"Jahr", month:"Monat", from:"Von", to:"Bis", periodHint:"Entweder Jahr/Monat <em>oder</em> Von–Bis — sie schließen sich gegenseitig aus.", properties:"Eigenschaften", locationContains:"Ort / Gewässer enthält", locationPh:"z. B. Vereinsteich", lengthFrom:"Länge von (cm)", lengthTo:"Länge bis (cm)", weightFrom:"Gewicht von (kg)", weightTo:"Gewicht bis (kg)", minPh:"min", maxPh:"max", applyFilter:"Filter anwenden", reset:"Zurücksetzen", all:"Alle",
@@ -680,7 +680,7 @@ const I18N = {
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
     catches:"Catches", ttFilter:"Filter", ttSettings:"Settings", ttLogout:"Sign out", addCatch:"Log a catch", recent:"Latest catches", filtered:"Filtered catches", total:"Total catches", hits:"Matches", longestStat:"Longest catch", heaviestStat:"Heaviest catch", emptyNone:"No catches yet.<br>Log your first catch!", emptyFilter:"No catches for this filter.",
-    logCatch:"Log a catch", newCatch:"New catch", photo:"Photo", addPhoto:"Add photo", species:"Species", speciesPh:"Choose or type a species", lengthCm:"Length (cm)", weightKg:"Weight (kg)", lengthPh:"e.g. 38", weightPh:"e.g. 5.5", water:"Water / spot", waterPh:"e.g. Club pond, peg 4", datetime:"Date & time", angler:"Angler", anglerOtherPh:"Enter name", notes:"Notes", notesPh:"Bait, weather, remarks …", saveCatch:"Save catch", errFields:"Please fill in species, date and angler.", errFuture:"The date can't be in the future.", other:"Other…", speciesNew:"add new species",
+    logCatch:"Log a catch", newCatch:"New catch", photo:"Photo", addPhoto:"Add photo", species:"Species", speciesPh:"Choose or type a species", lengthCm:"Length (cm)", weightKg:"Weight (kg)", lengthPh:"e.g. 38", weightPh:"e.g. 5.5", water:"Water / spot", waterPh:"e.g. Club pond, peg 4", datetime:"Date & time", angler:"Angler", anglerOtherPh:"Enter name", notes:"Notes", notesPh:"e.g. the fight, time of day, bycatch, mood …", saveCatch:"Save catch", errFields:"Please fill in species, date and angler.", errFuture:"The date can't be in the future.", other:"Other…", speciesNew:"add new species",
     details:"Catch details", entry:"Entry", dAngler:"Angler", dWater:"Water", dLength:"Length", dWeight:"Weight", dDate:"Date", noMeasures:"No measurements", ttShare:"Share",
     settings:"Settings", display:"Display", appearance:"Appearance", themeLight:"Light", themeDark:"Dark", themeSystem:"System", themeHint:"\"System\" follows your device's light/dark setting.", measureLabel:"Default measure in list & stats", mLength:"Length", mWeight:"Weight", measureHint:"Sets which measure shows in the catch list and how the biggest catch is determined.", language:"Language", clubLogoAdmin:"Club logo · admin", currentLogo:"Current logo", uploadLogo:"Upload logo", logoHint:"Only the club admin should change the logo. (Enabled for everyone in this demo.)", myImage:"My picture", initialsDefault:"Default: your initials", uploadImage:"Upload picture",
     filter:"Filter", narrow:"Narrow down catches", ttReset:"Reset", period:"Period", year:"Year", month:"Month", from:"From", to:"To", periodHint:"Either year/month <em>or</em> from–to — they're mutually exclusive.", properties:"Properties", locationContains:"Location / water contains", locationPh:"e.g. Club pond", lengthFrom:"Length from (cm)", lengthTo:"Length to (cm)", weightFrom:"Weight from (kg)", weightTo:"Weight to (kg)", minPh:"min", maxPh:"max", applyFilter:"Apply filter", reset:"Reset", all:"All",
@@ -693,7 +693,7 @@ const I18N = {
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
     catches:"Vangsten", ttFilter:"Filter", ttSettings:"Instellingen", ttLogout:"Uitloggen", addCatch:"Vangst toevoegen", recent:"Laatste vangsten", filtered:"Gefilterde vangsten", total:"Totaal vangsten", hits:"Treffers", longestStat:"Langste vangst", heaviestStat:"Zwaarste vangst", emptyNone:"Nog geen vangsten.<br>Voeg je eerste vangst toe!", emptyFilter:"Geen vangsten voor dit filter.",
-    logCatch:"Vangst toevoegen", newCatch:"Nieuwe vangst", photo:"Foto", addPhoto:"Foto toevoegen", species:"Vissoort", speciesPh:"Soort kiezen of typen", lengthCm:"Lengte (cm)", weightKg:"Gewicht (kg)", lengthPh:"bijv. 38", weightPh:"bijv. 5,5", water:"Water / plek", waterPh:"bijv. Verenigingsvijver, plek 4", datetime:"Datum & tijd", angler:"Visser", anglerOtherPh:"Naam invoeren", notes:"Notities", notesPh:"Aas, weer, opmerkingen …", saveCatch:"Vangst opslaan", errFields:"Vul vissoort, datum en visser in.", errFuture:"De datum mag niet in de toekomst liggen.", other:"Andere…", speciesNew:"nieuwe soort toevoegen",
+    logCatch:"Vangst toevoegen", newCatch:"Nieuwe vangst", photo:"Foto", addPhoto:"Foto toevoegen", species:"Vissoort", speciesPh:"Soort kiezen of typen", lengthCm:"Lengte (cm)", weightKg:"Gewicht (kg)", lengthPh:"bijv. 38", weightPh:"bijv. 5,5", water:"Water / plek", waterPh:"bijv. Verenigingsvijver, plek 4", datetime:"Datum & tijd", angler:"Visser", anglerOtherPh:"Naam invoeren", notes:"Notities", notesPh:"bijv. dril, tijdstip, bijvangst, sfeer …", saveCatch:"Vangst opslaan", errFields:"Vul vissoort, datum en visser in.", errFuture:"De datum mag niet in de toekomst liggen.", other:"Andere…", speciesNew:"nieuwe soort toevoegen",
     details:"Vangstdetails", entry:"Vermelding", dAngler:"Visser", dWater:"Water", dLength:"Lengte", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Geen maten", ttShare:"Delen",
     settings:"Instellingen", display:"Weergave", appearance:"Weergave", themeLight:"Licht", themeDark:"Donker", themeSystem:"Systeem", themeHint:"\"Systeem\" volgt de licht/donker-instelling van je apparaat.", measureLabel:"Standaardmaat in lijst & statistiek", mLength:"Lengte", mWeight:"Gewicht", measureHint:"Bepaalt welke maat in de vangstlijst staat en hoe de grootste vangst wordt bepaald.", language:"Taal", clubLogoAdmin:"Verenigingslogo · beheer", currentLogo:"Huidig logo", uploadLogo:"Logo uploaden", logoHint:"Alleen de verenigingsbeheerder zou het logo moeten wijzigen. (In deze demo voor iedereen.)", myImage:"Mijn foto", initialsDefault:"Standaard: je initialen", uploadImage:"Foto uploaden",
     filter:"Filter", narrow:"Vangsten filteren", ttReset:"Resetten", period:"Periode", year:"Jaar", month:"Maand", from:"Van", to:"Tot", periodHint:"Of jaar/maand <em>of</em> van–tot — ze sluiten elkaar uit.", properties:"Eigenschappen", locationContains:"Plek / water bevat", locationPh:"bijv. Verenigingsvijver", lengthFrom:"Lengte van (cm)", lengthTo:"Lengte tot (cm)", weightFrom:"Gewicht van (kg)", weightTo:"Gewicht tot (kg)", minPh:"min", maxPh:"max", applyFilter:"Filter toepassen", reset:"Resetten", all:"Alle",
@@ -1342,11 +1342,7 @@ function renderWeatherInto(weather, date, boxId, wrapId){
     <div class="wrow"><span class="k">${t('wPressure')}</span><span class="v">${num(cur.pressure,0)} hPa${pChip}</span></div>
     <div class="wrow" style="border-bottom:none;"><span class="k">${t('moon')}</span><span class="v">${moonEmoji(moonKey)} ${t(moonKey)}${moonDir?' · '+t(moonDir):''}</span></div>`;
   if(days>=2){
-    const tt=temps.filter(x=>x!=null);
-    const mn=Math.min(...tt), mx=Math.max(...tt);
     html+=`<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>`;
-    html+=sparklineSvg(temps);
-    html+=`<div class="wspark-cap">${t('sparkCap').replace('{n}',days)} · ${num(mn,0)}–${num(mx,0)} °C</div>`;
   }
   html+=`<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div>`;
   box.innerHTML=html;
