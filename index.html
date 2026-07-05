@@ -446,8 +446,6 @@
         <textarea id="f-notes" placeholder="Köder, Wetter, Bemerkungen …" data-i18n-ph="notesPh"></textarea>
       </div>
 
-      <button type="button" id="more-fields-btn" class="btn secondary sm" style="display:none; margin-bottom:14px;" onclick="showMoreFields()" data-i18n="moreFields">Weitere Felder</button>
-
       <button class="btn" onclick="saveCatch()" data-i18n="saveCatch">Fang speichern</button>
       <p id="form-err" class="hint" style="color:var(--danger); text-align:center; display:none;">Bitte Fischart, Datum und Angler ausfüllen.</p>
       <div style="height:20px"></div>
@@ -1427,13 +1425,14 @@ function fieldHasValue(key){
   }
   return true;
 }
-function applyFieldConfig(){
-  const c=getFieldCfg(); let hasOff=false;
+function applyFieldConfig(force){
+  force = force || {};   // fields (by key) to show even if set to "off" — e.g. an edited catch that already has a value there
+  const c=getFieldCfg();
   CFG_FIELDS.forEach(f=>{
     const el=document.getElementById('ff-'+f.key); if(!el) return;
     const st=c[f.key]||'optional';
-    if(st==='off'){ hasOff=true; el.style.display=state.showMore?'':'none'; }
-    else el.style.display='';
+    const show = st!=='off' || force[f.key];   // "off" = completely hidden
+    el.style.display = show ? '' : 'none';
     el.classList.toggle('req-on', st==='required');
   });
   // collapse a .row whose fields are all hidden (e.g. Rute + Boot both off)
@@ -1441,10 +1440,7 @@ function applyFieldConfig(){
     const fields=[...row.querySelectorAll('.field')];
     if(fields.length){ row.style.display = fields.every(f=>f.style.display==='none') ? 'none' : ''; }
   });
-  const btn=document.getElementById('more-fields-btn');
-  if(btn) btn.style.display=(hasOff && !state.showMore)?'':'none';
 }
-function showMoreFields(){ state.showMore=true; applyFieldConfig(); }
 
 // ---------- share config panel (settings) ----------
 function shareSampleCatch(){
@@ -1480,7 +1476,7 @@ function updateSharePreview(){ const el=document.getElementById('share-preview')
 function nowLocal(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
 function openForm(skipAuto){
   ['f-species','f-weight','f-length','f-location','f-notes','f-method','f-bait','f-rod','f-boat','f-watertemp'].forEach(id=>document.getElementById(id).value='');
-  state.speciesKey=null; state.editId=null; state.showMore=false;
+  state.speciesKey=null; state.editId=null;
   fillMethodsDatalist(); applyFieldConfig();
   document.getElementById('f-title').textContent=t('logCatch');
   document.getElementById('f-sub').textContent=t('newCatch');
@@ -1518,9 +1514,10 @@ function openEdit(c){
   state.formLat = c.lat!=null?c.lat:null; state.formLon = c.lon!=null?c.lon:null;
   ensureFormMap(state.formLat, state.formLon);
   // if an "off" field already has a value on this catch, reveal the extra fields
-  const cfg=getFieldCfg();
-  if(CFG_FIELDS.some(f=>cfg[f.key]==='off' && fieldHasValue(f.key))) state.showMore=true;
-  applyFieldConfig();
+  // an edited catch may already have values in "off" fields — show those so they stay editable and aren't wiped
+  const cfg=getFieldCfg(); const force={};
+  CFG_FIELDS.forEach(f=>{ if(cfg[f.key]==='off' && fieldHasValue(f.key)) force[f.key]=true; });
+  applyFieldConfig(force);
 }
 function deleteCatch(id){
   if(!window.confirm(t('delConfirm'))) return;
