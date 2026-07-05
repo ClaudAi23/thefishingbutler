@@ -1582,7 +1582,7 @@ function openForm(skipAuto){
   document.getElementById('f-weather-wrap').style.display='none';
   clearPhoto(); closeSpecies(); go('form');
   ensureFormMap(null,null);
-  if(!skipAuto) autoLocate();
+  // no automatic geolocation on open — the browser prompt should only appear when the user taps "Mein Standort"
 }
 function isoToLocalInput(iso){ const d=new Date(iso); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,16); }
 function openEdit(c){
@@ -1707,14 +1707,17 @@ async function tryExifPrefill(file){
   if(!file || state.editId) return;
   try{
     await ensureExifr();
-    const meta=await window.exifr.parse(file, {gps:true, pick:['DateTimeOriginal','CreateDate']}).catch(()=>null);
-    if(!meta) return;
+    // GPS must be read separately — a `pick` list would exclude the GPS tags
+    const [gps, dm] = await Promise.all([
+      window.exifr.gps(file).catch(()=>null),
+      window.exifr.parse(file, ['DateTimeOriginal','CreateDate']).catch(()=>null)
+    ]);
     let didGps=false, didDate=false;
-    if(state.formLat==null && meta.latitude!=null && meta.longitude!=null){
-      if(fMap){ try{ fMap.setView([meta.latitude, meta.longitude], 14); }catch(e){} }
-      setFormPin(meta.latitude, meta.longitude); didGps=true;
+    if(state.formLat==null && gps && gps.latitude!=null && gps.longitude!=null){
+      if(fMap){ try{ fMap.setView([gps.latitude, gps.longitude], 14); }catch(e){} }
+      setFormPin(gps.latitude, gps.longitude); didGps=true;
     }
-    const dt=meta.DateTimeOriginal || meta.CreateDate;
+    const dt = dm && (dm.DateTimeOriginal || dm.CreateDate);
     const dEl=document.getElementById('f-date');
     if(dt){
       const d=(dt instanceof Date)?dt:new Date(dt);
