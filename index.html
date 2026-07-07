@@ -336,6 +336,7 @@
       <button type="button" id="login-magic" class="btn" onclick="authMagicLink()" data-i18n="magicLink">Anmelde-Link per E-Mail</button>
       <p id="login-err" class="hint" style="color:var(--danger); text-align:center; display:none;"></p>
       <p id="login-msg" style="display:none; margin-top:14px; padding:12px 14px; background:var(--surface-2); border:1px solid var(--teal); border-radius:10px; color:var(--text); font-size:14px; line-height:1.45; text-align:left;"></p>
+      <div id="login-mailbtns" style="display:none;"></div>
       <p class="hint" style="text-align:center; margin-top:14px; display:none;">
         <a id="login-toggle" href="javascript:void(0)" style="color:var(--teal-dark); font-weight:600;" onclick="authToggleMode()" data-i18n="toRegister">Neu hier? Registrieren</a>
       </p>
@@ -597,6 +598,13 @@
           <p class="hint" data-i18n="logoHint">Nur der Vereinsadmin sollte das Logo ändern. (In dieser Demo für alle freigeschaltet.)</p>
         </div>
       </div>
+      <div id="members-admin" style="display:none;">
+        <div class="sectionlabel" data-i18n="membersTitle">Mitglieder</div>
+        <div class="card-box">
+          <p class="hint" style="margin-top:0;" data-i18n="membersHint">Verwalte Rollen (Mitglied, Admin, Kassenwart) und entferne Mitglieder.</p>
+          <button type="button" class="btn secondary sm" onclick="openMembersModal()" data-i18n="manageMembers">Mitglieder verwalten …</button>
+        </div>
+      </div>
       <div class="sectionlabel" data-i18n="fieldsTitle">Fang-Felder</div>
       <div class="card-box">
         <div id="fields-cfg-list"></div>
@@ -705,6 +713,17 @@
       <div id="reqs-list" style="max-height:56vh; overflow:auto;"></div>
       <div style="margin-top:14px;">
         <button type="button" class="btn secondary" onclick="closeModal('reqs-modal')" data-i18n="close">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MEMBERS MODAL (roles) ============ -->
+  <div id="members-modal" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('members-modal')">
+    <div class="modal-box">
+      <h2 style="font-size:19px; margin:0 0 8px;" data-i18n="membersTitle">Mitglieder</h2>
+      <div id="members-list" style="max-height:56vh; overflow:auto;"></div>
+      <div style="margin-top:14px;">
+        <button type="button" class="btn secondary" onclick="closeModal('members-modal')" data-i18n="close">Schließen</button>
       </div>
     </div>
   </div>
@@ -875,6 +894,9 @@ Object.assign(I18N.nl, {loginIntro2:"Voer je e-mail in — we sturen je een inlo
 Object.assign(I18N.de, {joinByCode:"Bereich beitreten (Code)", createContext:"Verein/Gruppe anlegen", requestContext:"Verein/Gruppe fehlt? Anfragen", betaRequestNote:"In der Beta werden neue Vereine & Gruppen angefragt und vom Team freigeschaltet.", reqInbox:"Anfragen", joinTitle:"Bereich beitreten", joinHint:"Gib den Beitritts-Code deines Vereins oder deiner Gruppe ein.", join:"Beitreten", createTitle:"Verein/Gruppe anlegen", createHint:"Als App-Admin legst du einen neuen Bereich an. Du wirst automatisch dessen Admin.", clubOne:"Verein", groupOne:"Gruppe", locationOpt:"Ort (optional)", noteOpt:"Nachricht (optional)", create:"Anlegen", send:"Senden", requestTitle:"Bereich anfragen", requestHint:"Dein Verein oder deine Gruppe fehlt? Sende eine Anfrage an den App-Admin.", codeLabel:"Code", reqInboxTitle:"Beitritts-Anfragen", reqNone:"Keine offenen Anfragen.", approve:"Freigeben", reject:"Ablehnen", close:"Schließen", reqSentTitle:"Anfrage gesendet", reqSentBody:"Danke! Der App-Admin prüft deine Anfrage und richtet den Bereich ein.", errNameReq:"Bitte einen Namen eingeben.", errCodeReq:"Bitte einen Code eingeben.", errBadCode:"Dieser Code gehört zu keinem Bereich.", errGeneric:"Etwas ist schiefgelaufen. Bitte erneut versuchen.", errTitle:"Fehler", ok:"OK"});
 Object.assign(I18N.en, {joinByCode:"Join an area (code)", createContext:"Create club/group", requestContext:"Club/group missing? Request it", betaRequestNote:"During the beta, new clubs & groups are requested and enabled by the team.", reqInbox:"Requests", joinTitle:"Join an area", joinHint:"Enter the join code of your club or group.", join:"Join", createTitle:"Create club/group", createHint:"As app admin you create a new area. You automatically become its admin.", clubOne:"Club", groupOne:"Group", locationOpt:"Location (optional)", noteOpt:"Message (optional)", create:"Create", send:"Send", requestTitle:"Request an area", requestHint:"Your club or group is missing? Send a request to the app admin.", codeLabel:"Code", reqInboxTitle:"Join requests", reqNone:"No open requests.", approve:"Approve", reject:"Decline", close:"Close", reqSentTitle:"Request sent", reqSentBody:"Thanks! The app admin will review your request and set up the area.", errNameReq:"Please enter a name.", errCodeReq:"Please enter a code.", errBadCode:"That code doesn't match any area.", errGeneric:"Something went wrong. Please try again.", errTitle:"Error", ok:"OK"});
 Object.assign(I18N.nl, {joinByCode:"Deelnemen (code)", createContext:"Vereniging/groep aanmaken", requestContext:"Vereniging/groep ontbreekt? Aanvragen", betaRequestNote:"Tijdens de bèta worden nieuwe verenigingen & groepen aangevraagd en door het team vrijgegeven.", reqInbox:"Aanvragen", joinTitle:"Deelnemen aan een gebied", joinHint:"Voer de toetredingscode van je vereniging of groep in.", join:"Deelnemen", createTitle:"Vereniging/groep aanmaken", createHint:"Als app-beheerder maak je een nieuw gebied aan. Je wordt automatisch beheerder.", clubOne:"Vereniging", groupOne:"Groep", locationOpt:"Plaats (optioneel)", noteOpt:"Bericht (optioneel)", create:"Aanmaken", send:"Verzenden", requestTitle:"Gebied aanvragen", requestHint:"Ontbreekt je vereniging of groep? Stuur een aanvraag naar de app-beheerder.", codeLabel:"Code", reqInboxTitle:"Toetredingsverzoeken", reqNone:"Geen openstaande aanvragen.", approve:"Goedkeuren", reject:"Afwijzen", close:"Sluiten", reqSentTitle:"Aanvraag verzonden", reqSentBody:"Bedankt! De app-beheerder bekijkt je aanvraag en richt het gebied in.", errNameReq:"Voer een naam in.", errCodeReq:"Voer een code in.", errBadCode:"Die code hoort bij geen enkel gebied.", errGeneric:"Er ging iets mis. Probeer opnieuw.", errTitle:"Fout", ok:"OK"});
+Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen (Mitglied, Admin, Kassenwart) und entferne Mitglieder.", manageMembers:"Mitglieder verwalten …", roleMember:"Mitglied", roleAdmin:"Admin", roleTreasurer:"Kassenwart", removeMember:"Entfernen", lastAdminHint:"Der/die letzte Admin kann nicht herabgestuft oder entfernt werden.", confirmRemove:"{name} aus diesem Bereich entfernen?", you:"du", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
+Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles (Member, Admin, Treasurer) and remove members.", manageMembers:"Manage members …", roleMember:"Member", roleAdmin:"Admin", roleTreasurer:"Treasurer", removeMember:"Remove", lastAdminHint:"The last admin can't be demoted or removed.", confirmRemove:"Remove {name} from this area?", you:"you", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
+Object.assign(I18N.nl, {membersTitle:"Leden", membersHint:"Beheer rollen (Lid, Beheerder, Penningmeester) en verwijder leden.", manageMembers:"Leden beheren …", roleMember:"Lid", roleAdmin:"Beheerder", roleTreasurer:"Penningmeester", removeMember:"Verwijderen", lastAdminHint:"De laatste beheerder kan niet worden gedegradeerd of verwijderd.", confirmRemove:"{name} uit dit gebied verwijderen?", you:"jij", openMailbox:"Postvak openen", openMailApp:"Mail-app openen"});
 function curLang(){
   if(state && state.lang && state.lang!=='system') return state.lang;
   const n=(navigator.language||'en').slice(0,2).toLowerCase();
@@ -1170,6 +1192,72 @@ async function rejectReq(id){
   }catch(e){ showInfo(t('errTitle'), t('errGeneric')); }
 }
 
+// ---------- Mitglieder-/Rollen-Verwaltung (Admin) ----------
+function roleLabels(){ return { member:t('roleMember'), admin:t('roleAdmin'), treasurer:t('roleTreasurer') }; }
+async function openMembersModal(){
+  if(!(ctxIsDb() && canEditCtxCfg())) return;
+  document.getElementById('members-modal').style.display='flex';
+  await renderMembers();
+}
+async function renderMembers(){
+  const box=document.getElementById('members-list'); box.innerHTML=`<p class="hint">${esc(t('loading'))}</p>`;
+  const c=getSB(); const ctxId=state.club.id;
+  try{
+    const { data:mems, error } = await c.from('memberships').select('id, user_id, role').eq('context_id', ctxId);
+    if(error) throw error;
+    const ids=[...new Set((mems||[]).map(m=>m.user_id))];
+    const nameById={}; if(ids.length){ const { data:profs } = await c.from('profiles').select('id, display_name').in('id', ids); (profs||[]).forEach(p=>nameById[p.id]=p.display_name); }
+    const adminCount=(mems||[]).filter(m=>m.role==='admin').length;
+    const roles=['member','admin','treasurer']; const lab=roleLabels();
+    const order={admin:0, treasurer:1, member:2};
+    box.innerHTML=(mems||[]).slice().sort((a,b)=>(order[a.role]-order[b.role])).map(m=>{
+      const name=esc(nameById[m.user_id]||'—');
+      const isSelf = state.me && m.user_id===state.me.id;
+      const lastAdmin = m.role==='admin' && adminCount<=1;
+      const sel=`<select onchange="setMemberRole('${m.id}','${m.user_id}',this.value)" ${lastAdmin?'disabled':''} style="width:auto; padding:6px 8px; font-size:13px;">`+
+        roles.map(r=>`<option value="${r}" ${m.role===r?'selected':''}>${esc(lab[r])}</option>`).join('')+`</select>`;
+      const rm = lastAdmin ? '' : `<button type="button" class="btn secondary sm" onclick="removeMember('${m.id}','${m.user_id}','${name.replace(/'/g,"\\'")}')">${esc(t('removeMember'))}</button>`;
+      return `<div class="card-box" style="margin-bottom:8px;">
+        <div style="font-weight:600;">${name}${isSelf?` <span class="loc">(${esc(t('you'))})</span>`:''}</div>
+        <div style="display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap;">${sel}${rm}</div>
+        ${lastAdmin?`<p class="hint" style="margin:6px 0 0;">${esc(t('lastAdminHint'))}</p>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){ box.innerHTML=`<p class="hint">${esc(t('errGeneric'))}</p>`; }
+}
+async function setMemberRole(memId, userId, role){
+  try{
+    const { error } = await getSB().from('memberships').update({role}).eq('id', memId); if(error) throw error;
+    if(state.me && userId===state.me.id){
+      state.myContexts=await loadMyContexts();
+      const cur=(state.myContexts||[]).find(x=>x.id===state.club.id);
+      state.club.role = cur ? cur.role : 'member';
+      if(!canEditCtxCfg()){ closeModal('members-modal'); openSettings(); return; }
+    }
+    await renderMembers();
+  }catch(e){ showInfo(t('errTitle'), t('errGeneric')); await renderMembers(); }
+}
+async function removeMember(memId, userId, name){
+  if(!confirm(t('confirmRemove').replace('{name}', name))) return;
+  try{
+    const { error } = await getSB().from('memberships').delete().eq('id', memId); if(error) throw error;
+    if(state.me && userId===state.me.id){ closeModal('members-modal'); await leaveArea(); return; }
+    await renderMembers();
+  }catch(e){ showInfo(t('errTitle'), t('errGeneric')); }
+}
+
+// ---------- Magic-Link: "Mail-App / Postfach öffnen" ----------
+const WEBMAIL={ 'gmail.com':['https://mail.google.com/','Gmail'],'googlemail.com':['https://mail.google.com/','Gmail'],'outlook.com':['https://outlook.live.com/mail/','Outlook'],'hotmail.com':['https://outlook.live.com/mail/','Outlook'],'hotmail.de':['https://outlook.live.com/mail/','Outlook'],'live.com':['https://outlook.live.com/mail/','Outlook'],'live.de':['https://outlook.live.com/mail/','Outlook'],'msn.com':['https://outlook.live.com/mail/','Outlook'],'yahoo.com':['https://mail.yahoo.com/','Yahoo'],'yahoo.de':['https://mail.yahoo.com/','Yahoo'],'gmx.de':['https://www.gmx.net/','GMX'],'gmx.net':['https://www.gmx.net/','GMX'],'gmx.at':['https://www.gmx.at/','GMX'],'gmx.ch':['https://www.gmx.ch/','GMX'],'gmx.com':['https://www.gmx.com/','GMX'],'web.de':['https://web.de/','WEB.DE'],'t-online.de':['https://email.t-online.de/','T-Online'],'icloud.com':['https://www.icloud.com/mail','iCloud'],'me.com':['https://www.icloud.com/mail','iCloud'],'mac.com':['https://www.icloud.com/mail','iCloud'],'proton.me':['https://mail.proton.me/','Proton'],'protonmail.com':['https://mail.proton.me/','Proton'] };
+function isIOSDevice(){ return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && (navigator.maxTouchPoints||0)>1); }
+function renderMailButtons(email){
+  const box=document.getElementById('login-mailbtns'); if(!box) return;
+  const dom=((email||'').split('@')[1]||'').toLowerCase(); const btns=[]; const wm=WEBMAIL[dom];
+  if(wm) btns.push(`<a class="btn secondary sm" style="flex:1; min-width:130px; text-align:center; text-decoration:none;" href="${wm[0]}" target="_blank" rel="noopener">${esc(t('openMailbox'))} · ${esc(wm[1])}</a>`);
+  if(isIOSDevice()) btns.push(`<a class="btn secondary sm" style="flex:1; min-width:130px; text-align:center; text-decoration:none;" href="message://">${esc(t('openMailApp'))}</a>`);
+  if(!btns.length){ box.style.display='none'; box.innerHTML=''; return; }
+  box.innerHTML=btns.join(''); box.style.display='flex'; box.style.gap='8px'; box.style.flexWrap='wrap'; box.style.marginTop='10px';
+}
+
 // ---------- login ----------
 // ---------- authentication (Supabase) ----------
 const SUPA_URL='https://pvjpnqmvalikublfjhlh.supabase.co';
@@ -1184,9 +1272,10 @@ function renderAuthMode(){
   document.getElementById('login-toggle').textContent = t(signup?'toSignin':'toRegister');
   document.getElementById('login-err').style.display='none';
   document.getElementById('login-msg').style.display='none';
+  const mb=document.getElementById('login-mailbtns'); if(mb){ mb.style.display='none'; mb.innerHTML=''; }
 }
 function authToggleMode(){ authMode = authMode==='signin'?'signup':'signin'; renderAuthMode(); }
-function authShow(id, txt){ const e=document.getElementById(id); e.textContent=txt; e.style.display='block'; const other=id==='login-err'?'login-msg':'login-err'; document.getElementById(other).style.display='none'; }
+function authShow(id, txt){ const e=document.getElementById(id); e.textContent=txt; e.style.display='block'; const other=id==='login-err'?'login-msg':'login-err'; document.getElementById(other).style.display='none'; if(id==='login-err'){ const mb=document.getElementById('login-mailbtns'); if(mb){ mb.style.display='none'; mb.innerHTML=''; } } }
 function authErrText(e){
   const m=(e&&e.message)||'';
   if(/not confirmed|confirm/i.test(m)) return t('errConfirm');
@@ -1225,6 +1314,7 @@ async function authMagicLink(){
     const { error } = await c.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin, data:{ lang: curLang() } } });
     if(error) throw error;
     authShow('login-msg', t('magicSent').replace('{email}', email));
+    renderMailButtons(email);
   }catch(e){ authShow('login-err', authErrText(e)); }
   finally{ if(btn) btn.disabled=false; }
 }
@@ -2425,6 +2515,7 @@ function openSettings(){
   // Bereich (nur wenn in einem Bereich)
   if(!noArea){
     document.getElementById('logo-admin').style.display = (state.mode==='club' && (!ctxIsDb() || canEditCtxCfg())) ? '' : 'none';
+    document.getElementById('members-admin').style.display = (ctxIsDb() && canEditCtxCfg()) ? '' : 'none';
     if(state.mode==='club' && state.club){
       document.getElementById('set-clubname').textContent=state.club.name;
       document.getElementById('set-logo').innerHTML=clubLogoHTML(state.club);
