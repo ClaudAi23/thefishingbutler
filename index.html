@@ -997,7 +997,9 @@ function applyLang(){
   if(typeof renderAuthMode==='function' && document.getElementById('login-primary')) renderAuthMode();
   renderClubs();
 }
-function setLang(v){ state.lang=v; savePrefs(); applyLang(); if(state.mode && state.catches){ try{ renderList(); }catch(e){} } }
+function setLang(v){ state.lang=v; savePrefs(); applyLang(); syncUserLang(); if(state.mode && state.catches){ try{ renderList(); }catch(e){} } }
+// Sprache in die Auth-Metadaten schreiben, damit die E-Mail-Vorlagen sie lesen können ({{ .Data.lang }})
+function syncUserLang(){ if(state.auth==='supabase' && getSB()){ try{ getSB().auth.updateUser({ data:{ lang: curLang() } }); }catch(e){} } }
 function syncLangSel(){ const s=document.getElementById('lang-sel'); if(s) s.value=state.lang; }
 function syncThemeSeg(){
   document.querySelectorAll('#theme-seg button').forEach(b=>b.classList.toggle('on', b.dataset.t===state.theme));
@@ -1200,7 +1202,7 @@ async function authSubmit(){
   try{
     if(authMode==='signup'){
       const name=document.getElementById('login-name').value.trim();
-      const { data, error } = await c.auth.signUp({ email, password:pass, options:{ data:{ display_name: name||email.split('@')[0] }, emailRedirectTo: location.origin } });
+      const { data, error } = await c.auth.signUp({ email, password:pass, options:{ data:{ display_name: name||email.split('@')[0], lang: curLang() }, emailRedirectTo: location.origin } });
       if(error) throw error;
       if(data.session) await onAuthed(data.session);
       else authShow('login-msg', t('checkEmail'));
@@ -1218,7 +1220,7 @@ async function authMagicLink(){
   const c=getSB(); if(!c){ authShow('login-err', t('errNoConn')); return; }
   const btn=document.getElementById('login-magic'); if(btn) btn.disabled=true;
   try{
-    const { error } = await c.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin } });
+    const { error } = await c.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin, data:{ lang: curLang() } } });
     if(error) throw error;
     authShow('login-msg', t('magicSent').replace('{email}', email));
   }catch(e){ authShow('login-err', authErrText(e)); }
@@ -1235,6 +1237,8 @@ async function onAuthed(session){
   }catch(e){}
   state.me={ id:u.id, email:u.email, name, avatar, isAppAdmin };
   state.auth='supabase'; savePrefs();
+  // Sprache für ältere Konten nachtragen, falls noch nicht gesetzt (für lokalisierte Auth-Mails)
+  if(!(u.user_metadata && u.user_metadata.lang)){ try{ getSB().auth.updateUser({ data:{ lang: curLang() } }); }catch(e){} }
   await goChooser();
 }
 function startDemo(){
