@@ -3050,7 +3050,7 @@ async function obFinish(splash){
 // Startup launch screen: logo shown on app open, fades out shortly after.
 function hideStartupSplash(){
   const sp=document.getElementById('ob-splash'); if(!sp) return;
-  setTimeout(()=>{ sp.classList.add('hide'); setTimeout(()=>{ sp.style.display='none'; }, 550); }, 1200);
+  setTimeout(()=>{ sp.classList.add('hide'); setTimeout(()=>{ sp.style.display='none'; }, 550); }, 1800);
 }
 function openExportMenu(target){ state._exportTarget=target; const m=document.getElementById('export-modal'); if(m) m.style.display='flex'; }
 function doExport(kind){ const t=state._exportTarget||'list'; closeModal('export-modal'); if(kind==='csv') exportCsv(t); else exportPdf(t); }
