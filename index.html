@@ -139,8 +139,8 @@
   .catbody{display:none;}
   .homecat.open .catbody{display:block;}
   .cat-pill{display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; padding:0 6px; border-radius:999px; background:var(--teal); color:#fff; font-size:11px; font-weight:700;}
-  .catadd{width:34px; height:34px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--teal); cursor:pointer; font-size:22px; line-height:1;}
-  .catadd:active{background:var(--surface-2);}
+  .catadd{width:28px; height:28px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; border-radius:8px; border:none; background:none; color:var(--muted); cursor:pointer; font-size:22px; line-height:1; opacity:.75;}
+  .catadd:hover,.catadd:active{color:var(--teal); opacity:1; background:var(--surface);}
   .tagline{text-align:center; color:var(--teal-dark); font-size:13px; font-weight:600; letter-spacing:.04em; margin:0 0 6px;}
 
   .club{
@@ -1952,6 +1952,18 @@ async function exportCsv(target){
 function loadScript(src){ return new Promise((res,rej)=>{ if([...document.scripts].some(s=>s.src===src)) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('load '+src)); document.head.appendChild(s); }); }
 async function ensureJsPDF(){ if(window.jspdf && window.jspdf.jsPDF) return; await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); }
 function imgSize(src){ return new Promise(res=>{ const im=new Image(); im.onload=()=>res({w:im.naturalWidth,h:im.naturalHeight}); im.onerror=()=>res(null); im.src=src; }); }
+// Bild mit angewandter EXIF-Orientierung (fürs PDF, sonst liegen Handy-Fotos verdreht)
+async function orientedImage(src){
+  try{
+    const blob = await (await fetch(src)).blob();
+    const bmp = await createImageBitmap(blob, { imageOrientation:'from-image' });
+    const cv = document.createElement('canvas'); cv.width=bmp.width; cv.height=bmp.height;
+    cv.getContext('2d').drawImage(bmp, 0, 0);
+    return { url: cv.toDataURL('image/jpeg', 0.85), s:{ w:bmp.width, h:bmp.height } };
+  }catch(e){
+    const s = await imgSize(src); return s ? { url:src, s } : null;
+  }
+}
 async function exportPdf(target){
   let items=(target==='stats'?myCatches():state.catches).filter(matchesFilter); items=sortCatches(items);
   if(!items.length){ alert(t('exportEmpty')); return; }
@@ -1967,7 +1979,7 @@ async function exportPdf(target){
   doc.text(isoDateOnly(today), pw-M, 25, {align:'right'});
   doc.setDrawColor(200); doc.line(M,29,pw-M,29); doc.setTextColor(20);
   let y=37;
-  const covers=await Promise.all(items.map(c=>{ const cov=coverOf(c); return cov?imgSize(cov).then(s=>({cov,s})):Promise.resolve(null); }));
+  const covers=await Promise.all(items.map(c=>{ const cov=coverOf(c); return cov?orientedImage(cov):Promise.resolve(null); }));
   for(let i=0;i<items.length;i++){
     const c=items[i], cv=covers[i];
     const imgW=52; let imgH=0; if(cv&&cv.s){ imgH=Math.min(52, imgW*cv.s.h/cv.s.w); }
@@ -1992,7 +2004,7 @@ async function exportPdf(target){
     const textH = 6 + 5 + wrapped.length*4.6 + 2;
     const blockH = Math.max(imgH, textH) + 8;
     if(y+blockH > ph-M){ doc.addPage(); y=M+5; }
-    if(cv&&cv.s){ try{ doc.addImage(cv.cov,'JPEG',M,y,imgW,imgH); }catch(e){} }
+    if(cv&&cv.s){ try{ doc.addImage(cv.url,'JPEG',M,y,imgW,imgH); }catch(e){} }
     let ty=y+5;
     doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(20); doc.text(trSpecies(c.species), textX, ty); ty+=6;
     if(size){ doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(90); doc.text(size, textX, ty); } ty+=5;
