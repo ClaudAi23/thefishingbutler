@@ -1252,11 +1252,35 @@ function initials(name){ const p=(name||'?').trim().split(/\s+/).filter(Boolean)
 function initialsAvatar(name){ return `<span style="font-weight:700; color:var(--teal-dark); font-size:15px; letter-spacing:.02em;">${initials(name)}</span>`; }
 function soloAvatarHTML(){ return state.soloAvatar ? `<img src="${state.soloAvatar}" alt="">` : initialsAvatar(state.soloName); }
 
-function go(name){
+// ---------- screen navigation + hardware/gesture back handling ----------
+let _navStack=[], _curScreen='club';
+const _ROOT_SCREENS=['login','club'];   // arriving at a root screen clears the in-app back history
+function go(name, isBack){
+  if(!isBack && _curScreen && name!==_curScreen){
+    if(_ROOT_SCREENS.includes(name)) _navStack=[]; else _navStack.push(_curScreen);
+  }
+  _curScreen=name;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
   const sc=document.querySelector('#s-'+name+' .scroll'); if(sc) sc.scrollTop=0;
 }
+function _openModalEls(){ return Array.prototype.slice.call(document.querySelectorAll('.modal-ov')).filter(m=>{ const d=m.style.display; return d && d!=='none'; }); }
+// Called for every hardware/gesture "back" (Android back button, edge-swipe). Navigates WITHIN the app; never closes it.
+function appBack(){
+  // 1) topmost open dialog/modal → close it
+  const mods=_openModalEls();
+  if(mods.length){ const m=mods[mods.length-1]; if(m.id==='confirm-modal'){ _confirmClose(false); } else { m.style.display='none'; } return; }
+  // 2) open combobox dropdown → close it
+  const cbo=document.querySelector('#combo-list.open, #method-list.open');
+  if(cbo){ cbo.classList.remove('open'); return; }
+  // 3) login code step → back to the email step
+  if(_curScreen==='login' && state && state.pendingEmail){ changeLoginEmail(); return; }
+  // 4) one screen back if we have in-app history
+  if(_navStack.length){ go(_navStack.pop(), true); return; }
+  // 5) at a root screen with nothing to go back to → stay open (swallow the gesture)
+}
+function _armBack(){ try{ history.pushState({_fb:1}, ''); }catch(e){} }
+window.addEventListener('popstate', function(){ _armBack(); appBack(); });
 
 // ---------- club ----------
 function toggleCat(id){ const g=document.getElementById('cat-'+id); if(g) g.classList.toggle('open'); }
@@ -3366,6 +3390,7 @@ if((navigator.maxTouchPoints||0)>0 && navigator.share){ document.getElementById(
 document.getElementById('club-logo').innerHTML=`<img src="/logo.png" alt="The Fishing Butler" />`;
 document.getElementById('login-logo').innerHTML=document.getElementById('club-logo').innerHTML;
 initAuth();
+_armBack();   // put one guard entry on the history stack so back/swipe is captured in-app
 </script>
 </body>
 </html>
