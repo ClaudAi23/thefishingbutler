@@ -2867,6 +2867,7 @@ async function submitFeedback(){
       const ctx = state.mode==='solo'?'Solo':(state.club?state.club.name:'');
       const { error } = await getSB().from('beta_feedback').insert({ user_id: state.me.id, email: state.me.email, message: msg, context: ctx, user_agent: (navigator.userAgent||'').slice(0,300) });
       if(error) throw error;
+      try{ getSB().functions.invoke('feedback-notify', { body:{ message: msg, email: state.me.email, context: ctx } }); }catch(e){}
     }
     closeModal('feedback-modal');
     showInfo(t('feedbackSentTitle'), t('feedbackSentBody'));
