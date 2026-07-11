@@ -136,6 +136,8 @@
   .swipe-wrap .catch{margin-bottom:0; position:relative; z-index:1; will-change:transform;}
   .swipe-bg{position:absolute; inset:0; background:var(--danger); display:flex; align-items:center; padding-left:22px;}
   .swipe-bg svg{width:24px; height:24px; stroke:#fff; stroke-width:2; fill:none;}
+  .swatch{width:34px; height:34px; border-radius:9px; border:1px solid rgba(255,255,255,.14); cursor:pointer; padding:0;}
+  .swatch.on{outline:2px solid var(--teal-bright); outline-offset:2px;}
   .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--teal); color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.3); opacity:0; transition:opacity .2s; pointer-events:none;}
   .toast.show{opacity:1;}
   .accgroup{border:1px solid var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; background:var(--surface);}
@@ -777,6 +779,14 @@
                 <div class="hint" style="margin:2px 0 0;" data-i18n="tapToChange">Zum Ändern tippen</div>
               </div>
             </div>
+            <div class="sectionlabel" style="margin:16px 0 6px;" data-i18n="logoInitials">Kürzel-Logo (ohne Bild)</div>
+            <input id="logo-init" type="text" maxlength="3" oninput="onLogoInit(this.value)" placeholder="ASV" style="text-transform:uppercase; letter-spacing:.1em; max-width:150px;" />
+            <div id="logo-swatches" style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 8px;"></div>
+            <div class="seg" id="logo-fg-seg" style="max-width:250px;">
+              <button type="button" data-fg="light" onclick="onLogoFg('light')" data-i18n="logoLight">Heller Text</button>
+              <button type="button" data-fg="dark" onclick="onLogoFg('dark')" data-i18n="logoDark">Dunkler Text</button>
+            </div>
+            <p class="hint" style="margin-top:8px;" data-i18n="logoInitialsHint">Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).</p>
             <p class="hint" data-i18n="logoHint">Nur Admins können das Logo ändern. Es gilt für alle Mitglieder.</p>
           </div>
         </div>
@@ -1165,7 +1175,7 @@ const MONTHS = {
 };
 const I18N = {
   de:{
-    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
+    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Kürzel-Logo (ohne Bild)", logoInitialsHint:"Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).", logoLight:"Heller Text", logoDark:"Dunkler Text", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
     personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge, alle Bereiche", soloTile:"Solo", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
@@ -1178,7 +1188,7 @@ const I18N = {
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit The Fishing Butler", shareNoMeasure:"ohne Maße"
   },
   en:{
-    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
+    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials logo (no image)", logoInitialsHint:"Shown when no image is set (max. 3 characters).", logoLight:"Light text", logoDark:"Dark text", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
     personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
@@ -1191,7 +1201,7 @@ const I18N = {
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with The Fishing Butler", shareNoMeasure:"no measurements"
   },
   nl:{
-    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
+    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen-logo (geen afbeelding)", logoInitialsHint:"Wordt getoond als er geen afbeelding is (max. 3 tekens).", logoLight:"Lichte tekst", logoDark:"Donkere tekst", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
     personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
@@ -1384,12 +1394,36 @@ function clubLogoHTML(cl){
   if(cl.logo_url) return `<img src="${cl.logo_url}" alt="">`;
   if(state.logos[cl.id]) return `<img src="${state.logos[cl.id]}" alt="">`;
   if(cl.logo) return cl.logo;
+  { const ls=cl.logo_style; if(ls && ls.text){ const fg = ls.fg==='dark' ? '#15181C' : '#ffffff'; return `<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:${ls.bg||'#2E7A8E'};color:${fg};font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:.03em;">${esc(ls.text)}</span>`; } }
   if(cl.mono) return `<span style="font-weight:700; color:var(--teal-bright); font-size:15px; letter-spacing:.02em;">${cl.mono}</span>`;
   if(cl.name) return `<span style="font-weight:700; color:var(--teal-bright); font-size:15px; letter-spacing:.02em;">${initials(cl.name)}</span>`;
   return `<span>${cl.emoji||"🎣"}</span>`;
 }
 function initials(name){ const p=(name||'?').trim().split(/\s+/).filter(Boolean); return ((p[0]?p[0][0]:'?')+(p[1]?p[1][0]:'')).toUpperCase(); }
 function initialsAvatar(name){ return `<span style="font-weight:700; color:var(--teal-bright); font-size:15px; letter-spacing:.02em;">${initials(name)}</span>`; }
+const LOGO_SWATCHES=['#2E7A8E','#245F70','#18202A','#2F6F4F','#3C6E9C','#7A4E9C','#B23A3A','#C2792A','#4A6572','#0E1013'];
+function currentLogoStyle(){ const ls=(state.club&&state.club.logo_style)||{}; return { text: ls.text || initials(state.club?state.club.name:''), bg: ls.bg || '#2E7A8E', fg: ls.fg || 'light' }; }
+function renderLogoEditor(){
+  if(!state.club) return;
+  const ls=currentLogoStyle();
+  const inp=document.getElementById('logo-init'); if(inp && document.activeElement!==inp) inp.value=ls.text;
+  const sw=document.getElementById('logo-swatches');
+  if(sw) sw.innerHTML=LOGO_SWATCHES.map(c=>`<button type="button" class="swatch${c.toLowerCase()===String(ls.bg).toLowerCase()?' on':''}" style="background:${c};" onclick="onLogoBg('${c}')" aria-label="${c}"></button>`).join('');
+  document.querySelectorAll('#logo-fg-seg button').forEach(b=>b.classList.toggle('on', b.dataset.fg===ls.fg));
+}
+function onLogoInit(v){ const ls=currentLogoStyle(); ls.text=(v||'').toUpperCase().slice(0,3); applyLogoStyle(ls,false); }
+function onLogoBg(c){ const ls=currentLogoStyle(); ls.bg=c; applyLogoStyle(ls,true); }
+function onLogoFg(m){ const ls=currentLogoStyle(); ls.fg=m; applyLogoStyle(ls,true); }
+function applyLogoStyle(ls, rerender){
+  if(!(ctxIsDb() && canEditCtxCfg())){ showInfo(t('adminOnlyTitle'), t('adminOnlyMsg')); return; }
+  state.club.logo_style=ls;
+  const sl=document.getElementById('set-logo'); if(sl) sl.innerHTML=clubLogoHTML(state.club);
+  const lh=document.getElementById('list-hdr'); if(lh) lh.innerHTML=clubLogoHTML(state.club);
+  if(rerender) renderLogoEditor();
+  saveLogoStyleDb(ls);
+}
+let _logoSaveT=null;
+function saveLogoStyleDb(ls){ clearTimeout(_logoSaveT); _logoSaveT=setTimeout(async()=>{ try{ await getSB().from('contexts').update({logo_style:ls}).eq('id', state.club.id); try{ renderClubs(); }catch(e){} }catch(e){} }, 500); }
 function soloAvatarHTML(){ return state.soloAvatar ? `<img src="${state.soloAvatar}" alt="">` : initialsAvatar(state.soloName); }
 
 // ---------- screen navigation + hardware/gesture back handling ----------
@@ -1884,7 +1918,7 @@ async function loadSoloCatches(){
 }
 async function loadMyContexts(){
   const c=getSB(); if(!c || !state.me) return [];
-  const { data } = await c.from('memberships').select('role, contexts(id, type, name, location, logo_url, join_code, field_config, share_config)').eq('user_id', state.me.id);
+  const { data } = await c.from('memberships').select('role, contexts(id, type, name, location, logo_url, logo_style, join_code, field_config, share_config)').eq('user_id', state.me.id);
   if(!data) return [];
   return data.map(m=>Object.assign({}, m.contexts, {role:m.role, _db:true})).filter(x=>x&&x.id);
 }
@@ -3421,6 +3455,7 @@ function openSettings(){
     if(state.club){
       document.getElementById('set-clubname').textContent=state.club.name;
       document.getElementById('set-logo').innerHTML=clubLogoHTML(state.club);
+      try{ renderLogoEditor(); }catch(e){}
     }
     renderFieldCfgPanel();
     const hideCopy = state.auth==='supabase';   // "Auf andere Bereiche übernehmen" ist Demo-only
