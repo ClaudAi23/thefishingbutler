@@ -132,6 +132,10 @@
   .fgroup{font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--teal-bright); margin:24px 0 12px; padding-bottom:7px; border-bottom:1px solid var(--border);}
   .setgroup{font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:18px 0 8px;}
   .setgroup:first-child{margin-top:2px;}
+  .swipe-wrap{position:relative; margin-bottom:12px; border-radius:10px; overflow:hidden;}
+  .swipe-wrap .catch{margin-bottom:0; position:relative; z-index:1; will-change:transform;}
+  .swipe-bg{position:absolute; inset:0; background:var(--danger); display:flex; align-items:center; padding-left:22px;}
+  .swipe-bg svg{width:24px; height:24px; stroke:#fff; stroke-width:2; fill:none;}
   .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--teal); color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.3); opacity:0; transition:opacity .2s; pointer-events:none;}
   .toast.show{opacity:1;}
   .accgroup{border:1px solid var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; background:var(--surface);}
@@ -2266,8 +2270,9 @@ function renderList(){
         <span class="meta">${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${[c.angler, c.location, fmtDate(c.date)].filter(Boolean).join(' · ')}</span>
       </span>
       ${CHEV_IC}`;
-    b.onclick=()=>openDetail(c.id);
-    list.appendChild(b);
+    b.onclick=()=>{ if(b._swiped){ b._swiped=false; return; } openDetail(c.id); };
+    const mine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
+    list.appendChild(mine ? wrapSwipe(b, c.id) : b);
   });
 }
 
@@ -2819,6 +2824,24 @@ async function deleteCatch(id){
   }
   state.catches=state.catches.filter(x=>x.id!==id);
   saveCatches(); renderList(); go('list');
+}
+function wrapSwipe(btn, id){
+  const wrap=document.createElement('div'); wrap.className='swipe-wrap';
+  wrap.innerHTML='<div class="swipe-bg"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></div>';
+  wrap.appendChild(btn);
+  let x0=0,y0=0,dx=0,drag=false,decided=false,horiz=false;
+  btn.addEventListener('touchstart',ev=>{ const p=ev.touches[0]; x0=p.clientX; y0=p.clientY; dx=0; drag=true; decided=false; horiz=false; btn.style.transition='none'; },{passive:true});
+  btn.addEventListener('touchmove',ev=>{ if(!drag) return; const p=ev.touches[0]; const mx=p.clientX-x0, my=p.clientY-y0;
+    if(!decided && (Math.abs(mx)>8||Math.abs(my)>8)){ decided=true; horiz=Math.abs(mx)>Math.abs(my); }
+    if(decided&&horiz){ dx=Math.max(0, Math.min(mx,120)); btn.style.transform='translateX('+dx+'px)'; if(dx>6) btn._swiped=true; if(ev.cancelable) ev.preventDefault(); }
+  },{passive:false});
+  const end=()=>{ if(!drag) return; drag=false; btn.style.transition='transform .2s';
+    if(dx>80){ btn.style.transform='translateX(100%)';
+      setTimeout(async()=>{ const ok=await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true); if(ok){ deleteCatch(id); } else { btn.style.transform='translateX(0)'; } }, 130);
+    } else { btn.style.transform='translateX(0)'; }
+  };
+  btn.addEventListener('touchend',end); btn.addEventListener('touchcancel',end);
+  return wrap;
 }
 function buildAnglerOptions(){
   const sel=document.getElementById('f-angler');
