@@ -375,10 +375,14 @@
       </button>
     </div>
     <div class="scroll pad">
-      <div style="height:20px"></div>
-      <div id="club-logo" class="mascot-band mb-home"></div>
-      <h1 class="brandname" style="text-align:center; font-size:26px; margin:0 0 2px;" data-i18n="appName">The Fishing Butler</h1>
-      <p class="tagline" data-i18n="tagline">Fangen. Protokollieren. Organisieren.</p>
+      <div style="height:14px"></div>
+      <div style="display:flex; align-items:center; gap:12px; justify-content:center; margin:0 0 6px;">
+        <div id="club-logo" class="mascot-band" style="width:58px; height:58px; flex:0 0 auto;"></div>
+        <div style="text-align:left; min-width:0;">
+          <h1 class="brandname" style="font-size:22px; margin:0; line-height:1.05;" data-i18n="appName">The Fishing Butler</h1>
+          <p class="tagline" style="margin:2px 0 0; font-size:12px;" data-i18n="tagline">Fangen. Protokollieren. Organisieren.</p>
+        </div>
+      </div>
       <p style="text-align:center; margin:0 0 10px;"><span class="beta-pill">Beta</span></p>
       <p style="text-align:center; color:var(--muted); margin:0 0 22px;" data-i18n="chooseArea">Wähle deinen Bereich</p>
       <div id="club-list"></div>
@@ -391,11 +395,13 @@
   <section id="s-login" class="screen">
     <div class="scroll pad">
       <div style="height:18px"></div>
-      <div style="text-align:center; margin:0 0 22px; padding:30px 20px 24px; background:linear-gradient(160deg, var(--teal) 0%, #18202A 125%); border-radius:22px; box-shadow:0 10px 30px rgba(24,32,42,.28);">
-        <div id="login-logo" style="width:150px; height:150px; margin:0 auto 14px; border-radius:26px; overflow:hidden; background:#fff; box-shadow:0 8px 22px rgba(0,0,0,.30); display:flex; align-items:center; justify-content:center;"></div>
-        <h1 class="brandname" style="text-align:center; font-size:30px; margin:0 0 3px; color:#fff;" data-i18n="appName">The Fishing Butler</h1>
-        <p class="tagline" style="color:rgba(255,255,255,.86); margin:0 0 12px;" data-i18n="tagline">Fangen. Protokollieren. Organisieren.</p>
-        <span class="beta-pill" style="background:rgba(255,255,255,.22);">Beta</span>
+      <div style="display:flex; align-items:center; gap:16px; margin:0 0 22px; padding:18px 20px; background:linear-gradient(150deg, var(--teal), var(--teal-dark)); border-radius:20px; box-shadow:0 10px 30px rgba(24,32,42,.28);">
+        <div id="login-logo" style="width:88px; height:88px; flex:0 0 auto;"></div>
+        <div style="min-width:0; text-align:left;">
+          <h1 class="brandname" style="font-size:26px; margin:0 0 2px; color:#fff; line-height:1.05;" data-i18n="appName">The Fishing Butler</h1>
+          <p class="tagline" style="color:rgba(255,255,255,.86); margin:0 0 8px; font-size:13px;" data-i18n="tagline">Fangen. Protokollieren. Organisieren.</p>
+          <span class="beta-pill" style="background:rgba(255,255,255,.22);">Beta</span>
+        </div>
       </div>
       <p id="login-intro2" style="text-align:center; color:var(--muted); margin:0 0 22px;" data-i18n="loginIntro2">Gib deine E-Mail ein — wir schicken dir einen Code. Kein Passwort nötig.</p>
       <div class="field" id="login-name-field" style="display:none;">
@@ -3558,7 +3564,7 @@ applyTheme();
 applyLang();
 if((navigator.maxTouchPoints||0)>0 && navigator.share){ document.getElementById('share-btn').style.display=''; }
 document.getElementById('club-logo').innerHTML=`<img src="/mascot.png" alt="The Fishing Butler" />`;
-document.getElementById('login-logo').innerHTML=`<video src="/mascot.mp4" poster="/mascot_poster.jpg" autoplay muted loop playsinline style="width:100%; height:100%; object-fit:contain;"></video>`;
+document.getElementById('login-logo').innerHTML=`<img src="/mascot.png" alt="The Fishing Butler" style="width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));">`;
 initAuth();
 _armBack();   // put one guard entry on the history stack so back/swipe is captured in-app
 </script>
