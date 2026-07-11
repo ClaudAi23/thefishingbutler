@@ -209,6 +209,9 @@
   .catch .meta{font-size:13px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .catch .chev{margin-left:4px; color:var(--border-2); flex:0 0 auto;}
   .ctxbadge{display:inline-block; font-size:10px; font-weight:600; color:var(--teal); background:var(--teal-tint); border-radius:20px; padding:1px 7px; margin-right:6px; vertical-align:middle;}
+  .sync-banner{display:flex; align-items:center; justify-content:center; gap:9px; width:100%; box-sizing:border-box; position:sticky; top:0; z-index:6; background:var(--teal-tint); color:var(--teal); border:1px solid var(--teal); border-radius:10px; padding:9px 12px; margin-bottom:14px; font:inherit; font-size:13px; font-weight:600; cursor:pointer;}
+  .sync-banner .sb-dot{width:8px; height:8px; border-radius:50%; background:var(--teal); flex:0 0 auto; animation:sbpulse 1.2s ease-in-out infinite;}
+  @keyframes sbpulse{0%,100%{opacity:.3;}50%{opacity:1;}}
   .map{height:200px; border-radius:10px; overflow:hidden; border:1px solid var(--border-2); background:var(--surface-2); z-index:0;}
   .map-detail{height:170px;}
   .map-stats{height:240px; margin-bottom:18px;}
@@ -509,6 +512,7 @@
       
     </div>
     <div class="scroll pad">
+      <button type="button" class="sync-banner" onclick="retrySync()" style="display:none;"><span class="sb-dot"></span><span class="sb-txt"></span></button>
       <div id="stats" style="display:flex; gap:10px; margin-bottom:18px;"></div>
       <div style="display:flex; align-items:center; justify-content:space-between; margin:4px 4px 12px; gap:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
         <span class="sectionlabel" id="list-label" style="margin:0;">Neueste Fänge</span>
@@ -1209,6 +1213,7 @@
       
     </div>
     <div class="scroll pad">
+      <button type="button" class="sync-banner" onclick="retrySync()" style="display:none;"><span class="sb-dot"></span><span class="sb-txt"></span></button>
       <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
       <div id="stats-map" class="map map-stats" style="display:none;"></div>
       <div style="display:flex; justify-content:flex-end; align-items:center; gap:8px; margin:0 4px 10px;">
@@ -1324,7 +1329,7 @@ function curLang(){
   const n=(navigator.language||'en').slice(0,2).toLowerCase();
   return (n==='de'||n==='nl') ? n : 'en';
 }
-try{ (function(){ var _P={ de:{offlineSaved:'Offline gespeichert \u2013 wird synchronisiert',pendingChip:'Ausstehend',pendingSyncMsg:'Wird synchronisiert, sobald du online bist',syncedToast:'F\u00e4nge synchronisiert'}, en:{offlineSaved:'Saved offline \u2013 will sync',pendingChip:'Pending',pendingSyncMsg:'Will sync once you are online',syncedToast:'Catches synced'}, nl:{offlineSaved:'Offline opgeslagen \u2013 wordt gesynchroniseerd',pendingChip:'In wachtrij',pendingSyncMsg:'Wordt gesynchroniseerd zodra je online bent',syncedToast:'Vangsten gesynchroniseerd'} }; Object.keys(_P).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l],_P[l]); }); })(); }catch(e){}
+try{ (function(){ var _P={ de:{offlineSaved:'Offline gespeichert \u2013 wird synchronisiert',pendingChip:'Ausstehend',pendingSyncMsg:'Wird synchronisiert, sobald du online bist',syncedToast:'F\u00e4nge synchronisiert',syncWaiting:'Warten auf Sync'}, en:{offlineSaved:'Saved offline \u2013 will sync',pendingChip:'Pending',pendingSyncMsg:'Will sync once you are online',syncedToast:'Catches synced',syncWaiting:'Waiting to sync'}, nl:{offlineSaved:'Offline opgeslagen \u2013 wordt gesynchroniseerd',pendingChip:'In wachtrij',pendingSyncMsg:'Wordt gesynchroniseerd zodra je online bent',syncedToast:'Vangsten gesynchroniseerd',syncWaiting:'Wachten op synchronisatie'} }; Object.keys(_P).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l],_P[l]); }); })(); }catch(e){}
 function t(k){ const L=curLang(); return (I18N[L] && I18N[L][k]!=null) ? I18N[L][k] : (I18N.en[k]!=null ? I18N.en[k] : k); }
 function trSpecies(name){ const m=SPECIES_TR[name]; return m ? m[curLang()] : name; }
 const GROUPS = [
@@ -1530,8 +1535,10 @@ function appBack(){
 function _armBack(){ try{ history.pushState({_fb:1}, ''); }catch(e){} }
 window.addEventListener('popstate', function(){ _armBack(); appBack(); });
  if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
- window.addEventListener('online', function(){ try{ syncFlush(); }catch(e){} });
+ window.addEventListener('online', function(){ try{ syncFlush(); }catch(e){} try{ updateSyncBanner(); }catch(e){} });
+ window.addEventListener('offline', function(){ try{ updateSyncBanner(); }catch(e){} });
  window.addEventListener('load', function(){ setTimeout(function(){ if(navigator.onLine){ try{ syncFlush(); }catch(e){} } }, 3500); });
+ window.addEventListener('load', function(){ setTimeout(function(){ try{ ensurePending().then(function(){ try{ updateSyncBanner(); }catch(e){} }); }catch(e){} }, 1200); });
  setInterval(function(){ if(navigator.onLine){ try{ syncFlush(); }catch(e){} } }, 30000);
 
 // ---------- club ----------
@@ -2134,6 +2141,7 @@ async function enqueueCatch(obj, editId, primary){
   state.catches=state.catches||[];
   if(editId){ const i=state.catches.findIndex(x=>x.id===editId); if(i>=0) state.catches[i]=oc; else state.catches.unshift(oc); }
   else state.catches.unshift(oc);
+  try{ updateSyncBanner(); }catch(e){}
   return rec;
 }
 let _syncing=false;
@@ -2160,8 +2168,19 @@ async function syncFlush(){
   }catch(e){}
   _pendingLoaded=false; try{ await ensurePending(); }catch(e){}
   _syncing=false;
+  try{ updateSyncBanner(); }catch(e){}
   if(done>0){ try{ await reloadCurrentDb(); }catch(e){} try{ renderList(); }catch(e){} try{ toast(t('syncedToast')); }catch(e){} try{ haptic(12); }catch(e){} }
 }
+function updateSyncBanner(){
+  try{
+    const n=(state.pending||[]).length;
+    document.querySelectorAll('.sync-banner').forEach(function(el){
+      if(n>0){ el.style.display='flex'; const tx=el.querySelector('.sb-txt'); if(tx) tx.textContent=t('syncWaiting')+' ('+n+')'; }
+      else el.style.display='none';
+    });
+  }catch(e){}
+}
+function retrySync(){ try{ haptic(8); }catch(e){} if(navigator.onLine){ try{ toast(t('syncWaiting')+'\u2026'); }catch(e){} try{ syncFlush(); }catch(e){} } else { try{ toast(t('pendingSyncMsg')); }catch(e){} } }
 let _rtChannel=null, _rtReloadT=null;
 function unsubscribeRealtime(){ if(_rtChannel){ try{ getSB().removeChannel(_rtChannel); }catch(e){} _rtChannel=null; } clearTimeout(_rtReloadT); }
 function subscribeContextRealtime(ctxId){
@@ -2426,6 +2445,7 @@ async function exportPdf(target){
   doc.save(fname);
 }
 function renderList(){
+  try{ updateSyncBanner(); }catch(e){}
   const cnt=activeFilterCount();
   const fc=document.getElementById('filter-count');
   if(cnt>0){ fc.style.display='inline-block'; fc.textContent=cnt; }
@@ -2502,6 +2522,7 @@ function otherCtxBadge(c){
   return '<span class="ctxbadge" title="'+esc(title)+'" style="opacity:.7; margin-left:-2px;">+'+n+'</span>';
 }
 function renderStats(){
+  try{ updateSyncBanner(); }catch(e){}
   const cnt=activeFilterCount();
   const fc=document.getElementById('stats-filter-count');
   if(cnt>0){ fc.style.display='inline-block'; fc.textContent=cnt; } else fc.style.display='none';
@@ -2534,7 +2555,7 @@ function renderStats(){
     b.innerHTML=`${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span class="sp">${trSpecies(c.species)}</span><span class="val">${primaryStr(c)}</span></span>
-        <span class="meta"><span class="ctxbadge">${c._ctx}</span>${otherCtxBadge(c)}${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${c.angler} · ${fmtDate(c.date)}</span>
+        <span class="meta" style="display:flex; align-items:center; gap:6px; white-space:normal; overflow:visible; text-overflow:clip;"><span style="display:flex; align-items:center; min-width:0; overflow:hidden; white-space:nowrap;"><span class="ctxbadge">${c._ctx}</span>${otherCtxBadge(c)}${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}</span><span style="margin-left:auto; flex-shrink:0; white-space:nowrap;">${esc(c.angler)} · ${fmtDate(c.date)}</span></span>
       </span>
       ${CHEV_IC}`;
     list.appendChild(wrapSwipe(b, c, 'stats'));
