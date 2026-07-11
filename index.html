@@ -300,7 +300,9 @@
   .detail-band::before{content:""; position:absolute; inset:0; pointer-events:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><polygon points='0,0 32,0 0,32' fill='%23ffffff' opacity='0.05'/><polygon points='64,64 32,64 64,32' fill='%23000000' opacity='0.06'/></svg>"); background-size:64px 64px; mix-blend-mode:overlay;}
   .detail-band .dt, .detail-band .ds{position:relative; z-index:1;}
   .detail-band .dt{font-family:'Barlow Condensed',sans-serif; font-size:34px; font-weight:700; line-height:1; margin:0;}
-  .detail-band .ds{margin:6px 0 0; font-size:15px; opacity:.85;}
+  .detail-band .dt-row{position:relative; z-index:1; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .detail-band .ds{margin:0; font-size:17px; font-weight:600; opacity:.82;}
+  .pending-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:10px; font-weight:700; letter-spacing:.02em; line-height:1.4; background:var(--teal-tint); border:1px solid var(--teal); color:var(--teal-bright); white-space:nowrap; flex:0 0 auto;}
   .drow{display:flex; justify-content:space-between; gap:16px; padding:13px 0; border-bottom:1px solid var(--border);}
   .drow .k{color:var(--muted); font-size:14px;}
   .drow .v{font-weight:500; font-size:14px; text-align:right;}
@@ -668,8 +670,10 @@
       <div id="d-hero" class="hero" style="display:none;"></div>
       <div id="d-strip" class="detail-strip" style="display:none;"></div>
       <div class="detail-band">
-        <h2 id="d-species" class="dt">—</h2>
-        <p id="d-sub" class="ds">—</p>
+        <div class="dt-row">
+          <h2 id="d-species" class="dt">—</h2>
+          <span id="d-sub" class="ds">—</span>
+        </div>
       </div>
       <div class="pad">
         <div id="d-rows"></div>
@@ -2477,8 +2481,8 @@ function renderList(){
     const _cov=coverOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${thumb}
       <span style="flex:1; min-width:0;">
-        <span class="top"><span class="sp">${trSpecies(c.species)}</span><span class="val">${primaryStr(c)}</span></span>
-        <span class="meta">${c._pending?('<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--surface);border:1px solid var(--teal);color:var(--teal-bright);margin-right:4px;">'+esc(t('pendingChip'))+'</span>'):''}${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${[c.angler, c.location, fmtDate(c.date)].filter(Boolean).join(' · ')}</span>
+        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
+        <span class="meta">${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${[c.angler, c.location, fmtDate(c.date)].filter(Boolean).join(' · ')}</span>
       </span>
       ${CHEV_IC}`;
     if(c._pending){ b.style.opacity='.72'; b.onclick=()=>{ haptic(6); toast(t('pendingSyncMsg')); }; list.appendChild(b); return; }
@@ -2554,7 +2558,7 @@ function renderStats(){
     const _cov=coverOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${thumb}
       <span style="flex:1; min-width:0;">
-        <span class="top"><span class="sp">${trSpecies(c.species)}</span><span class="val">${primaryStr(c)}</span></span>
+        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
         <span class="meta" style="display:flex; align-items:center; gap:6px; white-space:normal; overflow:visible; text-overflow:clip;"><span style="display:flex; align-items:center; min-width:0; overflow:hidden; white-space:nowrap;"><span class="ctxbadge">${c._ctx}</span>${otherCtxBadge(c)}${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}</span><span style="margin-left:auto; flex-shrink:0; white-space:nowrap;">${esc(c.angler)} · ${fmtDate(c.date)}</span></span>
       </span>
       ${CHEV_IC}`;
@@ -3469,7 +3473,7 @@ function openDetailObj(c, from){
   } else { strip.style.display='none'; strip.innerHTML=''; }
   document.getElementById('d-species').textContent=trSpecies(c.species);
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
-  document.getElementById('d-sub').textContent=size||t('noMeasures');
+  { const dsub=document.getElementById('d-sub'); if(size){ dsub.textContent=size; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
   const rows=[[t('dAngler'),c.angler],[t('dWater'),c.location||'—'],[t('dLength'),fmtLen(c.length)],[t('dWeight'),fmtWeight(c.weight)]];
   if(c.method) rows.push([t('method'), c.method]);
   if(c.bait) rows.push([t('bait'), c.bait]);
