@@ -2001,6 +2001,8 @@ function dbRowToCatch(row, photoUrls){
     loggedBy: row.logged_by||null, loggedByName:null, confirmed: row.confirmed!==false, _db:true, _ctxId: row.context_id||null, _ctxIds: row.context_ids||null, coverPos: row.cover_pos||null
   , photos: photoUrls||[], photo: (photoUrls&&photoUrls[0])||null };
 }
+// cache signed photo URLs by path so reloads reuse the SAME url (browser cache hit → no re-download flash)
+const _sigCache={};
 // turn DB rows into catch objects with signed photo URLs (+ optional owner-name map for shared contexts)
 async function rowsToCatches(rows, nameById){
   const c=getSB(); const ids=rows.map(r=>r.id); const byCatch={};
@@ -2012,8 +2014,13 @@ async function rowsToCatches(rows, nameById){
   Object.values(byCatch).forEach(arr=>{ arr.sort((a,b)=>(b.is_cover-a.is_cover)||(a.sort-b.sort)); arr.forEach(p=>allPaths.push(p.path)); });
   let signedMap={};
   if(allPaths.length){
-    const { data: signed } = await c.storage.from('catch-photos').createSignedUrls(allPaths, 60*60*24*7);
-    (signed||[]).forEach(s=>{ if(s && s.path && s.signedUrl) signedMap[s.path]=s.signedUrl; });
+    const now=Date.now();
+    const need=[];
+    allPaths.forEach(p=>{ const hit=_sigCache[p]; if(hit && hit.exp>now){ signedMap[p]=hit.url; } else if(need.indexOf(p)<0){ need.push(p); } });
+    if(need.length){
+      const { data: signed } = await c.storage.from('catch-photos').createSignedUrls(need, 60*60*24*7);
+      (signed||[]).forEach(s=>{ if(s && s.path && s.signedUrl){ signedMap[s.path]=s.signedUrl; _sigCache[s.path]={url:s.signedUrl, exp:now+6*24*60*60*1000}; } });
+    }
   }
   return rows.map(r=>{
     const urls=(byCatch[r.id]||[]).map(p=>signedMap[p.path]).filter(Boolean);
