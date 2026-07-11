@@ -73,6 +73,8 @@
   .skel-l1{height:14px; width:55%; margin-bottom:8px;} .skel-l2{height:11px; width:75%;}
   @media (prefers-reduced-motion: reduce){ .screen.active, .screen.active.is-back, .skel, .modal-box{animation:none!important;} }
   .scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .form-actions{flex:0 0 auto; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--border); box-shadow:0 -8px 22px rgba(0,0,0,.28);}
+  .form-actions .btn{margin:0;}
 
   .topbar{
     display:flex; align-items:center; gap:10px; padding:14px 16px; padding-top:calc(14px + env(safe-area-inset-top));
@@ -649,12 +651,14 @@
       </div>
 
       <p class="hint" style="margin:2px 0 14px;"><span class="req">*</span> <span data-i18n="starReq">immer erforderlich</span> &nbsp;·&nbsp; <span style="color:var(--danger); font-weight:600;">*</span> <span data-i18n="starAdmin">vom Verein/Gruppe als Pflicht gesetzt</span></p>
-      <button class="btn" onclick="saveCatch()" data-i18n="saveCatch">Fang speichern</button>
-      <p id="form-err" class="hint" style="color:var(--danger); text-align:center; display:none;">Bitte Fischart, Datum und Angler ausfüllen.</p>
-      <div id="form-del-wrap" style="display:none; margin-top:26px; padding-top:18px; border-top:1px solid var(--border);">
+      <div id="form-del-wrap" style="display:none; margin-top:6px; padding-top:18px; border-top:1px solid var(--border);">
         <button type="button" id="form-del-btn" class="btn secondary" style="color:var(--danger); border-color:var(--border-2);" onclick="deleteCatch(state.editId, state.editReturn)" data-i18n="del">Löschen</button>
       </div>
-      <div style="height:20px"></div>
+      <div style="height:12px"></div>
+    </div>
+    <div class="form-actions">
+      <p id="form-err" class="hint" style="color:var(--danger); text-align:center; display:none; margin:0 0 8px;">Bitte Fischart, Datum und Angler ausfüllen.</p>
+      <button class="btn" onclick="saveCatch()" data-i18n="saveCatch">Fang speichern</button>
     </div>
   </section>
 
@@ -2093,18 +2097,41 @@ async function deleteSoloPhotos(catchId){
   const { data } = await c.from('catch_photos').select('path').eq('catch_id', catchId);
   if(data && data.length){ try{ await c.storage.from('catch-photos').remove(data.map(r=>r.path)); }catch(e){} await c.from('catch_photos').delete().eq('catch_id', catchId); }
 }
+function extractStoragePath(url){
+  try{ const m=String(url).match(/\/catch-photos\/([^?]+)/); return m ? decodeURIComponent(m[1]) : null; }catch(e){ return null; }
+}
 async function saveSoloPhotos(catchId, photos){
-  const c=getSB(); await deleteSoloPhotos(catchId);
-  const rows=[];
+  // Diff-based sync: keep existing photos by storage path, upload only NEW (data:) photos,
+  // and delete only the objects the user actually removed. Never re-fetch/re-upload existing
+  // photos (that could wipe them if a signed URL has expired or the object was already removed).
+  const c=getSB();
+  const { data: existing } = await c.from('catch_photos').select('path').eq('catch_id', catchId);
+  const exSet = new Set((existing||[]).map(r=>r.path));
+  const kept = new Set();
+  const finalRows=[];
   for(let i=0;i<photos.length;i++){
-    try{
-      const blob = await (await fetch(photos[i])).blob();
-      const path = state.me.id+'/'+catchId+'/'+Date.now()+'_'+i+'.jpg';
-      const { error } = await c.storage.from('catch-photos').upload(path, blob, {contentType: blob.type||'image/jpeg', upsert:true});
-      if(!error) rows.push({catch_id:catchId, path, is_cover:i===0, sort:i});
-    }catch(e){}
+    const p=photos[i]; let path=null;
+    if(typeof p==='string' && p.slice(0,5)==='data:'){
+      try{
+        const blob = await (await fetch(p)).blob();
+        if(blob && blob.type && blob.type.indexOf('image')===0){
+          const np = state.me.id+'/'+catchId+'/'+Date.now()+'_'+i+'.jpg';
+          const { error } = await c.storage.from('catch-photos').upload(np, blob, {contentType: blob.type||'image/jpeg', upsert:true});
+          if(!error) path=np;
+        }
+      }catch(e){}
+    } else {
+      const ep=extractStoragePath(p);
+      if(ep && exSet.has(ep)){ path=ep; kept.add(ep); }
+    }
+    if(path) finalRows.push({catch_id:catchId, path, is_cover:i===0, sort:i});
   }
-  if(rows.length) await c.from('catch_photos').insert(rows);
+  // remove storage objects for photos the user dropped from the editor
+  const toRemove=(existing||[]).filter(r=>!kept.has(r.path)).map(r=>r.path);
+  if(toRemove.length){ try{ await c.storage.from('catch-photos').remove(toRemove); }catch(e){} }
+  // rewrite rows to reflect new order + cover
+  await c.from('catch_photos').delete().eq('catch_id', catchId);
+  if(finalRows.length) await c.from('catch_photos').insert(finalRows);
 }
 async function saveCatchDb(obj, editId, contextId){
   const c=getSB(); const row=catchToDbRow(obj, contextId);
