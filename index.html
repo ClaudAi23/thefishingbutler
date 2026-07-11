@@ -134,7 +134,7 @@
   .setgroup:first-child{margin-top:2px;}
   .swipe-wrap{position:relative; margin-bottom:12px; border-radius:10px; overflow:hidden;}
   .swipe-wrap .catch{margin-bottom:0; position:relative; z-index:1; will-change:transform;}
-  .swipe-bg{position:absolute; inset:0; background:var(--danger); display:flex; align-items:center; padding-left:22px;}
+  .swipe-bg{position:absolute; inset:0; width:100%; border:none; background:var(--danger); display:flex; align-items:center; padding-left:24px; cursor:pointer;}
   .swipe-bg svg{width:24px; height:24px; stroke:#fff; stroke-width:2; fill:none;}
   .swatch{width:34px; height:34px; border-radius:9px; border:1px solid rgba(255,255,255,.14); cursor:pointer; padding:0;}
   .swatch.on{outline:2px solid var(--teal-bright); outline-offset:2px;}
@@ -2305,7 +2305,7 @@ function renderList(){
     (bigWt ? scard(t('heaviestStat'), fmtWeight(bigWt.weight), true) : '');
 
   document.getElementById('sort-list').innerHTML=sortOptionsHtml();
-  const list=document.getElementById('catch-list'); list.innerHTML='';
+  const list=document.getElementById('catch-list'); list.innerHTML=''; _openSwipe=null;
   const sorted=sortCatches(items);
   if(sorted.length===0){
     list.innerHTML=`<div class="empty"><div class="mascot-band mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
@@ -2875,22 +2875,28 @@ async function deleteCatch(id){
   state.catches=state.catches.filter(x=>x.id!==id);
   saveCatches(); renderList(); go('list');
 }
+let _openSwipe=null;
+function _closeSwipe(){ if(_openSwipe){ _openSwipe.style.transition='transform .2s'; _openSwipe.style.transform='translateX(0)'; _openSwipe._open=false; _openSwipe=null; } }
 function wrapSwipe(btn, id){
+  const OPEN=84;
   const wrap=document.createElement('div'); wrap.className='swipe-wrap';
-  wrap.innerHTML='<div class="swipe-bg"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></div>';
-  wrap.appendChild(btn);
-  let x0=0,y0=0,dx=0,drag=false,decided=false,horiz=false;
-  btn.addEventListener('touchstart',ev=>{ const p=ev.touches[0]; x0=p.clientX; y0=p.clientY; dx=0; drag=true; decided=false; horiz=false; btn.style.transition='none'; },{passive:true});
+  const bg=document.createElement('button'); bg.type='button'; bg.className='swipe-bg'; bg.setAttribute('aria-label','Löschen');
+  bg.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
+  bg.onclick=async(e)=>{ e.stopPropagation(); const ok=await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true); if(ok){ deleteCatch(id); } else { _closeSwipe(); } };
+  wrap.appendChild(bg); wrap.appendChild(btn);
+  let x0=0,y0=0,dx=0,base=0,drag=false,decided=false,horiz=false;
+  btn.addEventListener('touchstart',ev=>{ const p=ev.touches[0]; x0=p.clientX; y0=p.clientY; base=btn._open?OPEN:0; dx=base; drag=true; decided=false; horiz=false; btn.style.transition='none'; },{passive:true});
   btn.addEventListener('touchmove',ev=>{ if(!drag) return; const p=ev.touches[0]; const mx=p.clientX-x0, my=p.clientY-y0;
     if(!decided && (Math.abs(mx)>8||Math.abs(my)>8)){ decided=true; horiz=Math.abs(mx)>Math.abs(my); }
-    if(decided&&horiz){ dx=Math.max(0, Math.min(mx,120)); btn.style.transform='translateX('+dx+'px)'; if(dx>6) btn._swiped=true; if(ev.cancelable) ev.preventDefault(); }
+    if(decided&&horiz){ dx=Math.max(0, Math.min(base+mx, OPEN)); btn.style.transform='translateX('+dx+'px)'; if(Math.abs(mx)>6) btn._swiped=true; if(ev.cancelable) ev.preventDefault(); }
   },{passive:false});
   const end=()=>{ if(!drag) return; drag=false; btn.style.transition='transform .2s';
-    if(dx>80){ btn.style.transform='translateX(100%)';
-      setTimeout(async()=>{ const ok=await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true); if(ok){ deleteCatch(id); } else { btn.style.transform='translateX(0)'; } }, 130);
-    } else { btn.style.transform='translateX(0)'; }
+    const open = dx > OPEN/2;
+    btn.style.transform = open ? ('translateX('+OPEN+'px)') : 'translateX(0)'; btn._open=open;
+    if(open){ if(_openSwipe && _openSwipe!==btn) _closeSwipe(); _openSwipe=btn; } else if(_openSwipe===btn){ _openSwipe=null; }
   };
   btn.addEventListener('touchend',end); btn.addEventListener('touchcancel',end);
+  btn.onclick=()=>{ if(btn._swiped){ btn._swiped=false; return; } if(btn._open){ _closeSwipe(); return; } openDetail(id); };
   return wrap;
 }
 function buildAnglerOptions(){
