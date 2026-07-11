@@ -124,6 +124,11 @@
   .brandname{font-family:'Playfair Display',Georgia,serif !important; font-weight:700; letter-spacing:0;}
   .beta-pill{display:inline-block; padding:3px 11px; border-radius:999px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; background:transparent; color:var(--teal-bright); border:1px solid rgba(94,184,206,.45); vertical-align:middle;}
   .brand-foot{flex:0 0 auto; text-align:center; padding:10px 16px calc(14px + env(safe-area-inset-bottom));}
+  .av-edit{position:relative; display:inline-block; cursor:pointer; flex:0 0 auto;}
+  .av-edit .hdr-logo{transition:filter .15s;}
+  .av-edit:active .hdr-logo{filter:brightness(.82);}
+  .av-edit-badge{position:absolute; right:-3px; bottom:-3px; width:24px; height:24px; border-radius:50%; background:var(--teal); border:2px solid var(--sand); display:flex; align-items:center; justify-content:center; color:#fff; pointer-events:none;}
+  .av-edit-badge svg{width:13px; height:13px; stroke:currentColor; stroke-width:2; fill:none;}
   .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--teal); color:#fff; padding:10px 18px; border-radius:999px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,.3); opacity:0; transition:opacity .2s; pointer-events:none;}
   .toast.show{opacity:1;}
   .accgroup{border:1px solid var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; background:var(--surface);}
@@ -656,14 +661,16 @@
         <button type="button" class="acchead" onclick="toggleAcc('profil')"><span data-i18n="profile">Profil</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
           <div style="display:flex; align-items:center; gap:14px; margin:6px 0 14px;">
-            <div id="prof-av" class="hdr-logo" style="width:54px; height:54px; border-radius:12px;"></div>
-            <div><div id="prof-name" style="font-weight:600;">—</div></div>
+            <label class="av-edit" data-i18n-title="tapToChange" title="Zum Ändern tippen">
+              <div id="prof-av" class="hdr-logo" style="width:64px; height:64px; border-radius:14px;"></div>
+              <span class="av-edit-badge"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg></span>
+              <input id="prof-av-file" type="file" accept="image/*" style="display:none" onchange="onUserAvatar(event)" />
+            </label>
+            <div><div id="prof-name" style="font-weight:600;">—</div><div class="hint" style="margin:2px 0 0;" data-i18n="tapToChange">Zum Ändern tippen</div></div>
           </div>
           <label data-i18n="name">Name</label>
           <input id="prof-name-input" type="text" autocomplete="off" oninput="onProfileName(this.value)" />
           <p class="hint" data-i18n="nameHint">Wird bei deinen Fängen und als Initialen genutzt.</p>
-          <button class="btn secondary sm" onclick="document.getElementById('prof-av-file').click()" data-i18n="uploadImage">Bild hochladen</button>
-          <input id="prof-av-file" type="file" accept="image/*" style="display:none" onchange="onUserAvatar(event)" />
         </div>
       </div>
 
@@ -749,14 +756,16 @@
           <div id="logo-admin">
             <div class="sectionlabel" style="margin-left:0;" data-i18n="clubLogoAdmin">Logo · Admin</div>
             <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-              <div id="set-logo" class="hdr-logo" style="width:54px; height:54px; border-radius:12px;"></div>
+              <label class="av-edit" data-i18n-title="tapToChange" title="Zum Ändern tippen">
+                <div id="set-logo" class="hdr-logo" style="width:64px; height:64px; border-radius:14px;"></div>
+                <span class="av-edit-badge"><svg viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg></span>
+                <input id="logo-file" type="file" accept="image/*" style="display:none" onchange="onLogo(event)" />
+              </label>
               <div>
                 <div id="set-clubname" style="font-weight:600;">—</div>
-                <div class="hint" style="margin:0;" data-i18n="currentLogo">Aktuelles Logo</div>
+                <div class="hint" style="margin:2px 0 0;" data-i18n="tapToChange">Zum Ändern tippen</div>
               </div>
             </div>
-            <button class="btn secondary sm" onclick="document.getElementById('logo-file').click()" data-i18n="uploadLogo">Logo hochladen</button>
-            <input id="logo-file" type="file" accept="image/*" style="display:none" onchange="onLogo(event)" />
             <p class="hint" data-i18n="logoHint">Nur Admins können das Logo ändern. Es gilt für alle Mitglieder.</p>
           </div>
         </div>
@@ -1145,7 +1154,7 @@ const MONTHS = {
 };
 const I18N = {
   de:{
-    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
+    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
     personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge, alle Bereiche", soloTile:"Solo", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
@@ -1158,7 +1167,7 @@ const I18N = {
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit The Fishing Butler", shareNoMeasure:"ohne Maße"
   },
   en:{
-    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
+    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
     personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
@@ -1171,7 +1180,7 @@ const I18N = {
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with The Fishing Butler", shareNoMeasure:"no measurements"
   },
   nl:{
-    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
+    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
     personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
