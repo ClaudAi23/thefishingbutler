@@ -1038,6 +1038,22 @@
     </div>
   </div>
 
+  <div id="crop-modal" class="modal-ov" style="display:none;">
+    <div class="modal-box">
+      <h2 style="font-size:20px; margin:0 0 4px;" data-i18n="editImage">Bild anpassen</h2>
+      <p class="hint" style="margin:0 0 14px;" data-i18n="editImageHint">Ziehen zum Verschieben, Regler zum Zoomen.</p>
+      <div id="crop-stage" style="position:relative; width:100%; aspect-ratio:1/1; background:#000; border-radius:14px; overflow:hidden; touch-action:none;">
+        <canvas id="crop-canvas" width="640" height="640" style="width:100%; height:100%; display:block;"></canvas>
+        <div style="position:absolute; inset:0; pointer-events:none; border-radius:14px; outline:1px solid rgba(255,255,255,.28); outline-offset:-1px;"></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px; margin:14px 0 4px;">
+        <button type="button" class="btn secondary sm" style="width:auto; padding:9px 13px;" onclick="cropRotate()" aria-label="Drehen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+        <input id="crop-zoom" type="range" min="1" max="3" step="0.01" value="1" oninput="cropDraw()" style="flex:1;">
+      </div>
+      <button type="button" class="btn" onclick="cropApply()" data-i18n="cropApply">Übernehmen</button>
+      <button type="button" class="sheet-cancel" onclick="cropCancel()" data-i18n="cancel">Abbrechen</button>
+    </div>
+  </div>
   <div id="export-modal" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('export-modal')">
     <div class="modal-box">
       <h2 style="font-size:20px; margin:0 0 3px;" data-i18n="exportTitle">Exportieren</h2>
@@ -1175,7 +1191,7 @@ const MONTHS = {
 };
 const I18N = {
   de:{
-    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Kürzel-Logo (ohne Bild)", logoInitialsHint:"Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).", logoLight:"Heller Text", logoDark:"Dunkler Text", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
+    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Kürzel-Logo (ohne Bild)", logoInitialsHint:"Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).", logoLight:"Heller Text", logoDark:"Dunkler Text", editImage:"Bild anpassen", editImageHint:"Ziehen zum Verschieben, Regler zum Zoomen.", cropApply:"Übernehmen", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
     personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge, alle Bereiche", soloTile:"Solo", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
@@ -1188,7 +1204,7 @@ const I18N = {
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit The Fishing Butler", shareNoMeasure:"ohne Maße"
   },
   en:{
-    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials logo (no image)", logoInitialsHint:"Shown when no image is set (max. 3 characters).", logoLight:"Light text", logoDark:"Dark text", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
+    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials logo (no image)", logoInitialsHint:"Shown when no image is set (max. 3 characters).", logoLight:"Light text", logoDark:"Dark text", editImage:"Adjust image", editImageHint:"Drag to move, slider to zoom.", cropApply:"Apply", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
     personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
@@ -1201,7 +1217,7 @@ const I18N = {
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with The Fishing Butler", shareNoMeasure:"no measurements"
   },
   nl:{
-    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen-logo (geen afbeelding)", logoInitialsHint:"Wordt getoond als er geen afbeelding is (max. 3 tekens).", logoLight:"Lichte tekst", logoDark:"Donkere tekst", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
+    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen-logo (geen afbeelding)", logoInitialsHint:"Wordt getoond als er geen afbeelding is (max. 3 tekens).", logoLight:"Lichte tekst", logoDark:"Donkere tekst", editImage:"Afbeelding aanpassen", editImageHint:"Sleep om te verplaatsen, schuif om te zoomen.", cropApply:"Toepassen", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
     personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
@@ -3509,19 +3525,61 @@ function downscaleImage(src, max, cb){
     try{ cb(cv.toDataURL('image/jpeg',0.85)); }catch(e){ cb(src); } };
   img.onerror=()=>cb(src); img.src=src;
 }
-function onUserAvatar(e){
-  const f=e.target.files[0]; if(!f||!state.me) return;
+let _crop={img:null,rot:0,offx:0,offy:0,cb:null,drag:false,lx:0,ly:0};
+function openCrop(file, square, cb){
   const r=new FileReader();
-  r.onload=ev=>{ downscaleImage(ev.target.result, 256, async dataUrl=>{
-    state.me.avatar=dataUrl; savePrefs();
-    document.getElementById('prof-av').innerHTML=userAvatarHTML(); { const _oa=document.getElementById('ob-av'); if(_oa) _oa.innerHTML=userAvatarHTML(); }
-    if(state.mode==='solo') document.getElementById('list-hdr').innerHTML=userAvatarHTML();
-    if(state.auth==='supabase' && getSB()){
-      try{ const { error } = await getSB().from('profiles').upsert({id:state.me.id, avatar_url:dataUrl}); if(error) throw error; toast(t('savedToast')); }
-      catch(e){ toast(t('errSave')); }
-    }
-  }); };
-  r.readAsDataURL(f);
+  r.onload=e=>{ const img=new Image(); img.onload=()=>{
+    _crop={img:img,rot:0,offx:0,offy:0,cb:cb,drag:false,lx:0,ly:0};
+    const z=document.getElementById('crop-zoom'); if(z) z.value=1;
+    document.getElementById('crop-modal').style.display='flex';
+    _cropBind(); cropDraw();
+  }; img.onerror=()=>{ if(cb) cb(file); }; img.src=e.target.result; };
+  r.onerror=()=>{ if(cb) cb(file); };
+  r.readAsDataURL(file);
+}
+function _cropBind(){
+  const st=document.getElementById('crop-stage'); if(!st||st._bound) return; st._bound=true;
+  const dn=e=>{ _crop.drag=true; const p=e.touches?e.touches[0]:e; _crop.lx=p.clientX; _crop.ly=p.clientY; };
+  const mv=e=>{ if(!_crop.drag||!_crop.img) return; const p=e.touches?e.touches[0]:e; const cv=document.getElementById('crop-canvas'); const k=cv.width/st.clientWidth; _crop.offx+=(p.clientX-_crop.lx)*k; _crop.offy+=(p.clientY-_crop.ly)*k; _crop.lx=p.clientX; _crop.ly=p.clientY; cropDraw(); if(e.cancelable)e.preventDefault(); };
+  const up=()=>{ _crop.drag=false; };
+  st.addEventListener('mousedown',dn); window.addEventListener('mousemove',mv); window.addEventListener('mouseup',up);
+  st.addEventListener('touchstart',dn,{passive:true}); st.addEventListener('touchmove',mv,{passive:false}); st.addEventListener('touchend',up);
+}
+function _cropMetrics(){
+  const cv=document.getElementById('crop-canvas'); const CS=cv.width; const img=_crop.img;
+  const rotated=_crop.rot%2!==0; const w=rotated?img.height:img.width, h=rotated?img.width:img.height;
+  const cover=CS/Math.min(w,h); const zoom=parseFloat(document.getElementById('crop-zoom').value)||1;
+  const sc=cover*zoom; return {CS,sc,dispW:w*sc,dispH:h*sc};
+}
+function _cropClamp(m){ const maxx=Math.max(0,(m.dispW-m.CS)/2), maxy=Math.max(0,(m.dispH-m.CS)/2); _crop.offx=Math.max(-maxx,Math.min(maxx,_crop.offx)); _crop.offy=Math.max(-maxy,Math.min(maxy,_crop.offy)); }
+function cropDraw(){
+  const cv=document.getElementById('crop-canvas'); if(!cv||!_crop.img) return; const ctx=cv.getContext('2d'); const CS=cv.width; const img=_crop.img;
+  const m=_cropMetrics(); _cropClamp(m);
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,CS,CS);
+  ctx.save(); ctx.translate(CS/2+_crop.offx, CS/2+_crop.offy); ctx.rotate(_crop.rot*Math.PI/2); ctx.scale(m.sc,m.sc);
+  ctx.drawImage(img,-img.width/2,-img.height/2,img.width,img.height); ctx.restore();
+}
+function cropRotate(){ _crop.rot=(_crop.rot+1)%4; _crop.offx=0; _crop.offy=0; cropDraw(); }
+function cropCancel(){ _crop.cb=null; closeModal('crop-modal'); }
+function cropApply(){
+  const cv=document.getElementById('crop-canvas'); const out=document.createElement('canvas'); out.width=512; out.height=512;
+  out.getContext('2d').drawImage(cv,0,0,512,512);
+  out.toBlob(b=>{ const cb=_crop.cb; _crop.cb=null; closeModal('crop-modal'); if(b&&cb) cb(new File([b],'crop.png',{type:'image/png'})); }, 'image/png');
+}
+function onUserAvatar(e){
+  const f=e.target.files[0]; if(!f||!state.me) return; e.target.value='';
+  openCrop(f, true, cf=>{ const r=new FileReader();
+    r.onload=ev=>{ downscaleImage(ev.target.result, 256, async dataUrl=>{
+      state.me.avatar=dataUrl; savePrefs();
+      document.getElementById('prof-av').innerHTML=userAvatarHTML(); { const _oa=document.getElementById('ob-av'); if(_oa) _oa.innerHTML=userAvatarHTML(); }
+      if(state.mode==='solo') document.getElementById('list-hdr').innerHTML=userAvatarHTML();
+      if(state.auth==='supabase' && getSB()){
+        try{ const { error } = await getSB().from('profiles').upsert({id:state.me.id, avatar_url:dataUrl}); if(error) throw error; toast(t('savedToast')); }
+        catch(e){ toast(t('errSave')); }
+      }
+    }); };
+    r.readAsDataURL(cf);
+  });
 }
 let _ctxLocSaveT=null;
 function onCtxLoc(v){
@@ -3581,6 +3639,10 @@ async function uploadContextLogo(file){
 async function onLogo(e){
   const f=e.target.files[0]; if(!f||!state.club) return;
   e.target.value='';
+  openCrop(f, true, cf=>{ processLogoFile(cf); });
+}
+async function processLogoFile(f){
+  if(!f||!state.club) return;
   if(ctxIsDb() && canEditCtxCfg()){
     const setLogo=document.getElementById('set-logo'); const prev=setLogo?setLogo.innerHTML:'';
     if(setLogo) setLogo.innerHTML='<span class="hint" style="font-size:11px; margin:0;">…</span>';
