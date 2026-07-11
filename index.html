@@ -572,15 +572,14 @@
       </div>
 
       <div class="fgroup" id="fg-cond" data-i18n="grpConditions">Bedingungen</div>
+      <div class="field" id="ff-weather">
+        <label data-i18n="weather">Wetter</label>
+        <input id="f-weather" type="text" placeholder="z. B. Bewölkt · 18 °C · 12 km/h" data-i18n-ph="weatherPh" oninput="state.weatherEdited=true" />
+        <div class="hint" data-i18n="weatherAutoHint">Automatisch vorausgefüllt, wenn ein Standort gesetzt ist – frei editierbar.</div>
+      </div>
       <div class="field" id="ff-watertemp">
         <label data-i18n="watertemp">Wassertemperatur (°C)</label>
         <input id="f-watertemp" type="number" inputmode="decimal" step="0.1" placeholder="z. B. 18" data-i18n-ph="watertempPh" />
-      </div>
-      <div class="field" id="ff-weather">
-        <label data-i18n="weather">Wetter</label>
-        <div id="f-weather"></div>
-        <input id="f-weather-manual" type="text" placeholder="z. B. sonnig, 18 °C, leichter Wind" data-i18n-ph="weatherManualPh" style="margin-top:8px;" />
-        <div class="hint" data-i18n="weatherManualHint">Automatisch geladen, wenn ein Standort gesetzt ist – manuell überschreibbar.</div>
       </div>
 
       <div class="fgroup" id="fg-gear" data-i18n="grpGear">Technik & Ausrüstung</div>
@@ -1194,7 +1193,7 @@ const MONTHS = {
 };
 const I18N = {
   de:{
-    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Kürzel-Logo (ohne Bild)", logoInitialsHint:"Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).", logoLight:"Heller Text", logoDark:"Dunkler Text", editImage:"Bild anpassen", editImageHint:"Ziehen zum Verschieben, Regler zum Zoomen.", cropApply:"Übernehmen", removeImage:"Bild entfernen", weatherManualPh:"z. B. sonnig, 18 °C, leichter Wind", weatherManualHint:"Automatisch geladen, wenn ein Standort gesetzt ist – manuell überschreibbar.", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
+    appName:"The Fishing Butler", tagline:"Fangen. Protokollieren. Organisieren.", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Kürzel-Logo (ohne Bild)", logoInitialsHint:"Wird angezeigt, wenn kein Bild gesetzt ist (max. 3 Zeichen).", logoLight:"Heller Text", logoDark:"Dunkler Text", editImage:"Bild anpassen", editImageHint:"Ziehen zum Verschieben, Regler zum Zoomen.", cropApply:"Übernehmen", removeImage:"Bild entfernen", weatherManualPh:"z. B. sonnig, 18 °C, leichter Wind", weatherManualHint:"Automatisch geladen, wenn ein Standort gesetzt ist – manuell überschreibbar.", weatherPh:"z. B. Bewölkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch vorausgefüllt, wenn ein Standort gesetzt ist – frei editierbar.", chooseArea:"Wähle deinen Bereich", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
     personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge, alle Bereiche", soloTile:"Solo", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
@@ -1207,7 +1206,7 @@ const I18N = {
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit The Fishing Butler", shareNoMeasure:"ohne Maße"
   },
   en:{
-    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials logo (no image)", logoInitialsHint:"Shown when no image is set (max. 3 characters).", logoLight:"Light text", logoDark:"Dark text", editImage:"Adjust image", editImageHint:"Drag to move, slider to zoom.", cropApply:"Apply", removeImage:"Remove image", weatherManualPh:"e.g. sunny, 18 °C, light wind", weatherManualHint:"Auto-filled when a location is set – you can override it.", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
+    appName:"The Fishing Butler", tagline:"Catch. Log. Organize.", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials logo (no image)", logoInitialsHint:"Shown when no image is set (max. 3 characters).", logoLight:"Light text", logoDark:"Dark text", editImage:"Adjust image", editImageHint:"Drag to move, slider to zoom.", cropApply:"Apply", removeImage:"Remove image", weatherManualPh:"e.g. sunny, 18 °C, light wind", weatherManualHint:"Auto-filled when a location is set – you can override it.", weatherPh:"e.g. Cloudy · 18 °C · 12 km/h", weatherAutoHint:"Auto-filled when a location is set – fully editable.", chooseArea:"Choose your area", notInClub:"Club not listed? Contact your club admin.",
     personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
@@ -1220,7 +1219,7 @@ const I18N = {
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with The Fishing Butler", shareNoMeasure:"no measurements"
   },
   nl:{
-    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen-logo (geen afbeelding)", logoInitialsHint:"Wordt getoond als er geen afbeelding is (max. 3 tekens).", logoLight:"Lichte tekst", logoDark:"Donkere tekst", editImage:"Afbeelding aanpassen", editImageHint:"Sleep om te verplaatsen, schuif om te zoomen.", cropApply:"Toepassen", removeImage:"Afbeelding verwijderen", weatherManualPh:"bijv. zonnig, 18 °C, lichte wind", weatherManualHint:"Automatisch geladen als er een locatie is – handmatig te overschrijven.", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
+    appName:"The Fishing Butler", tagline:"Vangen. Loggen. Organiseren.", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen-logo (geen afbeelding)", logoInitialsHint:"Wordt getoond als er geen afbeelding is (max. 3 tekens).", logoLight:"Lichte tekst", logoDark:"Donkere tekst", editImage:"Afbeelding aanpassen", editImageHint:"Sleep om te verplaatsen, schuif om te zoomen.", cropApply:"Toepassen", removeImage:"Afbeelding verwijderen", weatherManualPh:"bijv. zonnig, 18 °C, lichte wind", weatherManualHint:"Automatisch geladen als er een locatie is – handmatig te overschrijven.", weatherPh:"bijv. Bewolkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch ingevuld als er een locatie is – vrij bewerkbaar.", chooseArea:"Kies je omgeving", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
     personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
@@ -2213,7 +2212,7 @@ function buildCsv(items, target){
   items.forEach(c=>{
     const d=new Date(c.date), p=n=>String(n).padStart(2,'0');
     const dstr=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
-    let wetter=''; if(c.weather&&c.weather.manual){ wetter=c.weather.manual; } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur, ck=weatherCodeKey(cw.code); wetter=[ck?t(ck):null, cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', '); }
+    let wetter=''; if(c.weather&&(c.weather.text||c.weather.manual)){ wetter=c.weather.text||c.weather.manual; } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur, ck=weatherCodeKey(cw.code); wetter=[ck?t(ck):null, cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', '); }
     const bereich = target==='stats' ? (c._ctx||'') : (state.mode==='solo'?t('solo'):(state.club?state.club.name:''));
     const vals=[dstr, trSpecies(c.species),
       c.length!=null?c.length:'', c.weight!=null?String(c.weight).replace('.',','):'',
@@ -2286,7 +2285,7 @@ async function exportPdf(target){
     if(c.released!=null) det.push(t('releasedLabel')+': '+(c.released?t('releasedReleased'):t('releasedKept')));
     det.push(t('dAngler')+': '+c.angler);
     det.push(t('dDate')+': '+fmtDateLong(c.date));
-    if(c.weather&&c.weather.manual){ det.push(t('weather')+': '+c.weather.manual); } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur,ck=weatherCodeKey(cw.code); det.push(t('weather')+': '+[ck?t(ck):null,cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', ')); }
+    if(c.weather&&(c.weather.text||c.weather.manual)){ det.push(t('weather')+': '+(c.weather.text||c.weather.manual)); } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur,ck=weatherCodeKey(cw.code); det.push(t('weather')+': '+[ck?t(ck):null,cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', ')); }
     if(c.moon) det.push(t('moon')+': '+t(c.moon));
     if(c.notes) det.push(t('notes')+': '+c.notes);
     doc.setFontSize(10);
@@ -2535,25 +2534,33 @@ async function enrichWeather(c){
   if(state.current && state.current===c) renderWeather(c);
 }
 let previewTimer=null, previewSeq=0;
+function wxSummaryString(w){
+  if(!w||!w.cur) return '';
+  const cur=w.cur, ck=weatherCodeKey(cur.code); const parts=[];
+  if(ck) parts.push(t(ck));
+  if(cur.temp!=null) parts.push(Math.round(cur.temp)+' °C');
+  if(cur.wind!=null) parts.push(Math.round(cur.wind)+' km/h');
+  if(cur.pressure!=null) parts.push(Math.round(cur.pressure)+' hPa');
+  return parts.join(' · ');
+}
 function previewWeather(){
   const lat=state.formLat, lon=state.formLon;
-  const box=document.getElementById('f-weather');
-  if(lat==null){ if(box){ box.style.display='none'; box.innerHTML=''; } state.formWeather=null; return; }
-  if(box){ box.style.display='block'; box.innerHTML=`<div class="hint" style="margin:0;">${t('wLoading')}</div>`; }
+  const inp=document.getElementById('f-weather');
+  if(lat==null) return;
   const date=document.getElementById('f-date').value;
   clearTimeout(previewTimer);
   const seq=++previewSeq;
   previewTimer=setTimeout(async ()=>{
     const w=await fetchWeather(lat, lon, date);
     if(seq!==previewSeq) return;
-    state.formWeather=w;
-    renderWeatherInto(w, date, 'f-weather', null);
+    const sum=wxSummaryString(w);
+    if(inp && sum && !state.weatherEdited){ inp.value=sum; }
   }, 350);
 }
 function renderWeather(c){ renderWeatherInto(c.weather, c.date, 'd-weather','d-weather-wrap'); }
 function renderWeatherInto(weather, date, boxId, wrapId){
   const box=document.getElementById(boxId); const wrap=wrapId?document.getElementById(wrapId):box; const showEl=wrap||box;
-  if(weather && weather.manual){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wrow"><span class="v">${esc(weather.manual)}</span></div>`; return; }
+  if(weather && (weather.text||weather.manual)){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wrow"><span class="v">${esc(weather.text||weather.manual)}</span></div>`; return; }
   if(!weather || !weather.cur){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   const cur=weather.cur, daily=weather.daily||[];
@@ -2650,7 +2657,7 @@ const FIELD_GROUPS=[
   {i18n:'grpCatch',  keys:['length','weight','released']},
   {i18n:'grpPhotos', keys:['photos']},
   {i18n:'grpWater',  keys:['location','mapPin']},
-  {i18n:'grpConditions', keys:['watertemp','weather']},
+  {i18n:'grpConditions', keys:['weather','watertemp']},
   {i18n:'grpGear',   keys:['method','bait','rod','boat','trolling']},
   {i18n:'grpNotes',  keys:['notes']},
 ];
@@ -2704,7 +2711,7 @@ function fieldHasValue(key){
     case 'rod': return document.getElementById('f-rod').value.trim()!=='';
     case 'boat': return document.getElementById('f-boat').value.trim()!=='';
     case 'watertemp': return document.getElementById('f-watertemp').value.trim()!=='';
-    case 'weather': return (document.getElementById('f-weather-manual').value.trim()!=='') || !!state.formWeather;
+    case 'weather': return document.getElementById('f-weather').value.trim()!=='';
     case 'trolling': return document.getElementById('f-trolling').value.trim()!=='';
     case 'released': return document.getElementById('f-released').value!=='';
     case 'mapPin': return state.formLat!=null;
@@ -2735,7 +2742,7 @@ function applyFieldConfig(force){
   syncFormGroups();
 }
 function syncFormGroups(){
-  const groups=[['fg-catch',['ff-length','ff-weight','ff-released']],['fg-photos',['ff-photos']],['fg-water',['ff-location','ff-mapPin']],['fg-cond',['ff-watertemp','ff-weather']],['fg-gear',['ff-method','ff-bait','ff-rod','ff-boat','ff-trolling']],['fg-notes',['ff-notes']]];
+  const groups=[['fg-catch',['ff-length','ff-weight','ff-released']],['fg-photos',['ff-photos']],['fg-water',['ff-location','ff-mapPin']],['fg-cond',['ff-weather','ff-watertemp']],['fg-gear',['ff-method','ff-bait','ff-rod','ff-boat','ff-trolling']],['fg-notes',['ff-notes']]];
   groups.forEach(([hid,ids])=>{ const h=document.getElementById(hid); if(!h) return; let vis=ids.some(id=>{ const el=document.getElementById(id); return el && el.style.display!=='none'; }); h.style.display = vis ? '' : 'none'; });
 }
 
@@ -2830,7 +2837,7 @@ async function openForm(skipAuto){
   document.getElementById('form-err').style.display='none';
   { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none'; }
   state.formLat=null; state.formLon=null; state.formWeather=null;
-  { const _wb=document.getElementById('f-weather'); if(_wb){ _wb.style.display='none'; _wb.innerHTML=''; } const _wm=document.getElementById('f-weather-manual'); if(_wm) _wm.value=''; }
+  { const _wf=document.getElementById('f-weather'); if(_wf) _wf.value=''; state.weatherEdited=false; }
   clearPhoto(); closeSpecies(); populateAreaSelect(); go('form');
   ensureFormMap(null,null);
   // no automatic geolocation on open — the browser prompt should only appear when the user taps "Mein Standort"
@@ -2858,7 +2865,7 @@ function openEdit(c){
   state.editId=c.id;
   { const _fa=document.getElementById('ff-area'); if(_fa) _fa.style.display='none'; }
   { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display=''; }
-  { const _wm=document.getElementById('f-weather-manual'); if(_wm) _wm.value=(c.weather&&c.weather.manual)||''; }
+  { const _wf=document.getElementById('f-weather'); if(_wf) _wf.value=(c.weather&&(c.weather.text||c.weather.manual))||((c.weather&&c.weather.cur)?wxSummaryString(c.weather):''); state.weatherEdited=true; }
   document.getElementById('f-title').textContent=t('editCatch');
   document.getElementById('f-sub').textContent=t('editSub');
   document.getElementById('f-species').value=trSpecies(c.species); state.speciesKey=c.species;
@@ -2998,7 +3005,7 @@ function saveCatch(){
     notes:document.getElementById('f-notes').value.trim(),
     photos: state.editPhotos.slice(), photo: state.editPhotos[0] || null, userId: state.userId || null,
     lat: state.formLat!=null?state.formLat:null, lon: state.formLon!=null?state.formLon:null,
-    moon: moonPhaseKey(new Date(date)), weather: (function(){ let w=state.formWeather||null; const _m=(document.getElementById('f-weather-manual').value||'').trim(); if(_m) w=Object.assign({}, w||{}, {manual:_m}); return w; })()
+    moon: moonPhaseKey(new Date(date)), weather: (function(){ const _v=(document.getElementById('f-weather').value||'').trim(); return _v?{text:_v}:null; })()
   };
   if(isDbCatch()){
     const btn=document.querySelector('#s-form .btn[onclick="saveCatch()"]'); if(btn) btn.disabled=true;
@@ -3425,7 +3432,7 @@ function shareTokens(c){
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   const ctxName=(c._ctx&&c._ctx!=='Solo')?c._ctx:((state.mode!=='solo'&&state.club)?state.club.name:'');
   let wetter='';
-  if(c.weather&&c.weather.manual){ wetter=c.weather.manual; } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur, ck=weatherCodeKey(cw.code); wetter=[ck?t(ck):null, cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', '); }
+  if(c.weather&&(c.weather.text||c.weather.manual)){ wetter=c.weather.text||c.weather.manual; } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur, ck=weatherCodeKey(cw.code); wetter=[ck?t(ck):null, cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', '); }
   const mond=c.moon?(moonEmoji(c.moon)+' '+t(c.moon)):'';
   const len=c.length!=null?fmtLen(c.length):'', gew=c.weight!=null?fmtWeight(c.weight):'';
   return {petri:t('petri'), art:trSpecies(c.species), 'länge':len, laenge:len, gewicht:gew,
