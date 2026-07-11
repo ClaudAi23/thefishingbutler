@@ -618,7 +618,7 @@
       <button class="btn" onclick="saveCatch()" data-i18n="saveCatch">Fang speichern</button>
       <p id="form-err" class="hint" style="color:var(--danger); text-align:center; display:none;">Bitte Fischart, Datum und Angler ausfüllen.</p>
       <div id="form-del-wrap" style="display:none; margin-top:26px; padding-top:18px; border-top:1px solid var(--border);">
-        <button type="button" id="form-del-btn" class="btn secondary" style="color:var(--danger); border-color:var(--border-2);" onclick="deleteCatch(state.editId)" data-i18n="del">Löschen</button>
+        <button type="button" id="form-del-btn" class="btn secondary" style="color:var(--danger); border-color:var(--border-2);" onclick="deleteCatch(state.editId, state.editReturn)" data-i18n="del">Löschen</button>
       </div>
       <div style="height:20px"></div>
     </div>
@@ -629,7 +629,7 @@
     <div class="topbar">
       <button class="iconbtn" onclick="detailBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <div style="flex:1; min-width:0;"><h1 data-i18n="details">Fang-Details</h1><p class="sub" data-i18n="entry">Eintrag</p></div>
-      <button id="edit-btn" class="iconbtn" onclick="openEdit(state.current)" data-i18n-title="ttEdit" title="Bearbeiten" aria-label="Bearbeiten" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>
+      <button id="edit-btn" class="iconbtn" onclick="editCurrentCatch()" data-i18n-title="ttEdit" title="Bearbeiten" aria-label="Bearbeiten" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>
       <button id="share-btn" class="iconbtn" onclick="shareCatch()" data-i18n-title="ttShare" title="Teilen" aria-label="Teilen" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
     <div class="scroll">
@@ -1993,7 +1993,7 @@ async function loadMyAllCatches(){  // for "Meine Fänge": all of my own catches
   const cats = await rowsToCatches(rows);
   const ctxMap={}; (state.myContexts||[]).forEach(x=>ctxMap[x.id]={name:x.name, type:x.type});
   return cats.map((cc,i)=>{ const r=rows[i]; const ctx=r.context_id?ctxMap[r.context_id]:null;
-    return Object.assign(cc, { _ctx: ctx?ctx.name:t('solo'), _ctxType: ctx?ctx.type:'solo' }); });
+    return Object.assign(cc, { _ctx: ctx?ctx.name:t('solo'), _ctxType: ctx?ctx.type:'solo', _ctxId: r.context_id||null }); });
 }
 async function reloadCurrentDb(){
   if(state.mode==='solo'){ state.soloCatches=await loadSoloCatches(); state.catches=state.soloCatches; }
@@ -2342,7 +2342,7 @@ function renderList(){
       ${CHEV_IC}`;
     b.onclick=()=>{ if(b._swiped){ b._swiped=false; return; } openDetail(c.id); };
     const mine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
-    list.appendChild(mine ? wrapSwipe(b, c.id) : b);
+    list.appendChild(mine ? wrapSwipe(b, c, 'list') : b);
   });
 }
 
@@ -2405,8 +2405,7 @@ function renderStats(){
         <span class="meta"><span class="ctxbadge">${c._ctx}</span>${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--teal);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${c.angler} · ${fmtDate(c.date)}</span>
       </span>
       ${CHEV_IC}`;
-    b.onclick=()=>openDetailObj(c,'stats');
-    list.appendChild(b);
+    list.appendChild(wrapSwipe(b, c, 'stats'));
   });
 }
 
@@ -2822,7 +2821,7 @@ function nowLocal(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezo
 async function openForm(skipAuto){
   if(_curScreen==='club' || _curScreen==='stats'){ try{ await startSolo(true); }catch(e){} }
   ['f-species','f-weight','f-length','f-location','f-notes','f-method','f-bait','f-rod','f-boat','f-watertemp','f-trolling','f-released'].forEach(id=>document.getElementById(id).value='');
-  state.speciesKey=null; state.editId=null;
+  state.speciesKey=null; state.editId=null; state.editReturn=null;
   fillMethodsDatalist(); applyFieldConfig();
   document.getElementById('f-title').textContent=t('logCatch');
   document.getElementById('f-sub').textContent=t('newCatch');
@@ -2891,8 +2890,16 @@ function openEdit(c){
   CFG_FIELDS.forEach(f=>{ if(fieldHasValue(f.key)) force[f.key]=true; });
   applyFieldConfig(force);
 }
-async function deleteCatch(id){
+async function deleteCatch(id, from){
   if(!(await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true))) return;
+  if(from==='stats' && state.auth==='supabase'){
+    (async ()=>{
+      try{ await deleteSoloPhotos(id); const { error }=await getSB().from('catches').delete().eq('id', id); if(error) throw error;
+        try{ state.myAllCatches=await loadMyAllCatches(); }catch(_e){} renderStats(); go('stats');
+      }catch(e){ toast(t('errSave')); }
+    })();
+    return;
+  }
   if(isDbCatch()){
     (async ()=>{
       try{ await deleteSoloPhotos(id); const { error }=await getSB().from('catches').delete().eq('id', id); if(error) throw error;
@@ -2904,14 +2911,27 @@ async function deleteCatch(id){
   state.catches=state.catches.filter(x=>x.id!==id);
   saveCatches(); renderList(); go('list');
 }
+async function enterCatchContext(c){
+  if(state.auth!=='supabase') return;
+  const cid=c && c._ctxId;
+  if(cid){ const ctx=(state.myContexts||[]).find(x=>x.id===cid); if(ctx){ try{ await chooseClub(ctx, ctx.type, true); }catch(e){} return; } }
+  try{ await startSolo(true); }catch(e){}
+}
+async function editCurrentCatch(){
+  const c=state.current; if(!c) return;
+  const from=state.detailFrom;
+  if(from==='stats'){ await enterCatchContext(c); }
+  openEdit(state.current);
+  state.editReturn = from;
+}
 let _openSwipe=null;
 function _closeSwipe(){ if(_openSwipe){ _openSwipe.style.transition='transform .2s'; _openSwipe.style.transform='translateX(0)'; _openSwipe._open=false; _openSwipe=null; } }
-function wrapSwipe(btn, id){
-  const OPEN=84;
+function wrapSwipe(btn, c, from){
+  const id=c.id; const OPEN=84;
   const wrap=document.createElement('div'); wrap.className='swipe-wrap';
   const bg=document.createElement('button'); bg.type='button'; bg.className='swipe-bg'; bg.setAttribute('aria-label','Löschen');
   bg.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
-  bg.onclick=async(e)=>{ e.stopPropagation(); const ok=await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true); if(ok){ deleteCatch(id); } else { _closeSwipe(); } };
+  bg.onclick=async(e)=>{ e.stopPropagation(); const ok=await confirmDialog(t('confirmTitle'), t('delConfirm'), t('del'), true); if(ok){ deleteCatch(id, from); } else { _closeSwipe(); } };
   wrap.appendChild(bg); wrap.appendChild(btn);
   let x0=0,y0=0,dx=0,base=0,drag=false,decided=false,horiz=false;
   btn.addEventListener('touchstart',ev=>{ const p=ev.touches[0]; x0=p.clientX; y0=p.clientY; base=btn._open?OPEN:0; dx=base; drag=true; decided=false; horiz=false; btn.style.transition='none'; },{passive:true});
@@ -2925,7 +2945,7 @@ function wrapSwipe(btn, id){
     if(open){ if(_openSwipe && _openSwipe!==btn) _closeSwipe(); _openSwipe=btn; } else if(_openSwipe===btn){ _openSwipe=null; }
   };
   btn.addEventListener('touchend',end); btn.addEventListener('touchcancel',end);
-  btn.onclick=()=>{ if(btn._swiped){ btn._swiped=false; return; } if(btn._open){ _closeSwipe(); return; } openDetail(id); };
+  btn.onclick=()=>{ if(btn._swiped){ btn._swiped=false; return; } if(btn._open){ _closeSwipe(); return; } if(from==='stats') openDetailObj(c,'stats'); else openDetail(id); };
   return wrap;
 }
 function buildAnglerOptions(){
@@ -3012,7 +3032,7 @@ function saveCatch(){
         const cid=await saveCatchDb(obj, state.editId, currentContextId());
         state.editId=null; renderList();
         const saved=state.catches.find(c=>c.id===cid);
-        if(wasEdit && saved) openDetailObj(saved,'list'); else go('list');
+        if(wasEdit && saved){ if(state.editReturn==='stats'){ try{ state.myAllCatches=await loadMyAllCatches(); }catch(_e){} renderStats(); openDetailObj(saved,'stats'); } else openDetailObj(saved,'list'); } else go('list');
       }catch(e){ err.textContent=t('errSave'); err.style.display='block'; }
       finally{ if(btn) btn.disabled=false; }
     })();
@@ -3208,7 +3228,7 @@ function openDetailObj(c, from){
   const nw=document.getElementById('d-notes-wrap');
   if(c.notes){ nw.style.display='block'; document.getElementById('d-notes').textContent=c.notes; } else nw.style.display='none';
   const isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
-  const editable = state.detailFrom==='list' && isMine;
+  const editable = (state.detailFrom==='list' || state.detailFrom==='stats') && isMine;
   document.getElementById('edit-btn').style.display = editable ? '' : 'none';
   const mw=document.getElementById('d-map-wrap');
   mw.style.display = c.lat!=null ? 'block' : 'none';
