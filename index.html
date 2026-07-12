@@ -126,6 +126,10 @@
     display:flex; align-items:center; justify-content:center;}
   .fab:active{background:var(--teal-dark); box-shadow:0 5px 14px rgba(46,122,142,.4);}
   .fab .ic{width:28px; height:28px; stroke-width:2.4;}
+  .fab.extended{width:auto; height:56px; border-radius:28px; padding:0 20px 0 15px; gap:8px; justify-content:flex-start; max-width:min(66vw,230px);}
+  .fab-label{display:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.9375rem; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .fab.extended .fab-label{display:block;}
+  .fab.extended .ic{width:22px; height:22px;}
   .chip{display:inline-flex; align-items:center; gap:7px; background:var(--surface);
     border:1px solid var(--border-2); color:var(--text); border-radius:20px;
     padding:7px 13px 7px 11px; font-size:0.8125rem; font-weight:500; cursor:pointer; font-family:inherit;}
@@ -1061,7 +1065,7 @@
       </div>
     </div>
   </div>
-  <button id="mainfab" class="fab" style="display:none;" data-i18n-title="addCatch" title="Fang eintragen" aria-label="Fang eintragen" onclick="openForm()"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+  <button id="mainfab" class="fab" style="display:none;" data-i18n-title="addCatch" title="Fang eintragen" aria-label="Fang eintragen" onclick="openForm()"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg><span class="fab-label"></span></button>
   <div id="confirm-modal" class="modal-ov" style="display:none;" onclick="if(event.target===this)_confirmClose(false)">
     <div class="modal-box" style="max-width:390px;">
       <h2 id="confirm-title" style="font-size:1.1875rem; margin:0 0 8px;"></h2>
@@ -1549,10 +1553,17 @@ function go(name, isBack){
   }
   _curScreen=name;
   { const _fb=document.getElementById('mainfab'); if(_fb) _fb.style.display=(name==='club'||name==='stats'||name==='list')?'':'none'; }
+  try{ updateFab(); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','is-back'));
   { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack); }
   if(name==='login'){ try{ changeLoginEmail(); const _lc=document.getElementById('login-code'); if(_lc) _lc.value=''; }catch(e){} }
   const sc=document.querySelector('#s-'+name+' .scroll'); if(sc) sc.scrollTop=0;
+}
+function updateFab(){
+  var fb=document.getElementById('mainfab'); if(!fb) return; var lab=fb.querySelector('.fab-label'); var name='';
+  if(_curScreen==='list'){ name=(state.mode==='solo')?t('solo'):(state.club?state.club.name:''); }
+  if(name){ fb.classList.add('extended'); if(lab) lab.textContent=name; }
+  else { fb.classList.remove('extended'); if(lab) lab.textContent=''; }
 }
 function _openModalEls(){ return Array.prototype.slice.call(document.querySelectorAll('.modal-ov')).filter(m=>{ const d=m.style.display; return d && d!=='none'; }); }
 function formSnapshot(){
