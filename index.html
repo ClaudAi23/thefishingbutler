@@ -1886,7 +1886,7 @@ function roleLabels(){ return { member:t('roleMember'), admin:t('roleAdmin'), tr
 function roleBadge(role, attrs){
   const lab=roleLabels(); const col={admin:'#2E7A8E', treasurer:'#B8860B', member:'#6b7785'};
   const tap = attrs ? ' cursor:pointer;' : '';
-  return `<span ${attrs||''} title="${attrs?esc(t('roleAdmin')+' / '+t('roleMember')):''}" style="display:inline-flex; align-items:center; gap:4px; padding:3px 11px; border-radius:999px; font-size:0.75rem; font-weight:600; color:#fff; background:${col[role]||'#6b7785'}; white-space:nowrap;${tap}">${esc(lab[role]||role)}${attrs?'<span style="opacity:.8;">⌄</span>':''}</span>`;
+  return `<span ${attrs||''} title="${attrs?esc(t('roleAdmin')+' / '+t('roleMember')):''}" style="display:inline-block; padding:3px 11px; border-radius:999px; font-size:0.75rem; font-weight:600; color:#fff; background:${col[role]||'#6b7785'}; white-space:nowrap;${tap}">${esc(lab[role]||role)}</span>`;
 }
 async function renderMembersInline(){
   const box=document.getElementById('members-inline'); if(!box || !ctxIsDb() || !state.club) return;
@@ -3144,7 +3144,7 @@ function insertPlaceholder(token){
   const s=ta.selectionStart||ta.value.length, e=ta.selectionEnd||ta.value.length;
   ta.value = ta.value.slice(0,s) + token + ta.value.slice(e);
   const pos=s+token.length; ta.focus(); ta.setSelectionRange(pos,pos);
-  const cfg=getShareCfg(null); cfg.template=ta.value; setShareCfg(cfg,null); updateSharePreview();
+  const cfg=getShareCfg(null); cfg.template=ta.value; setShareCfg(cfg,null); updateSharePreview(); updateResetBtn();
 }
 function defaultTemplate(){ const g={de:'Petri Heil!',en:'Tight lines!',nl:'Petri heil!'}[_phLang()]||'Petri Heil!'; return g+'\n🎣 {'+_phTok('species')+'} — {'+_phTok('size')+'}\n📍 {'+_phTok('location')+'} · {'+_phTok('date')+'}\n👤 {'+_phTok('angler')+'}\n'+t('loggedWith')+'\n{'+_phTok('link')+'}'; }
 function setShareMode(m){
