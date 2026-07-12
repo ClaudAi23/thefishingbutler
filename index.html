@@ -59,6 +59,10 @@
     body{align-items:center; padding:24px 0; overflow:auto;}
     #app{min-height:auto; height:840px; border-radius:32px; border:1px solid var(--border-2);}
   }
+  #app-loader{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:var(--sand,#0f1417); transition:opacity .35s ease, visibility 0s linear .35s;}
+  #app-loader.hide{opacity:0; visibility:hidden; pointer-events:none;}
+  #app-loader img{width:120px; height:120px; object-fit:contain; animation:loaderPulse 1.5s ease-in-out infinite;}
+  @keyframes loaderPulse{0%,100%{transform:scale(1); opacity:.8;} 50%{transform:scale(1.06); opacity:1;}}
   .screen{display:none; flex:1; flex-direction:column; min-height:0;}
   .screen.active{display:flex; animation:scrIn .24s cubic-bezier(.22,.61,.36,1);}
   .screen.active.is-back{animation:scrBack .24s cubic-bezier(.22,.61,.36,1);}
@@ -471,6 +475,7 @@
 </style>
 </head>
 <body>
+<div id="app-loader"><img src="/mascot.png" alt="Butler Fish"></div>
 <div id="app">
   <span id="demo-tag" class="demo-tag" style="display:none;">DEMO</span>
 
@@ -1611,7 +1616,10 @@ function go(name, isBack){
   { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack); }
   if(name==='login'){ try{ changeLoginEmail(); const _lc=document.getElementById('login-code'); if(_lc) _lc.value=''; }catch(e){} }
   const sc=document.querySelector('#s-'+name+' .scroll'); if(sc) sc.scrollTop=0;
+  try{ hideLoader(); }catch(e){}
 }
+function showLoader(){ const el=document.getElementById('app-loader'); if(el){ el.classList.remove('hide'); } }
+function hideLoader(){ const el=document.getElementById('app-loader'); if(el){ el.classList.add('hide'); } }
 function updateFab(){
   // Plain "+" FAB everywhere (destination-named variant reverted per JC).
   var fb=document.getElementById('mainfab'); if(!fb) return; var lab=fb.querySelector('.fab-label');
@@ -1683,6 +1691,8 @@ window.addEventListener('popstate', function(){ _armBack(); appBack(); });
    window.addEventListener('orientationchange', function(){ setTimeout(setVH,200); });
    window.addEventListener('load', setVH);
  })();
+ // Safety net: never let the loading screen get stuck.
+ setTimeout(function(){ try{ var el=document.getElementById('app-loader'); if(el) el.classList.add('hide'); }catch(e){} }, 8000);
  if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
  window.addEventListener('online', function(){ try{ syncFlush(); }catch(e){} try{ updateSyncBanner(); }catch(e){} });
  window.addEventListener('offline', function(){ try{ updateSyncBanner(); }catch(e){} });
@@ -1796,10 +1806,17 @@ async function countPendingReqs(){
   return count||0;
 }
 async function goChooser(){
+  showLoader();
   if(state.auth==='supabase'){
     try{ state.myContexts = await loadMyContexts(); }catch(e){ state.myContexts=[]; }
-    try{ await loadCtxActivity(); }catch(e){ state.ctxNew={}; }
-    if(state.me && state.me.isAppAdmin){ try{ state.pendingReqs = await countPendingReqs(); }catch(e){ state.pendingReqs=0; } try{ state.pendingBetaReqs = await countPendingBetaReqs(); }catch(e){ state.pendingBetaReqs=0; } try{ state.pendingFeedback = await countFeedback(); }catch(e){ state.pendingFeedback=0; } }
+    // activity depends on myContexts; admin counts are independent → run them all in parallel.
+    const jobs=[ loadCtxActivity().catch(()=>{ state.ctxNew={}; }) ];
+    if(state.me && state.me.isAppAdmin){
+      jobs.push(countPendingReqs().then(n=>{ state.pendingReqs=n; }).catch(()=>{ state.pendingReqs=0; }));
+      jobs.push(countPendingBetaReqs().then(n=>{ state.pendingBetaReqs=n; }).catch(()=>{ state.pendingBetaReqs=0; }));
+      jobs.push(countFeedback().then(n=>{ state.pendingFeedback=n; }).catch(()=>{ state.pendingFeedback=0; }));
+    }
+    await Promise.all(jobs);
   }
   updateDemoBadge();
   renderClubs(); go('club');
@@ -4424,13 +4441,31 @@ function onSoloAvatar(e){
 }
 
 // ---------- filter screen ----------
+function _fillAnglerFilter(data){
+  // Club/group: whole member roster ("Me" first) so you can filter by a member before they've logged.
+  // Otherwise: derive from existing catches.
+  let anglerOpts;
+  if(ctxIsDb() && state.filterTarget!=='stats' && (state.ctxMembers||[]).length){
+    const meName=(state.me&&state.me.name)||t('me');
+    const memberNames=(state.ctxMembers||[]).map(m=>m.name).filter(Boolean);
+    const fromCatches=[...new Set((data||[]).map(c=>c.angler).filter(Boolean))];
+    const others=[...new Set(memberNames.concat(fromCatches).filter(n=>n!==meName))].sort();
+    anglerOpts=[[meName, meName+' ('+t('you')+')']].concat(others.map(n=>[n,n]));
+  } else {
+    anglerOpts=[...new Set((data||[]).map(c=>c.angler).filter(Boolean))].sort().map(a=>[a,a]);
+  }
+  fillSelect('flt-angler', [['',t('all')]].concat(anglerOpts), state.filter.angler);
+}
 function openFilter(target){
   state.filterTarget = target || 'list';
   const data = state.filterTarget==='stats' ? myCatches() : state.catches;
   const sp=[...new Set(data.map(c=>c.species))].sort();
   fillSelect('flt-species', [['',t('all')]].concat(sp.map(s=>[s,trSpecies(s)])), state.filter.species);
-  const ang=[...new Set(data.map(c=>c.angler))].sort();
-  fillSelect('flt-angler', [['',t('all')]].concat(ang.map(a=>[a,a])), state.filter.angler);
+  _fillAnglerFilter(data);
+  // In a club/group the roster may not be loaded yet — fetch it, then re-fill the angler options.
+  if(ctxIsDb() && state.filterTarget!=='stats' && !(state.ctxMembers||[]).length){
+    loadCtxMembers().then(()=>_fillAnglerFilter(state.catches)).catch(()=>{});
+  }
   document.getElementById('flt-angler-field').style.display = state.filterTarget==='stats' ? 'none' : '';
   if(state.filterTarget==='stats'){
     const all=myCatches();
