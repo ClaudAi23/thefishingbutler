@@ -389,6 +389,9 @@
   .mascot-band{position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:22px; background:radial-gradient(ellipse 92% 80% at 50% 36%, #4EA6BB 0%, #2E7A8E 46%, #143845 100%); box-shadow:0 10px 26px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.14);}
   .mascot-band::before{content:""; position:absolute; inset:0; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><polygon points='0,0 32,0 0,32' fill='%23ffffff' opacity='0.05'/><polygon points='64,64 32,64 64,32' fill='%23000000' opacity='0.06'/></svg>"); background-size:64px 64px; mix-blend-mode:overlay;}
   .mascot-band img{position:relative; z-index:1; max-width:86%; max-height:86%; width:auto; height:auto; display:block; filter:drop-shadow(0 6px 14px rgba(0,0,0,.30));}
+  .mascot-free{position:relative; display:flex; align-items:center; justify-content:center; background:none; box-shadow:none; overflow:visible;}
+  .mascot-free::before{content:""; position:absolute; inset:-8%; z-index:0; pointer-events:none; border-radius:50%; background:radial-gradient(circle at 50% 46%, rgba(92,206,226,.30), rgba(92,206,226,.08) 46%, transparent 66%);}
+  .mascot-free img{position:relative; z-index:1; max-width:99%; max-height:99%; width:auto; height:auto; display:block; filter:drop-shadow(0 0 13px rgba(95,205,225,.5)) drop-shadow(0 8px 18px rgba(0,0,0,.42));}
   .mb-empty{width:100%; max-width:340px; height:190px; margin:2px auto 12px;}
   .mb-home{width:150px; height:150px; margin:0 auto;}
   .mb-ob{width:150px; height:150px;}
@@ -452,7 +455,7 @@
   <section id="s-login" class="screen">
     <div class="scroll pad">
       <div style="height:44px"></div>
-      <div id="login-logo" class="mascot-band" style="width:132px; height:132px; border-radius:30px; margin:0 auto 20px;"></div>
+      <div id="login-logo" class="mascot-free" style="width:150px; height:150px; margin:0 auto 20px;"></div>
       <h1 class="brandname" style="text-align:center; font-size:31px; margin:0 0 6px; line-height:1.04;" data-i18n="appName">The Fishing Butler</h1>
       <p class="tagline" style="text-align:center; color:var(--teal-bright); font-weight:500; font-size:16px; margin:0 0 12px;" data-i18n="tagline">Fangen. Protokollieren. Organisieren.</p>
       <p style="text-align:center; margin:0 0 30px;"><span class="beta-pill">Beta</span></p>
@@ -1007,7 +1010,7 @@
       </div>
       <div class="ob-body">
         <div class="ob-step" data-step="0">
-          <div class="mascot-band mb-ob" id="ob-logo"></div>
+          <div class="mascot-free mb-ob" id="ob-logo"></div>
           <h2 class="ob-h" data-i18n="obWelcomeTitle">Willkommen beim Fishing Butler</h2>
           <p class="ob-p" data-i18n="obWelcomeText">Dein digitales Fang-Logbuch – solo oder mit deinem Verein.</p>
         </div>
@@ -2526,7 +2529,7 @@ function renderList(){
   const list=document.getElementById('catch-list'); list.innerHTML=''; _openSwipe=null;
   const sorted=sortCatches(items);
   if(sorted.length===0){
-    list.innerHTML=`<div class="empty"><div class="mascot-band mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
+    list.innerHTML=`<div class="empty"><div class="mascot-free mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
     return;
   }
   sorted.forEach(c=>{
@@ -2603,7 +2606,7 @@ function renderStats(){
   const list=document.getElementById('stats-list'); list.innerHTML='';
   const sorted=sortCatches(items);
   if(sorted.length===0){
-    list.innerHTML=`<div class="empty"><div class="mascot-band mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
+    list.innerHTML=`<div class="empty"><div class="mascot-free mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
     return;
   }
   sorted.forEach(c=>{
