@@ -163,7 +163,10 @@
   /* Two fields that must stay exactly equal even with an iOS date value (its intrinsic width otherwise wins over flex). */
   .row-eq{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px;}
   .row-eq .field{width:100%; min-width:0;}
-  .row-eq .field input{width:100%; min-width:0; box-sizing:border-box;}
+  /* iOS Safari content-sizes date inputs (empty = narrow, filled = wide). min-width:100% forces both to fill their equal grid cell; the inner value element is pinned full-width and left-aligned so a filled field can't grow past an empty one. */
+  .row-eq .field input{width:100%; min-width:100%; max-width:100%; box-sizing:border-box; text-align:left;}
+  .row-eq .field input[type="date"]::-webkit-date-and-time-value{ text-align:left; margin:0; width:100%; }
+  .row-eq .field input[type="date"]::-webkit-calendar-picker-indicator{ margin-left:auto; }
   .hint{font-size:0.75rem; color:var(--muted); margin:6px 0 0;}
 
   .logo-badge{
@@ -777,6 +780,7 @@
         <p id="d-sub" class="ds">—</p>
       </div>
       <div class="pad">
+        <div class="sectionlabel" data-i18n="fltCatch" style="margin-top:2px;">Fang</div>
         <div id="d-rows"></div>
         <div id="d-notes-wrap" style="margin-top:18px; display:none;">
           <div class="sectionlabel" data-i18n="notes">Notizen</div>
