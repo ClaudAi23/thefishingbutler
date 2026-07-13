@@ -485,7 +485,7 @@
   <!-- ============ CLUB ============ -->
   <section id="s-club" class="screen active">
     <div class="topbar">
-      <div id="club-logo" class="mascot-free mf-sm" style="width:46px; height:46px; flex:0 0 auto;" onclick="_dbgTap()"></div>
+      <div id="club-logo" class="mascot-free mf-sm" style="width:46px; height:46px; flex:0 0 auto;"></div>
       <div style="flex:1; min-width:0;">
         <h1 class="brandname" style="font-size:1.25rem; margin:0; line-height:1.05; display:flex; align-items:center; gap:8px;"><span>Butler <span class="wm-fish">Fish</span></span><span class="beta-pill">Beta</span></h1>
         <p class="sub" style="margin:0;" data-i18n="tagline">Dein Fang, gut aufgehoben.</p>
@@ -1622,23 +1622,6 @@ function go(name, isBack){
   if(name==='login'){ try{ changeLoginEmail(); const _lc=document.getElementById('login-code'); if(_lc) _lc.value=''; }catch(e){} }
   const sc=document.querySelector('#s-'+name+' .scroll'); if(sc) sc.scrollTop=0;
   try{ hideLoader(); }catch(e){}
-}
-// --- temporary diagnostics: tap the home header logo 4× to show viewport measurements ---
-let _dbgTaps=0, _dbgT=null;
-function _dbgTap(){ _dbgTaps++; clearTimeout(_dbgT); _dbgT=setTimeout(function(){ _dbgTaps=0; }, 1200); if(_dbgTaps>=4){ _dbgTaps=0; _showDebug(); } }
-function _safeInset(side){ try{ const d=document.createElement('div'); d.style.cssText='position:fixed;left:0;top:0;visibility:hidden;padding-'+side+':env(safe-area-inset-'+side+');'; document.body.appendChild(d); const k='padding'+side.charAt(0).toUpperCase()+side.slice(1); const v=getComputedStyle(d)[k]; d.remove(); return v; }catch(e){ return '?'; } }
-function _showDebug(){
-  const a=document.getElementById('app').getBoundingClientRect();
-  const txt='standalone: '+(('standalone' in navigator)? navigator.standalone : 'n/a')
-    +'\nscreen: '+screen.width+' x '+screen.height
-    +'\ninnerWH: '+window.innerWidth+' x '+window.innerHeight
-    +'\ndocEl.clientH: '+document.documentElement.clientHeight
-    +'\napp: '+Math.round(a.width)+' x '+Math.round(a.height)+'  bottom '+Math.round(a.bottom)
-    +'\nsafe-top: '+_safeInset('top')+'  safe-bottom: '+_safeInset('bottom')
-    +'\n--app-vh: '+getComputedStyle(document.documentElement).getPropertyValue('--app-vh').trim();
-  let el=document.getElementById('dbg-ov');
-  if(!el){ el=document.createElement('div'); el.id='dbg-ov'; el.style.cssText='position:fixed; left:8px; top:70px; z-index:100000; background:rgba(0,0,0,.88); color:#3f6; font:12px/1.5 monospace; padding:10px 12px; border-radius:8px; white-space:pre; max-width:86vw;'; el.onclick=function(){ el.remove(); }; document.body.appendChild(el); }
-  el.textContent=txt;
 }
 let _loaderShownAt = (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now();
 const LOADER_MIN_MS = 1500;
@@ -2847,7 +2830,20 @@ function renderStats(){
   items.forEach(c=>{ if(c.length!=null && (bigLen==null || c.length>bigLen.length)) bigLen=c; if(c.weight!=null && (bigWt==null || c.weight>bigWt.weight)) bigWt=c; });
   const speciesCount=new Set(items.map(c=>c.species)).size;
   const yr=new Date().getFullYear();
-  const thisYearCount=items.filter(c=>new Date(c.date).getFullYear()===yr).length;
+  // Period tile: reflects the active date filter (year/range); otherwise the current year.
+  const _f=state.filter||{};
+  let periodLabel, periodVal;
+  if(_f.from || _f.to){
+    const fy=_f.from? new Date(_f.from).getFullYear() : null;
+    const ty=_f.to? new Date(_f.to).getFullYear() : null;
+    if(fy && ty) periodLabel = (fy===ty) ? String(fy) : (fy+'–'+ty);
+    else if(fy) periodLabel = '≥ '+fy;
+    else periodLabel = '≤ '+ty;
+    periodVal = items.length;
+  } else {
+    periodLabel = String(yr);
+    periodVal = items.filter(c=>new Date(c.date).getFullYear()===yr).length;
+  }
   const kpi=(label,val,rust)=>`<div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
     <div style="font-size:0.625rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">${label}</div>
     <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.625rem; font-weight:700; line-height:1.1;${rust?' color:var(--teal);':''}">${val}</div></div>`;
@@ -2856,7 +2852,7 @@ function renderStats(){
     (bigLen ? kpi(t('longest'), fmtLen(bigLen.length), true) : '') +
     (bigWt ? kpi(t('heaviest'), fmtWeight(bigWt.weight), true) : '') +
     kpi(t('speciesCount'), speciesCount) +
-    kpi(t('thisYear'), thisYearCount);
+    kpi(periodLabel, periodVal);
   { const sc=document.getElementById('stats-count'); if(sc) sc.textContent=items.length+' '+t('catches'); }
   document.getElementById('sort-stats').innerHTML=sortOptionsHtml();
   const list=document.getElementById('stats-list'); list.innerHTML='';
