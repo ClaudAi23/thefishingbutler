@@ -216,11 +216,8 @@
   .catadd-row{width:100%; display:flex; align-items:center; gap:9px; padding:11px 14px; margin:6px 0 2px; border:1px dashed var(--border-2); border-radius:12px; background:none; color:var(--muted); font-family:inherit; font-size:0.875rem; cursor:pointer;}
   .catadd-row:hover,.catadd-row:active{color:var(--teal-bright); border-color:var(--teal);}
   .catadd-row svg{width:18px; height:18px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round;}
-  .mycatches{width:100%; display:flex; align-items:center; gap:14px; text-align:left; background:var(--teal-tint); border:1px solid var(--teal); border-radius:12px; padding:14px; margin-bottom:24px; cursor:pointer; font-family:inherit;}
-  .mycatches .av{width:46px; height:46px; border-radius:11px; background:var(--surface); color:var(--teal-bright); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
-  .mycatches .nm{font-size:1rem; font-weight:600; color:var(--teal-bright);}
-  .mycatches .loc{font-size:0.8125rem; color:var(--teal-bright); opacity:.75;}
-  .mycatches svg{color:var(--teal-bright); stroke:var(--teal-bright);}
+  /* „Meine Fänge" nutzt den normalen .club-Kartenstil; nur etwas mehr Abstand zur ersten Kategorie darunter. */
+  .mycatches{margin-bottom:22px;}
   .tagline{text-align:center; color:var(--teal-bright); font-size:0.8125rem; font-weight:600; letter-spacing:.04em; margin:0 0 6px;}
 
   .club{
@@ -1830,9 +1827,9 @@ function renderClubs(){
       c.appendChild(cat.wrap);
     }
   }
-  // Meine Fänge — eigene, hervorgehobene Karte (kein „Persönlich"-Kategorie-Wrapper)
-  const myCard=document.createElement('button'); myCard.className='mycatches'; myCard.onclick=openStats;
-  myCard.innerHTML=`<span class="av">${STATS_IC}</span><span style="flex:1; min-width:0;"><span class="nm">${esc(t('statsTile'))}</span><br><span class="loc">${esc(t('statsTileSub'))}</span></span>${CHEV_IC}`;
+  // Meine Fänge — eigene Karte oben, im selben Stil wie Vereine/Gruppen (Avatar/Initialen des Nutzers)
+  const myCard=document.createElement('button'); myCard.className='club mycatches'; myCard.onclick=openStats;
+  myCard.innerHTML=`<span class="av">${userAvatarHTML()}</span><span style="flex:1; min-width:0;"><span class="nm">${esc(t('statsTile'))}</span><br><span class="loc">${esc(t('statsTileSub'))}</span></span>${CHEV_IC}`;
   c.appendChild(myCard);
 
   const clubs = applyCtxOrder(supa ? (state.myContexts||[]).filter(x=>x.type==='club') : CLUBS, 'club');
