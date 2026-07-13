@@ -13,6 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="apple-mobile-web-app-title" content="Butler Fish" />
+<script>(function(){try{var p=JSON.parse(localStorage.getItem('fanglog_prefs')||'{}');var t=p.theme||'system';var r=(t==='system')?((window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=Marcellus&display=swap" rel="stylesheet" />
@@ -38,10 +39,10 @@
     --text:#ECEAE3; --muted:#9BA1A3; --border:#2C333B; --border-2:#3A434C;
     --danger:#E0716B; --shadow:0 12px 36px rgba(0,0,0,.5);
   }
-  [data-theme="dark"] body{ background:#0E1013; }
+  [data-theme="dark"] html, [data-theme="dark"] body{ background:#0E1013; }
   input::placeholder, textarea::placeholder{ color:var(--muted); opacity:.8; }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0; height:100%;}
+  html,body{margin:0; padding:0; height:100%; background:#DED7C7;}
   body{
     font-family:'Barlow',system-ui,sans-serif; color:var(--text);
     background:#DED7C7; line-height:1.5;
@@ -734,7 +735,7 @@
   <section id="s-detail" class="screen">
     <div class="topbar">
       <button class="iconbtn" onclick="detailBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div style="flex:1; min-width:0;"><h1 id="d-h1" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Fang-Details</h1><p class="sub" id="d-h1sub" data-i18n="entry">Eintrag</p></div>
+      <div style="flex:1; min-width:0;"><h1 id="d-h1" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:0; transition:opacity .15s;">—</h1></div>
       <button id="edit-btn" class="iconbtn" onclick="editCurrentCatch()" data-i18n-title="ttEdit" title="Bearbeiten" aria-label="Bearbeiten" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button>
       <button id="share-btn" class="iconbtn" onclick="shareCatch()" data-i18n-title="ttShare" title="Teilen" aria-label="Teilen" style="display:none;"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
@@ -1269,9 +1270,8 @@
       </div>
       <label class="chkrow" style="margin:14px 4px 4px;"><input type="checkbox" id="flt-hideunconf"><span data-i18n="hideUnconfirmed">Unbestätigte Fänge ausblenden</span></label>
     </div>
-    <div class="form-actions" style="display:flex; gap:10px;">
-      <button class="btn secondary" onclick="resetFilter()" data-i18n="reset" style="flex:0 0 auto; width:auto; padding:12px 18px;">Zurücksetzen</button>
-      <button class="btn" onclick="applyFilter()" data-i18n="applyFilter" style="flex:1;">Filter anwenden</button>
+    <div class="form-actions">
+      <button class="btn" onclick="applyFilter()" data-i18n="applyFilter">Filter anwenden</button>
     </div>
   </section>
 
@@ -3930,6 +3930,12 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.combo')){ closeSpe
 // ---------- detail ----------
 function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
 function detailBack(){ go(state.detailFrom||'list'); }
+function _detailScroll(){
+  const sc=document.querySelector('#s-detail .scroll'); const band=sc&&sc.querySelector('.detail-band'); const h=document.getElementById('d-h1');
+  if(!sc||!band||!h) return;
+  const show = band.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 4;
+  h.style.opacity = show ? '1' : '0';
+}
 function openDetailObj(c, from){
   state.current=c; state.detailFrom=from||'list';
   const hero=document.getElementById('d-hero');
@@ -3947,9 +3953,9 @@ function openDetailObj(c, from){
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   const subLine=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null, (c.location||'').trim()||null, fmtDate(c.date)].filter(Boolean).join(' · ');
   { const dsub=document.getElementById('d-sub'); if(subLine){ dsub.textContent=subLine; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
-  // Sticky header names the catch (species + size/date) instead of a generic "Catch details".
-  { const h=document.getElementById('d-h1'); if(h) h.textContent=trSpecies(c.species);
-    const hs=document.getElementById('d-h1sub'); if(hs) hs.textContent=size||fmtDateLong(c.date); }
+  // Sticky header shows only the species, and only once the hero band is scrolled out of view.
+  { const h=document.getElementById('d-h1'); if(h){ h.textContent=trSpecies(c.species); h.style.opacity='0'; }
+    const sc=document.querySelector('#s-detail .scroll'); if(sc){ sc.scrollTop=0; sc.onscroll=_detailScroll; setTimeout(_detailScroll,0); } }
   const rows=[[t('dAngler'),c.angler],[t('dWater'),c.location||'—'],[t('dLength'),fmtLen(c.length)],[t('dWeight'),fmtWeight(c.weight)]];
   if(c.method) rows.push([t('method'), c.method]);
   if(c.bait) rows.push([t('bait'), c.bait]);
