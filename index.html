@@ -2219,7 +2219,7 @@ async function removeContextLogo(){
 // ---------- Supabase data layer (solo + shared context catches) ----------
 function isDbCatch(){ return state.auth==='supabase'; }
 function currentContextId(){ return state.mode==='solo' ? null : (state.club? state.club.id : null); }
-function dbRowToCatch(row, photoUrls){
+function dbRowToCatch(row, photoUrls, thumbUrls){
   return {
     id: row.id, species: row.species,
     length: row.length_cm!=null? row.length_cm : null,
@@ -2232,7 +2232,7 @@ function dbRowToCatch(row, photoUrls){
     date: row.caught_at, notes: row.notes||'', moon: row.moon||null, weather: row.weather||null,
     angler: (state.me&&state.me.name)||'', userId: row.owner_id,
     loggedBy: row.logged_by||null, loggedByName:null, confirmed: row.confirmed!==false, _db:true, _ctxId: row.context_id||null, _ctxIds: row.context_ids||null, coverPos: row.cover_pos||null
-  , photos: photoUrls||[], photo: (photoUrls&&photoUrls[0])||null };
+  , photos: photoUrls||[], photo: (photoUrls&&photoUrls[0])||null, thumbs: (thumbUrls&&thumbUrls.length)?thumbUrls:(photoUrls||[]) };
 }
 // cache signed photo URLs by path so reloads reuse the SAME url (browser cache hit → no re-download flash)
 const _sigCache={};
@@ -2240,11 +2240,11 @@ const _sigCache={};
 async function rowsToCatches(rows, nameById){
   const c=getSB(); const ids=rows.map(r=>r.id); const byCatch={};
   if(ids.length){
-    const { data: ph } = await c.from('catch_photos').select('catch_id, path, is_cover, sort').in('catch_id', ids);
+    const { data: ph } = await c.from('catch_photos').select('catch_id, path, thumb_path, is_cover, sort').in('catch_id', ids);
     (ph||[]).forEach(p=>{ (byCatch[p.catch_id]=byCatch[p.catch_id]||[]).push(p); });
   }
   const allPaths=[];
-  Object.values(byCatch).forEach(arr=>{ arr.sort((a,b)=>(b.is_cover-a.is_cover)||(a.sort-b.sort)); arr.forEach(p=>allPaths.push(p.path)); });
+  Object.values(byCatch).forEach(arr=>{ arr.sort((a,b)=>(b.is_cover-a.is_cover)||(a.sort-b.sort)); arr.forEach(p=>{ allPaths.push(p.path); if(p.thumb_path) allPaths.push(p.thumb_path); }); });
   let signedMap={};
   if(allPaths.length){
     const now=Date.now();
@@ -2256,8 +2256,10 @@ async function rowsToCatches(rows, nameById){
     }
   }
   return rows.map(r=>{
-    const urls=(byCatch[r.id]||[]).map(p=>signedMap[p.path]).filter(Boolean);
-    const cc=dbRowToCatch(r, urls);
+    const arr=(byCatch[r.id]||[]);
+    const urls=[], thumbs=[];
+    arr.forEach(p=>{ const u=signedMap[p.path]; if(!u) return; urls.push(u); thumbs.push((p.thumb_path&&signedMap[p.thumb_path])||u); });
+    const cc=dbRowToCatch(r, urls, thumbs);
     if(nameById){
       if(nameById[r.owner_id]) cc.angler=nameById[r.owner_id];
       if(r.logged_by && nameById[r.logged_by]) cc.loggedByName=nameById[r.logged_by];
@@ -2339,8 +2341,8 @@ function catchToDbRow(obj, contextId){
 }
 async function deleteSoloPhotos(catchId){
   const c=getSB();
-  const { data } = await c.from('catch_photos').select('path').eq('catch_id', catchId);
-  if(data && data.length){ try{ await c.storage.from('catch-photos').remove(data.map(r=>r.path)); }catch(e){} await c.from('catch_photos').delete().eq('catch_id', catchId); }
+  const { data } = await c.from('catch_photos').select('path, thumb_path').eq('catch_id', catchId);
+  if(data && data.length){ const paths=[]; data.forEach(r=>{ paths.push(r.path); if(r.thumb_path) paths.push(r.thumb_path); }); try{ await c.storage.from('catch-photos').remove(paths); }catch(e){} await c.from('catch_photos').delete().eq('catch_id', catchId); }
 }
 function extractStoragePath(url){
   try{ const m=String(url).match(/\/catch-photos\/([^?]+)/); return m ? decodeURIComponent(m[1]) : null; }catch(e){ return null; }
@@ -2350,29 +2352,43 @@ async function saveSoloPhotos(catchId, photos){
   // and delete only the objects the user actually removed. Never re-fetch/re-upload existing
   // photos (that could wipe them if a signed URL has expired or the object was already removed).
   const c=getSB();
-  const { data: existing } = await c.from('catch_photos').select('path').eq('catch_id', catchId);
+  const { data: existing } = await c.from('catch_photos').select('path, thumb_path').eq('catch_id', catchId);
   const exSet = new Set((existing||[]).map(r=>r.path));
+  const exThumb={}; (existing||[]).forEach(r=>{ if(r.thumb_path) exThumb[r.path]=r.thumb_path; });
   const kept = new Set();
   const finalRows=[];
   for(let i=0;i<photos.length;i++){
-    const p=photos[i]; let path=null;
+    const p=photos[i]; let path=null, thumbPath=null;
     if(typeof p==='string' && p.slice(0,5)==='data:'){
       try{
         const blob = await (await fetch(p)).blob();
         if(blob && blob.type && blob.type.indexOf('image')===0){
           const np = state.me.id+'/'+catchId+'/'+Date.now()+'_'+i+'.jpg';
           const { error } = await c.storage.from('catch-photos').upload(np, blob, {contentType: blob.type||'image/jpeg', upsert:true});
-          if(!error) path=np;
+          if(!error){
+            path=np;
+            // dedicated tiny thumbnail for list views (~400px) — big load-time win
+            try{
+              const tdu = await downscaleToDataUrl(blob, 400, 0.7);
+              const tb = await (await fetch(tdu)).blob();
+              if(tb && tb.type && tb.type.indexOf('image')===0){
+                const tp = np.replace(/\.jpg$/, '_t.jpg');
+                const { error:te } = await c.storage.from('catch-photos').upload(tp, tb, {contentType:'image/jpeg', upsert:true});
+                if(!te) thumbPath=tp;
+              }
+            }catch(e){}
+          }
         }
       }catch(e){}
     } else {
       const ep=extractStoragePath(p);
-      if(ep && exSet.has(ep)){ path=ep; kept.add(ep); }
+      if(ep && exSet.has(ep)){ path=ep; kept.add(ep); thumbPath=exThumb[ep]||null; }
     }
-    if(path) finalRows.push({catch_id:catchId, path, is_cover:i===0, sort:i});
+    if(path) finalRows.push({catch_id:catchId, path, thumb_path:thumbPath, is_cover:i===0, sort:i});
   }
-  // remove storage objects for photos the user dropped from the editor
-  const toRemove=(existing||[]).filter(r=>!kept.has(r.path)).map(r=>r.path);
+  // remove storage objects (main + thumb) for photos the user dropped from the editor
+  const toRemove=[];
+  (existing||[]).forEach(r=>{ if(!kept.has(r.path)){ toRemove.push(r.path); if(r.thumb_path) toRemove.push(r.thumb_path); } });
   if(toRemove.length){ try{ await c.storage.from('catch-photos').remove(toRemove); }catch(e){} }
   // rewrite rows to reflect new order + cover
   await c.from('catch_photos').delete().eq('catch_id', catchId);
@@ -2772,7 +2788,7 @@ function renderList(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -2865,7 +2881,7 @@ function renderStats(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -3657,6 +3673,8 @@ function saveCatch(){
 const MAX_PHOTOS=10;
 function photosOf(c){ if(!c) return []; if(c.photos && c.photos.length) return c.photos; return c.photo ? [c.photo] : []; }
 function coverOf(c){ const p=photosOf(c); return p.length ? p[0] : null; }
+function thumbsOf(c){ if(!c) return []; if(c.thumbs && c.thumbs.length) return c.thumbs; return photosOf(c); }
+function coverThumbOf(c){ const tt=thumbsOf(c); return tt.length ? tt[0] : coverOf(c); }
 function setHeroPhoto(el, i){
   const strip=document.getElementById('d-strip'); const ps=strip._photos||[];
   const img=document.getElementById('d-hero-img'); if(img && ps[i]!=null) img.src=ps[i];
