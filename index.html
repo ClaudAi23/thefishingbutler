@@ -1264,11 +1264,11 @@
         <div class="field"><label data-i18n="weightFrom">Gewicht von (kg)</label><input id="flt-wmin" type="number" inputmode="decimal" placeholder="min" data-i18n-ph="minPh" /></div>
         <div class="field"><label data-i18n="weightTo">Gewicht bis (kg)</label><input id="flt-wmax" type="number" inputmode="decimal" placeholder="max" data-i18n-ph="maxPh" /></div>
       </div>
-      <label class="chkrow" style="margin:14px 4px 20px;"><input type="checkbox" id="flt-hideunconf"><span data-i18n="hideUnconfirmed">Unbestätigte Fänge ausblenden</span></label>
-
-      <button class="btn" onclick="applyFilter()" data-i18n="applyFilter">Filter anwenden</button>
-      <button class="btn secondary" style="margin-top:10px;" onclick="resetFilter()" data-i18n="reset">Zurücksetzen</button>
-      <div style="height:20px"></div>
+      <label class="chkrow" style="margin:14px 4px 4px;"><input type="checkbox" id="flt-hideunconf"><span data-i18n="hideUnconfirmed">Unbestätigte Fänge ausblenden</span></label>
+    </div>
+    <div class="form-actions" style="display:flex; gap:10px;">
+      <button class="btn secondary" onclick="resetFilter()" data-i18n="reset" style="flex:0 0 auto; width:auto; padding:12px 18px;">Zurücksetzen</button>
+      <button class="btn" onclick="applyFilter()" data-i18n="applyFilter" style="flex:1;">Filter anwenden</button>
     </div>
   </section>
 
@@ -1294,7 +1294,7 @@
       <div class="listtoolbar">
         <span class="listtoolbar-title" id="stats-count"></span>
         <div style="display:flex; align-items:center; gap:8px;">
-          <select id="sort-stats" onchange="setSort(this.value)" style="width:auto; padding:6px 10px; font-size:0.8125rem; border-radius:8px;"></select>
+          <select id="sort-stats" onchange="setSort(this.value)" style="width:auto; padding:6px 30px 6px 12px; font-size:0.8125rem; border-radius:8px;"></select>
           <button type="button" class="exportbtn" onclick="openExportMenu('stats')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
         </div>
       </div>
@@ -1816,7 +1816,8 @@ async function countPendingReqs(){
   return count||0;
 }
 async function goChooser(){
-  showLoader();
+  // Loader shows on cold start only (initial HTML load, hidden by first go()). No re-show on
+  // sign-in / join / create / back-to-home — those re-render fast from cached data.
   if(state.auth==='supabase'){
     try{ state.myContexts = await loadMyContexts(); }catch(e){ state.myContexts=[]; }
     // activity depends on myContexts; admin counts are independent → run them all in parallel.
@@ -2848,20 +2849,10 @@ function renderStats(){
   items.forEach(c=>{ if(c.length!=null && (bigLen==null || c.length>bigLen.length)) bigLen=c; if(c.weight!=null && (bigWt==null || c.weight>bigWt.weight)) bigWt=c; });
   const speciesCount=new Set(items.map(c=>c.species)).size;
   const yr=new Date().getFullYear();
-  // Period tile: reflects the active date filter (year/range); otherwise the current year.
+  // "This year" tile: only when no date filter is active (otherwise it just duplicates Total).
   const _f=state.filter||{};
-  let periodLabel, periodVal;
-  if(_f.from || _f.to){
-    const fy=_f.from? new Date(_f.from).getFullYear() : null;
-    const ty=_f.to? new Date(_f.to).getFullYear() : null;
-    if(fy && ty) periodLabel = (fy===ty) ? String(fy) : (fy+'–'+ty);
-    else if(fy) periodLabel = '≥ '+fy;
-    else periodLabel = '≤ '+ty;
-    periodVal = items.length;
-  } else {
-    periodLabel = String(yr);
-    periodVal = items.filter(c=>new Date(c.date).getFullYear()===yr).length;
-  }
+  const hasDateFilter = !!(_f.from || _f.to);
+  const yearCount = items.filter(c=>new Date(c.date).getFullYear()===yr).length;
   const kpi=(label,val,rust)=>`<div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
     <div style="font-size:0.625rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);">${label}</div>
     <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.625rem; font-weight:700; line-height:1.1;${rust?' color:var(--teal);':''}">${val}</div></div>`;
@@ -2870,7 +2861,7 @@ function renderStats(){
     (bigLen ? kpi(t('longest'), fmtLen(bigLen.length), true) : '') +
     (bigWt ? kpi(t('heaviest'), fmtWeight(bigWt.weight), true) : '') +
     kpi(t('speciesCount'), speciesCount) +
-    kpi(periodLabel, periodVal);
+    (hasDateFilter ? '' : kpi(String(yr), yearCount));
   { const sc=document.getElementById('stats-count'); if(sc) sc.textContent=items.length+' '+t('catches'); }
   document.getElementById('sort-stats').innerHTML=sortOptionsHtml();
   const list=document.getElementById('stats-list'); list.innerHTML='';
