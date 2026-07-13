@@ -262,6 +262,8 @@
   .map-fab{position:absolute; right:10px; bottom:10px; z-index:1000; width:40px; height:40px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:11px; border:1px solid var(--border-2); background:var(--surface); color:var(--teal); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.28);}
   .map-fab:hover,.map-fab:active{background:var(--surface-2); color:var(--teal);}
   .map-fab svg{width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .listtoolbar{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 2px 10px; padding-bottom:9px; border-bottom:1px solid var(--border);}
+  .listtoolbar-title{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.9375rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
   .map-stats{height:240px; margin-bottom:18px;}
   .coord{font-size:0.75rem; color:var(--muted);}
   .leaflet-container{font-family:inherit; background:var(--surface-2);}
@@ -829,15 +831,14 @@
         <button type="button" class="acchead" onclick="toggleAcc('share')"><span data-i18n="shareTitle">Teilen-Vorlage</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
           <p class="hint" style="margin-top:6px;" data-i18n="shareTemplateIntro">Passe den Text an, den du beim Teilen eines Fangs verschickst. Platzhalter werden automatisch gefüllt; leere Felder fallen weg.</p>
-          <div class="sectionlabel" style="margin-top:8px;" data-i18n="sharePreview">Vorschau</div>
-          <pre id="share-preview" class="share-prev"></pre>
-          <div class="sectionlabel" style="margin-top:16px;" data-i18n="shareEditLabel">Vorlage</div>
           <div style="position:relative;">
             <textarea id="share-template" rows="6" oninput="onShareTemplateInput()" style="padding-right:42px;"></textarea>
             <button type="button" id="share-reset-btn" class="tmpl-reset" title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen" onclick="resetShareTemplate()"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/></svg></button>
           </div>
           <p class="hint" data-i18n="sharePhTapHint" style="margin:8px 0 6px;">Tippe einen Platzhalter an, um ihn einzufügen:</p>
           <div id="share-ph-chips" class="ph-chips"></div>
+          <div class="sectionlabel" style="margin-top:16px;" data-i18n="sharePreview">Vorschau</div>
+          <pre id="share-preview" class="share-prev"></pre>
           <p class="hint" data-i18n="shareHintGlobal" style="margin-top:10px;">Gilt für alle deine Fänge.</p>
         </div>
       </div>
@@ -1288,9 +1289,12 @@
       <button type="button" class="sync-banner" onclick="retrySync()" style="display:none;"><span class="sb-dot"></span><span class="sb-txt"></span></button>
       <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
       <div id="stats-map" class="map map-stats" style="display:none;"></div>
-      <div style="display:flex; justify-content:flex-end; align-items:center; gap:8px; margin:0 4px 10px;">
-        <button type="button" class="exportbtn" onclick="openExportMenu('stats')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
-        <select id="sort-stats" onchange="setSort(this.value)" style="width:auto; padding:6px 10px; font-size:0.8125rem; border-radius:8px;"></select>
+      <div class="listtoolbar">
+        <span class="listtoolbar-title" id="stats-count"></span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <select id="sort-stats" onchange="setSort(this.value)" style="width:auto; padding:6px 10px; font-size:0.8125rem; border-radius:8px;"></select>
+          <button type="button" class="exportbtn" onclick="openExportMenu('stats')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
+        </div>
       </div>
       <div id="stats-list"></div>
       <div style="height:24px"></div>
@@ -2853,6 +2857,7 @@ function renderStats(){
     (bigWt ? kpi(t('heaviest'), fmtWeight(bigWt.weight), true) : '') +
     kpi(t('speciesCount'), speciesCount) +
     kpi(t('thisYear'), thisYearCount);
+  { const sc=document.getElementById('stats-count'); if(sc) sc.textContent=items.length+' '+t('catches'); }
   document.getElementById('sort-stats').innerHTML=sortOptionsHtml();
   const list=document.getElementById('stats-list'); list.innerHTML='';
   const sorted=sortCatches(items);
