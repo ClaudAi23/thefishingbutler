@@ -156,7 +156,10 @@
   select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A9299' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 13px center; background-size:18px; padding-right:40px;}
   .field{margin-bottom:16px;}
   .row{display:flex; gap:12px;}
-  .row .field{flex:1 1 0; min-width:0;}
+  /* Definite 50% basis keeps the two halves exactly equal even when an iOS date input has a value
+     (its intrinsic content width would otherwise make a filled field wider); a lone visible field still grows to full. */
+  .row .field{flex:1 1 calc(50% - 6px); min-width:0;}
+  .row .field input{width:100%; min-width:0;}
   .hint{font-size:0.75rem; color:var(--muted); margin:6px 0 0;}
 
   .logo-badge{
@@ -365,13 +368,14 @@
   .detail-band .ds{margin:5px 0 0; font-size:0.9375rem; font-weight:500; color:var(--muted);}
   .pending-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.02em; line-height:1.4; background:var(--teal-tint); border:1px solid var(--teal); color:var(--teal-bright); white-space:nowrap; flex:0 0 auto;}
   .dspecs{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; grid-auto-flow:dense;}
-  .spec{display:flex; align-items:center; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
+  .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
   .spec.wide{grid-column:1 / -1;}
-  .spec > svg{width:20px; height:20px; flex:0 0 auto; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .spec > svg{width:20px; height:20px; margin-top:2px; flex:0 0 auto; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   .spec .kv{min-width:0; display:flex; flex-direction:column; gap:1px;}
   .spec .k{color:var(--muted); font-size:0.6875rem; text-transform:uppercase; letter-spacing:.05em;}
   .spec .v{font-weight:600; font-size:0.9375rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .spec.wide .v{white-space:normal;}
+  .spec .tr{font-size:0.72rem; color:var(--teal-bright); margin-top:2px; white-space:nowrap;}
   /* odd count: last half-width cell keeps its own border, but drop the divider that would visually double up */
   .spec:nth-last-child(1):nth-child(odd){border-bottom:1px solid var(--border);}
 
@@ -664,7 +668,7 @@
         </div>
         <div class="field" id="ff-weight">
           <label data-i18n="weightKg">Gewicht (kg)</label>
-          <input id="f-weight" type="number" inputmode="decimal" step="0.1" min="0" placeholder="z. B. 5,5" data-i18n-ph="weightPh" />
+          <input id="f-weight" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 5,5" data-i18n-ph="weightPh" />
         </div>
       </div>
       <div class="field" id="ff-released">
@@ -697,7 +701,7 @@
       </div>
       <div class="field" id="ff-watertemp">
         <label data-i18n="watertemp">Wassertemperatur (°C)</label>
-        <input id="f-watertemp" type="number" inputmode="decimal" step="0.1" placeholder="z. B. 18" data-i18n-ph="watertempPh" />
+        <input id="f-watertemp" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 18" data-i18n-ph="watertempPh" />
       </div>
 
       <div class="fgroup" id="fg-gear" data-i18n="grpGear">Technik & Ausrüstung</div>
@@ -728,7 +732,7 @@
       </div>
       <div class="field" id="ff-trolling">
         <label data-i18n="trolling">Schleppgeschw. (km/h)</label>
-        <input id="f-trolling" type="number" inputmode="decimal" step="0.1" placeholder="z. B. 3,2" data-i18n-ph="trollingPh" />
+        <input id="f-trolling" type="text" inputmode="decimal" autocomplete="off" placeholder="z. B. 3,2" data-i18n-ph="trollingPh" />
       </div>
 
       <div class="field" id="ff-notes">
@@ -768,19 +772,19 @@
       </div>
       <div class="pad">
         <div id="d-rows"></div>
-        <div id="d-map-wrap" style="display:none; margin-top:16px;">
+        <div id="d-notes-wrap" style="margin-top:18px; display:none;">
+          <div class="sectionlabel" data-i18n="notes">Notizen</div>
+          <p id="d-notes" style="margin:0; color:var(--text);">—</p>
+        </div>
+        <div id="d-weather-wrap" style="display:none; margin-top:22px;">
+          <div class="sectionlabel" data-i18n="weather">Wetter</div>
+          <div id="d-weather"></div>
+        </div>
+        <div id="d-map-wrap" style="display:none; margin-top:22px;">
           <div class="map-wrap">
             <div id="d-map" class="map map-detail"></div>
             <button type="button" class="map-fab" onclick="openInMaps()" data-i18n-title="openInMaps" title="In Karten öffnen" aria-label="In Karten öffnen"><svg viewBox="0 0 24 24"><path d="M12 18.5l7.265 2.463c.196 .077 .42 .032 .57 -.116a.548 .548 0 0 0 .134 -.572l-7.969 -17.275l-7.97 17.275c-.07 .2 -.017 .424 .135 .572c.15 .148 .374 .193 .57 .116l7.265 -2.463"/></svg></button>
           </div>
-        </div>
-        <div id="d-weather-wrap" style="display:none; margin-top:18px;">
-          <div class="sectionlabel" data-i18n="weather">Wetter</div>
-          <div id="d-weather"></div>
-        </div>
-        <div id="d-notes-wrap" style="margin-top:18px; display:none;">
-          <div class="sectionlabel" data-i18n="notes">Notizen</div>
-          <p id="d-notes" style="margin:0; color:var(--text);">—</p>
         </div>
         <div style="height:24px"></div>
       </div>
@@ -1408,13 +1412,13 @@ const I18N = {
 Object.assign(I18N.de, {editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
 Object.assign(I18N.en, {editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
 Object.assign(I18N.nl, {editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
-Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Temperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
+Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
-Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", trendNote:"Arrows: change over the last {n} days (linear tendency, daily values).", sparkCap:"Daily mean temperature, last {n} days",
+Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", trendNote:"Arrows: change over the last {n} days (linear tendency, daily values).", sparkCap:"Daily mean temperature, last {n} days",
   m_new:"New moon", m_wc:"Waxing crescent", m_fq:"First quarter", m_wg:"Waxing gibbous", m_full:"Full moon", m_ng:"Waning gibbous", m_lq:"Last quarter", m_nc:"Waning crescent",
   wc_clear:"Clear", wc_partly:"Partly cloudy", wc_cloudy:"Cloudy", wc_fog:"Fog", wc_drizzle:"Drizzle", wc_rain:"Rain", wc_snow:"Snow", wc_thunder:"Thunderstorm"});
-Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Temperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", trendNote:"Pijlen: verandering over de laatste {n} dagen (lineaire tendens, dagwaarden).", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
+Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Luchttemperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", trendNote:"Pijlen: verandering over de laatste {n} dagen (lineaire tendens, dagwaarden).", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
@@ -2911,13 +2915,14 @@ function renderStats(){
     <div><div style="${_kl}">${t('total')}</div><div style="${_kv}">${items.length}</div></div>
     ${hasDateFilter?'':`<div style="text-align:right;"><div style="${_kl}">${yr}</div><div style="${_kv} font-size:1.125rem; color:var(--muted);">${yearCount}</div></div>`}
   </div>`;
+  // Counts on the top row (Total | Arten), the two size records paired in the second row (Längster | Schwerster).
   // Longest + Heaviest travel as a pair (both or neither) so the grid never becomes an odd row of three.
   const showMeasures = !!(bigLen || bigWt);
   document.getElementById('stats-cards').innerHTML =
     totalCard +
+    kpi(t('speciesCount'), speciesCount) +
     (showMeasures ? kpi(t('longest'), bigLen?fmtLen(bigLen.length):'—', true) : '') +
-    (showMeasures ? kpi(t('heaviest'), bigWt?fmtWeight(bigWt.weight):'—', true) : '') +
-    kpi(t('speciesCount'), speciesCount);
+    (showMeasures ? kpi(t('heaviest'), bigWt?fmtWeight(bigWt.weight):'—', true) : '');
   { const sc=document.getElementById('stats-count'); if(sc) sc.textContent=items.length+' '+t('catches'); }
   document.getElementById('sort-stats').innerHTML=sortOptionsHtml();
   const list=document.getElementById('stats-list'); list.innerHTML='';
@@ -3084,14 +3089,30 @@ function previewWeather(){
     try{ syncFormGroups(); }catch(e){}
   }, 350);
 }
-function renderWeather(c){ renderWeatherInto(c.weather, c.date, 'd-weather','d-weather-wrap'); }
-function renderWeatherInto(weather, date, boxId, wrapId){
+function renderWeather(c){ renderWeatherInto(c.weather, c.date, 'd-weather','d-weather-wrap', c.watertemp); }
+const WX_IC={
+  cloud:'<path d="M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878"/>',
+  temperature:'<path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9l4 0"/>',
+  droplet:'<path d="M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546"/>',
+  wind:'<path d="M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24"/><path d="M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24"/><path d="M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24"/>',
+  gauge:'<path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M13.41 10.59l2.59 -2.59"/><path d="M7 12a5 5 0 0 1 5 -5"/>',
+  moon:'<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008"/>'
+};
+function wxIcon(t){ return `<svg viewBox="0 0 24 24">${WX_IC[t]||''}</svg>`; }
+function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const box=document.getElementById(boxId); const wrap=wrapId?document.getElementById(wrapId):box; const showEl=wrap||box;
-  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wrow"><span class="v">${esc(weather.text)}</span></div>`; return; }
-  if(!weather || !weather.cur){ if(showEl) showEl.style.display='none'; return; }
+  const _sep=curLang()==='en'?'.':',';
+  const _num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',_sep);
+  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="dspecs"><div class="spec wide">${wxIcon('cloud')}<span class="kv"><span class="k">${t('wCond')}</span><span class="v">${esc(weather.text)}</span></span></div>${watertemp!=null?`<div class="spec">${wxIcon('droplet')}<span class="kv"><span class="k">${t('wWaterTemp')}</span><span class="v">${_num(watertemp,1)} °C</span></span></div>`:''}</div>`; return; }
+  if(!weather || !weather.cur){
+    // No API weather, but a logged water temperature should still appear in this section.
+    if(watertemp!=null){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="dspecs"><div class="spec">${wxIcon('droplet')}<span class="kv"><span class="k">${t('wWaterTemp')}</span><span class="v">${_num(watertemp,1)} °C</span></span></div></div>`; }
+    else if(showEl) showEl.style.display='none';
+    return;
+  }
   const cur=weather.cur, daily=weather.daily||[];
-  const sep=curLang()==='en'?'.':',';
-  const num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',sep);
+  const sep=_sep;
+  const num=_num;
   const condKey=weatherCodeKey(cur.code);
   const moonKey=moonPhaseKey(new Date(date));
   // only quarter phases need an explicit direction; crescent/gibbous names already say waxing/waning
@@ -3102,22 +3123,25 @@ function renderWeatherInto(weather, date, boxId, wrapId){
   const chip=(net,thr,dec,unit)=>{
     if(net==null) return '';
     const up=net>thr, down=net<-thr;
-    const ar=up?'↑':(down?'↓':'→'), cls=up?'tr-up':(down?'tr-down':'tr-flat');
+    const ar=up?'↑':(down?'↓':'→');
     const sign=net>0?'+':(net<0?'−':'±');
-    return ` <span class="wtr ${cls}">${ar} ${sign}${num(Math.abs(net),dec)} ${unit}</span>`;
+    return `${ar} ${sign}${num(Math.abs(net),dec)} ${unit}`;
   };
   const tChip = days>=2 ? chip(trendNet(temps),0.5,1,'°C') : '';
   const wChip = days>=2 ? chip(trendNet(winds),3,0,'km/h') : '';
   const pChip = days>=2 ? chip(trendNet(pres),1.5,0,'hPa') : '';
-  const rows=[];
-  if(wxOn('wxCond')) rows.push(`<div class="wrow"><span class="k">${t('wCond')}</span><span class="v">${condKey?t(condKey):'—'}</span></div>`);
-  if(wxOn('wxTemp')) rows.push(`<div class="wrow"><span class="k">${t('wTemp')}</span><span class="v">${num(cur.temp,1)} °C${tChip}</span></div>`);
-  if(wxOn('wxWind')) rows.push(`<div class="wrow"><span class="k">${t('wWind')}</span><span class="v">${num(cur.wind,0)} km/h${wChip}</span></div>`);
-  if(wxOn('wxPress')) rows.push(`<div class="wrow"><span class="k">${t('wPressure')}</span><span class="v">${num(cur.pressure,0)} hPa${pChip}</span></div>`);
-  if(wxOn('wxMoon')) rows.push(`<div class="wrow"><span class="k">${t('moon')}</span><span class="v">${moonEmoji(moonKey)} ${t(moonKey)}${moonDir?' · '+t(moonDir):''}</span></div>`);
-  if(!rows.length){ if(showEl) showEl.style.display='none'; return; }
+  // Spec-sheet cells (matching the catch section): icon + label + value, trend as a small teal sub-line.
+  const spec=(icon,label,value,wide,tr)=>`<div class="spec${wide?' wide':''}">${wxIcon(icon)}<span class="kv"><span class="k">${label}</span><span class="v">${value}</span>${tr?`<span class="tr">${tr}</span>`:''}</span></div>`;
+  const cells=[];
+  if(wxOn('wxCond')) cells.push(spec('cloud',t('wCond'), condKey?t(condKey):'—', true));
+  if(wxOn('wxTemp')) cells.push(spec('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip));
+  if(watertemp!=null) cells.push(spec('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
+  if(wxOn('wxWind')) cells.push(spec('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
+  if(wxOn('wxPress')) cells.push(spec('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
+  if(wxOn('wxMoon')) cells.push(spec('moon',t('moon'), moonEmoji(moonKey)+' '+t(moonKey)+(moonDir?' · '+t(moonDir):''), true));
+  if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
-  let html=rows.join('');
+  let html='<div class="dspecs">'+cells.join('')+'</div>';
   if(days>=2 && (wxOn('wxTemp')||wxOn('wxWind')||wxOn('wxPress'))) html+=`<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>`;
   html+=`<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div>`;
   box.innerHTML=html;
@@ -4035,16 +4059,21 @@ function openDetailObj(c, from){
     const hs=document.getElementById('d-h1sub'); if(hs) hs.textContent=[size, fmtDate(c.date)].filter(Boolean).join(' · ');
     const wrap=document.getElementById('d-htitle'); if(wrap) wrap.style.opacity='0';
     const sc=document.querySelector('#s-detail .scroll'); if(sc){ sc.scrollTop=0; sc.onscroll=_detailScroll; setTimeout(_detailScroll,0); } }
-  // Spec-sheet rows: [iconToken, label, value, forceWide]
-  const rows=[['angler',t('dAngler'),c.angler,false],['water',t('dWater'),c.location||'—',true],['length',t('dLength'),fmtLen(c.length),false],['weight',t('dWeight'),fmtWeight(c.weight),false]];
-  if(c.method) rows.push(['method',t('method'), c.method,false]);
-  if(c.bait) rows.push(['bait',t('bait'), c.bait,false]);
-  if(c.rod) rows.push(['rod',t('rod'), c.rod,false]);
-  if(c.boat) rows.push(['boat',t('boat'), c.boat,false]);
-  if(c.watertemp!=null) rows.push(['watertemp',t('watertemp'), fmtTemp(c.watertemp),false]);
-  if(c.trolling!=null) rows.push(['trolling',t('trolling'), String(c.trolling).replace('.',',')+' km/h',false]);
-  if(c.released!=null) rows.push(['released',t('releasedLabel'), c.released?t('releasedReleased'):t('releasedKept'),false]);
+  // Spec-sheet rows: [iconToken, label, value, forceWide] — empty fields are omitted entirely.
+  // Order: Datum + Angler lead · Länge|Gewicht, Entnahme|Methode, Boot|Tempo paired · Rute+Köder together (wide) · Gewässer · Eingetragen von.
+  // Wide = long/text fields; half = short/numeric. Wassertemperatur now lives in the weather section.
+  const rows=[];
   rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
+  rows.push(['angler',t('dAngler'),c.angler,true]);
+  if(c.length!=null) rows.push(['length',t('dLength'),fmtLen(c.length),false]);
+  if(c.weight!=null) rows.push(['weight',t('dWeight'),fmtWeight(c.weight),false]);
+  if(c.released!=null) rows.push(['released',t('releasedLabel'), c.released?t('releasedReleased'):t('releasedKept'),false]);
+  if(c.method) rows.push(['method',t('method'), c.method,false]);
+  if(c.boat) rows.push(['boat',t('boat'), c.boat,false]);
+  if(c.trolling!=null) rows.push(['trolling',t('trolling'), String(c.trolling).replace('.',',')+' km/h',false]);
+  if(c.rod) rows.push(['rod',t('rod'), c.rod,true]);
+  if(c.bait) rows.push(['bait',t('bait'), c.bait,true]);
+  if((c.location||'').trim()) rows.push(['water',t('dWater'),c.location,true]);
   if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName,true]);
   let banner='';
   if(c._db && c.confirmed===false){
@@ -4067,8 +4096,8 @@ function openDetailObj(c, from){
   document.getElementById('edit-btn').style.display = editable ? '' : 'none';
   const mw=document.getElementById('d-map-wrap');
   mw.style.display = c.lat!=null ? 'block' : 'none';
-  if(c.weather) renderWeather(c);
-  else { document.getElementById('d-weather-wrap').style.display='none'; if(c.lat!=null) enrichWeather(c); }
+  renderWeather(c); // handles API weather, text-only, and water-temp-only (shows/hides the section itself)
+  if(!c.weather && c.lat!=null) enrichWeather(c);
   go('detail');
   if(c.lat!=null) ensureDetailMap(c.lat,c.lon);
 }
