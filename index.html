@@ -164,7 +164,7 @@
   .row-eq{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px;}
   .row-eq .field{width:100%; min-width:0;}
   /* iOS Safari content-sizes date inputs (empty = narrow, filled = wide). min-width:100% forces both to fill their equal grid cell; the inner value element is pinned full-width and left-aligned so a filled field can't grow past an empty one. */
-  .row-eq .field input{width:100%; min-width:100%; max-width:100%; box-sizing:border-box; text-align:left;}
+  .row-eq .field input{width:100%; min-width:100%; max-width:100%; min-height:48px; box-sizing:border-box; text-align:left;}
   .row-eq .field input[type="date"]::-webkit-date-and-time-value{ text-align:left; margin:0; width:100%; }
   .row-eq .field input[type="date"]::-webkit-calendar-picker-indicator{ margin-left:auto; }
   .hint{font-size:0.75rem; color:var(--muted); margin:6px 0 0;}
@@ -630,7 +630,7 @@
   <section id="s-form" class="screen">
     <div class="topbar">
       <button class="iconbtn" onclick="formBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div><h1 id="f-title" data-i18n="logCatch">Fang eintragen</h1><p class="sub" id="f-sub" data-i18n="newCatch">Neuer Fang</p></div>
+      <div><h1 id="f-title" data-i18n="logCatch">Fang eintragen</h1></div>
     </div>
     <div class="scroll pad">
       <div class="field" id="ff-area" style="display:none;">
@@ -3148,7 +3148,7 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(watertemp!=null) cells.push(spec('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
   if(wxOn('wxWind')) cells.push(spec('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
   if(wxOn('wxPress')) cells.push(spec('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
-  if(wxOn('wxMoon')) cells.push(spec('moon',t('moon'), moonEmoji(moonKey)+' '+t(moonKey)+(moonDir?' · '+t(moonDir):''), true));
+  if(wxOn('wxMoon')) cells.push(spec('moon',t('moon'), moonEmoji(moonKey)+' '+t(moonKey)+(moonDir?' · '+t(moonDir):''), false));
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="dspecs">'+cells.join('')+'</div>';
@@ -3427,7 +3427,6 @@ async function openForm(skipAuto){
   state.speciesKey=null; state.editId=null; state.editReturn=null;
   fillMethodsDatalist(); fillSuggestLists(); applyFieldConfig();
   document.getElementById('f-title').textContent=t('logCatch');
-  document.getElementById('f-sub').textContent=t('newCatch');
   document.getElementById('f-date').value=nowLocal();
   document.getElementById('f-date').max=nowLocal();
   state.formDateAuto=document.getElementById('f-date').value;   // remember the auto "now" so EXIF only overrides an untouched date
@@ -3499,7 +3498,6 @@ function openEdit(c){
   { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display=''; }
   { if(c.weather){ state.formWeather=c.weather; try{ renderWeatherInto(c.weather, c.date, 'f-weather','f-weather-wrap'); }catch(e){} } }
   document.getElementById('f-title').textContent=t('editCatch');
-  document.getElementById('f-sub').textContent=t('editSub');
   document.getElementById('f-species').value=trSpecies(c.species); state.speciesKey=c.species;
   document.getElementById('f-length').value = c.length!=null? c.length : '';
   document.getElementById('f-weight').value = c.weight!=null? c.weight : '';
