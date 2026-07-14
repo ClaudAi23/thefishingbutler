@@ -459,7 +459,7 @@
   .spec.efm{cursor:default;}
   .spec.efm .efm-field{display:flex; align-items:baseline; gap:5px; min-width:0;}
   /* Style A · Underline: flat ochre underline hugging the value (no rounded tray, no box halo) */
-  .spec.efm .efm-in{width:auto; min-width:2ch; max-width:100%; border:none; border-radius:0; background:transparent; font-family:inherit; font-weight:600; font-size:0.9375rem; color:var(--text); padding:2px 0; outline:none; box-shadow:none; border-bottom:1.5px solid rgba(224,165,63,.55);}
+  .spec.efm .efm-in{width:auto; min-width:0.6em; max-width:100%; border:none; border-radius:0; background:transparent; font-family:inherit; font-weight:600; font-size:0.9375rem; color:var(--text); padding:2px 0; outline:none; box-shadow:none; border-bottom:1.5px solid rgba(224,165,63,.55);}
   .spec.efm .efm-in:focus{border-bottom-color:var(--accent); box-shadow:none;}
   .spec.efm .efm-in::placeholder{color:var(--muted); font-weight:500;}
   .spec.efm .efm-date{width:auto; min-width:0;}
@@ -4629,15 +4629,17 @@ function commitEfmInput(inp){
   saveDetailField(c, cfg.col, cfg.field, nv, {pb:cfg.pb});
 }
 function efmNext(inp){ const all=[].slice.call(document.querySelectorAll('#d-rows .efm-in')); const i=all.indexOf(inp); if(i>=0 && i+1<all.length){ all[i+1].focus(); } else { inp.blur(); } }
-let _efmMeasure=null;
+let _efmCtx=null;
 function sizeEfm(inp){
   if(!inp||inp.classList.contains('efm-date')) return;
-  if(!_efmMeasure){ _efmMeasure=document.createElement('span'); _efmMeasure.setAttribute('aria-hidden','true'); _efmMeasure.style.cssText='position:absolute; visibility:hidden; white-space:pre; left:-9999px; top:-9999px;'; document.body.appendChild(_efmMeasure); }
+  if(!_efmCtx){ _efmCtx=document.createElement('canvas').getContext('2d'); }
   const cs=getComputedStyle(inp);
-  _efmMeasure.style.fontFamily=cs.fontFamily; _efmMeasure.style.fontSize=cs.fontSize; _efmMeasure.style.fontWeight=cs.fontWeight; _efmMeasure.style.letterSpacing=cs.letterSpacing;
-  _efmMeasure.textContent = inp.value || inp.placeholder || '0';
-  inp.style.width = (_efmMeasure.offsetWidth + 3) + 'px';   // +3px only for the caret
+  _efmCtx.font=`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const txt=inp.value || inp.placeholder || '0';
+  const w=_efmCtx.measureText(txt).width;
+  inp.style.width = Math.ceil(w + 2) + 'px';   // exact glyph width + 2px for the caret
 }
+function _resizeAllEfm(){ document.querySelectorAll('#d-rows .efm-in:not(.efm-date)').forEach(sizeEfm); }
 function commitEfmDate(inp){ const c=state.current; if(!c||!inp.value) return; let iso; try{ iso=new Date(inp.value).toISOString(); }catch(e){ return; } saveDetailField(c,'caught_at','date',iso,{}); }
 function editWaterField(c){
   openTypeaheadCfg({ title:t('dWater'), allowNew:true, curVal:()=>c.location||'',
@@ -4725,6 +4727,7 @@ function startNotesEdit(){
 function openDetailObj(c, from, keepEdit){
   state.current=c; state.detailFrom=from||'list';
   if(!keepEdit) _detailEdit=false;
+  const _keepScroll = keepEdit ? (((document.querySelector('#s-detail .scroll')||{}).scrollTop)||0) : 0;
   const hero=document.getElementById('d-hero');
   const strip=document.getElementById('d-strip');
   const pe=document.getElementById('d-photo-edit');
@@ -4754,7 +4757,7 @@ function openDetailObj(c, from, keepEdit){
   { const h=document.getElementById('d-h1'); if(h) h.textContent=trSpecies(c.species);
     const hs=document.getElementById('d-h1sub'); if(hs) hs.textContent=[size, fmtDate(c.date)].filter(Boolean).join(' · ');
     const wrap=document.getElementById('d-htitle'); if(wrap) wrap.style.opacity='0';
-    const sc=document.querySelector('#s-detail .scroll'); if(sc){ sc.scrollTop=0; sc.onscroll=_detailScroll; setTimeout(_detailScroll,0); } }
+    const sc=document.querySelector('#s-detail .scroll'); if(sc){ if(!keepEdit) sc.scrollTop=0; sc.onscroll=_detailScroll; setTimeout(_detailScroll,0); } }
   // Spec-sheet rows: [iconToken, label, value, forceWide] — empty fields are omitted entirely.
   // Order: Datum + Angler lead · Länge|Gewicht, Entnahme|Methode, Boot|Tempo paired · Rute+Köder together (wide) · Gewässer · Eingetragen von.
   // Wide = long/text fields; half = short/numeric. Wassertemperatur now lives in the weather section.
@@ -4829,7 +4832,7 @@ function openDetailObj(c, from, keepEdit){
   const groupRow = (editing && canGroup) ? `<div class="dgroup-edit"><div class="sectionlabel">${esc(t('logToArea'))}</div><div class="spec efm dgroup-pick" onclick="openDetailAreaSheet()"><svg viewBox="0 0 24 24"><path d="M9 7a3 3 0 1 0 0 6a3 3 0 0 0 0 -6M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg><span class="kv"><span class="efm-pickrow"><span class="v efm-pick">${esc(detailAreaSummary(c))}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div></div>` : '';
   { const gt=document.getElementById('d-group-top'); if(gt){ gt.innerHTML=groupRow; gt.style.display=groupRow?'block':'none'; } }
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner;
-  if(editing){ document.querySelectorAll('#d-rows .efm-in:not(.efm-date)').forEach(sizeEfm); }
+  if(editing){ _resizeAllEfm(); if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(_resizeAllEfm); } }
   const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
     ta.addEventListener('blur', function(){ const nv=(ta.value||'').trim()||null; if(nv!==(c.notes||null)) saveDetailField(c,'notes','notes',nv,{}); }); dn.appendChild(ta); }
@@ -4837,6 +4840,7 @@ function openDetailObj(c, from, keepEdit){
   else nw.style.display='none';
   document.getElementById('edit-btn').style.display = (_editable && !_detailEdit) ? '' : 'none';
   { const _db2=document.getElementById('edit-done-btn'); if(_db2) _db2.style.display = (_editable && _detailEdit) ? '' : 'none'; }
+  { const _sb=document.getElementById('share-btn'); if(_sb){ const _shareOk=((navigator.maxTouchPoints||0)>0 && !!navigator.share); _sb.style.display = (!_detailEdit && _shareOk) ? '' : 'none'; } }
   const mw=document.getElementById('d-map-wrap');
   const mEditBar=document.getElementById('d-map-edit-bar'), mFab=document.getElementById('d-map-openfab'), mLabel=document.getElementById('d-map-label');
   if(editing){ mw.style.display='block'; if(mEditBar) mEditBar.style.display='flex'; if(mFab) mFab.style.display='none'; if(mLabel) mLabel.style.display='block'; }
@@ -4844,6 +4848,7 @@ function openDetailObj(c, from, keepEdit){
   renderWeather(c); // handles API weather, text-only, and water-temp-only (shows/hides the section itself)
   if(!c.weather && c.lat!=null) enrichWeather(c);
   go('detail');
+  if(keepEdit){ const _sc=document.querySelector('#s-detail .scroll'); if(_sc){ _sc.scrollTop=_keepScroll; requestAnimationFrame(function(){ _sc.scrollTop=_keepScroll; }); } }
   if(editing){ initDetailEditMap(c); }
   else if(c.lat!=null){ ensureDetailMap(c.lat,c.lon); }
 }
