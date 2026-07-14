@@ -4526,7 +4526,40 @@ function startFieldEdit(rowEl, key){
   const c=state.current; if(!c) return;
   if(key==='date') return editDateField(c);
   if(key==='released') return editReleasedField(c);
+  if(key==='angler') return editAnglerField(c);
   if({method:1,bait:1,rod:1,boat:1}[key]) return editTypeaheadField(c, key);
+}
+async function loadMembersForCtx(ctxId){
+  if(!ctxId || state.auth!=='supabase') return [];
+  if(state.club && state.club.id===ctxId && (state.ctxMembers||[]).length) return state.ctxMembers;
+  try{ const c=getSB(); const { data:mems }=await c.from('memberships').select('user_id').eq('context_id', ctxId);
+    const ids=[...new Set((mems||[]).map(m=>m.user_id))]; const map={};
+    if(ids.length){ const { data:profs }=await c.from('profiles').select('id, display_name').in('id', ids); (profs||[]).forEach(p=>map[p.id]=p.display_name); }
+    return ids.map(id=>({id, name:map[id]||'—'}));
+  }catch(e){ return []; }
+}
+async function editAnglerField(c){
+  if(!(c._db && c._ctxId)) return;   // angler reassignment only inside a club/group
+  const mems=await loadMembersForCtx(c._ctxId);
+  const meId=state.me&&state.me.id, meName=(state.me&&state.me.name)||t('me');
+  const opts=[{v:meName+' ('+t('me')+')', key:meId}].concat((mems||[]).filter(m=>m.id!==meId).map(m=>({v:m.name, key:m.id})));
+  openTypeaheadCfg({ title:t('angler'), allowNew:false, recent:()=>[], opts:()=>opts, curVal:()=>c.angler||'',
+    onPick:(v,memberId)=>{ reassignAngler(c, memberId, (memberId===meId?meName:v)); } });
+}
+async function reassignAngler(c, newOwnerId, newName){
+  if(!c._db || !newOwnerId){ return; }
+  const oldOwner=c.userId, me=state.me&&state.me.id;
+  const patch={ owner_id:newOwnerId };
+  if(newOwnerId===me){ patch.logged_by=null; patch.confirmed=true; } else { patch.logged_by=me; patch.confirmed=false; }
+  try{
+    const { error }=await getSB().from('catches').update(patch).eq('id', c.id); if(error) throw error;
+    c.userId=newOwnerId; c.angler=newName; c.loggedBy=patch.logged_by; c.confirmed=patch.confirmed;
+    try{ await recomputePb(oldOwner, c.species); }catch(e){}
+    if(newOwnerId!==oldOwner){ try{ await recomputePb(newOwnerId, c.species); }catch(e){} }
+    try{ await reloadCurrentDb(); }catch(e){}
+    try{ haptic(8); }catch(e){}
+    openDetailObj(c, state.detailFrom);
+  }catch(e){ try{ toast(t('errSave')); }catch(_e){} }
 }
 function editTypeaheadField(c, field){
   const map={method:'f-method',bait:'f-bait',rod:'f-rod',boat:'f-boat'}; const base=TA_CFG[map[field]]; if(!base) return;
@@ -4614,13 +4647,19 @@ function openDetailObj(c, from){
   }
   const _isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
   const _editable = (state.detailFrom==='list' || state.detailFrom==='stats') && _isMine && !c._welcome;
+  // In edit-capable view, surface enabled-but-empty fields as "＋ hinzufügen" so you can add them inline.
+  if(_editable){
+    const present=new Set(rows.map(r=>r[0]));
+    [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['bait',t('bait'),'bait',true],['water',t('dWater'),'location',true]]
+      .forEach(a=>{ try{ if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '＋ '+t('addField'), a[3], true]); }catch(e){} });
+  }
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,boat:1,released:1,date:1};
-  const specHTML=rows.map(r=>{ const wide=r[3] || (''+r[2]).length>18;
-    const ef=_editable && EDITABLE_FIELDS[r[0]];
+  const specHTML=rows.map(r=>{ const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
+    const ef=_editable && (r[0]==='angler' ? (c._db&&c._ctxId) : EDITABLE_FIELDS[r[0]]);
     const cls='spec'+(wide?' wide':'')+(ef?' ef':'');
     const onc=ef?` onclick="startFieldEdit(this,'${r[0]}')"`:'';
-    // editable values get a quiet always-on affordance (.v.editable → dotted underline), no per-row icon
-    return `<div class="${cls}"${onc}>${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v${ef?' editable':''}">${esc(''+r[2])}</span></span></div>`; }).join('');
+    // editable values: quiet dotted affordance; empty add-rows use the teal "＋" style instead
+    return `<div class="${cls}"${onc}>${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v${(ef&&!empty)?' editable':''}${empty?' empty':''}">${esc(''+r[2])}</span></span></div>`; }).join('');
   let pbBanner='';
   if(isPb(c)){ const ml = pbMetric()==='weight'? t('msHeaviest') : t('msLongest'); pbBanner = `<div class="pb-banner">${CROWN_IC}<span>${esc(t('pbRecord'))} · ${esc(ml)} ${esc(trSpecies(c.species))}</span></div>`; }
   let medBanner='';
