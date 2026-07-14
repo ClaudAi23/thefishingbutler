@@ -413,6 +413,12 @@
   .pb-crown svg{width:13px; height:13px;}
   .pb-banner{display:flex; align-items:center; gap:9px; margin-top:10px; padding:9px 12px; border-radius:12px; background:var(--accent); color:#fff; font-weight:600; font-size:0.9rem;}
   .pb-banner svg{width:20px; height:20px; flex:0 0 auto;}
+  /* Personal PB shown inline: ochre crown badge to the right of the species name */
+  .d-crown{display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; vertical-align:middle; margin-left:10px;}
+  .d-crown svg{width:15px; height:15px;}
+  .d-crown.ghost{background:transparent; border:1.5px solid var(--accent); color:var(--accent);}
+  .d-crown.tap{cursor:pointer;}
+  #d-species{display:flex; align-items:center; flex-wrap:wrap;}
   /* Inline edit (view = edit): quiet dotted affordance + clean accent field */
   .spec.ef{cursor:pointer;}
   .spec.ef .v.editable{display:inline-block; border-bottom:1px dashed rgba(224,165,63,.55); padding-bottom:1px;}
@@ -4749,7 +4755,9 @@ function openDetailObj(c, from, keepEdit){
       strip._photos=ps;
     } else { strip.style.display='none'; strip.innerHTML=''; }
   }
-  document.getElementById('d-species').textContent=trSpecies(c.species);
+  { const dsp=document.getElementById('d-species');
+    const crown = isPb(c) ? `<span class="d-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
+    dsp.innerHTML = esc(trSpecies(c.species)) + crown; }
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   const subLine=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null, (c.location||'').trim()||null, fmtDate(c.date)].filter(Boolean).join(' · ');
   { const dsub=document.getElementById('d-sub'); if(subLine){ dsub.textContent=subLine; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
@@ -4816,8 +4824,7 @@ function openDetailObj(c, from, keepEdit){
       return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-pickrow"><span class="v efm-pick${empty?' empty':''}">${esc(''+r[2])}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
     }
     return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
-  let pbBanner='';
-  if(isPb(c)){ const ml = pbMetric()==='weight'? t('msHeaviest') : t('msLongest'); pbBanner = `<div class="pb-banner">${CROWN_IC}<span>${esc(t('pbRecord'))} · ${esc(ml)} ${esc(trSpecies(c.species))}</span></div>`; }
+  let pbBanner='';   // personal PB now shown as an ochre crown next to the species (see d-crown), no banner
   let medBanner='';
   const _pr=podiumRank(c);
   if(_pr){
