@@ -413,14 +413,16 @@
   .pb-crown svg{width:13px; height:13px;}
   .pb-banner{display:flex; align-items:center; gap:9px; margin-top:10px; padding:9px 12px; border-radius:12px; background:var(--accent); color:#fff; font-weight:600; font-size:0.9rem;}
   .pb-banner svg{width:20px; height:20px; flex:0 0 auto;}
-  /* Inline edit (view = edit) */
-  .spec.ef{cursor:pointer; position:relative;}
-  .spec.ef .ef-pen{position:absolute; top:8px; right:6px; opacity:.35;}
-  .spec.ef .ef-pen svg{width:14px; height:14px; stroke:var(--muted); fill:none;}
-  .spec.ef:hover .ef-pen{opacity:.7;}
-  .spec.ef-active{background:var(--surface-2); border-radius:8px;}
-  .spec.ef-active .ef-pen{display:none;}
-  .ef-input{font:inherit; font-weight:600; font-size:0.95rem; color:var(--text); width:100%; padding:0; margin-top:1px; border:none; background:transparent; outline:none; border-bottom:1.5px solid var(--accent); border-radius:0;}
+  /* Inline edit (view = edit): quiet dotted affordance + clean accent field */
+  .spec.ef{cursor:pointer;}
+  .spec.ef .v.editable{display:inline-block; border-bottom:1px dashed rgba(224,165,63,.55); padding-bottom:1px;}
+  .ef-edit{display:inline-flex; align-items:center; gap:6px; margin-top:2px; background:var(--surface); border:1.5px solid var(--accent); border-radius:9px; padding:6px 10px; box-shadow:0 0 0 3px rgba(224,165,63,.15);}
+  .ef-edit .ef-input{border:none; background:transparent; outline:none; font-family:inherit; font-weight:700; font-size:1.02rem; color:var(--text); padding:0;}
+  .ef-edit .ef-unit{color:var(--muted); font-size:0.85rem;}
+  /* one-time discovery pulse of editable values */
+  @keyframes efPulse{0%,100%{box-shadow:0 0 0 0 rgba(224,165,63,0);}30%{box-shadow:0 0 0 4px rgba(224,165,63,.35);}}
+  .spec.ef.ef-hint .v.editable{border-radius:4px; animation:efPulse 1.1s ease-in-out 2;}
+  @media(prefers-reduced-motion:reduce){ .spec.ef.ef-hint .v.editable{animation:none;} }
   /* "Deine Rekorde" shelf (Stats) */
   .rec-head{display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:0.78rem; color:var(--muted); margin:0 0 10px;}
   .rec-head svg{width:16px; height:16px; stroke:var(--accent); fill:none; stroke-width:2;}
@@ -4453,30 +4455,35 @@ const D_SPEC_IC={
 function dSpecIcon(tok){ const p=D_SPEC_IC[tok]||D_SPEC_IC.method; return `<svg viewBox="0 0 24 24">${p}</svg>`; }
 // ===== Inline "view = edit": tap a text/number spec row → edit in place, blur commits =====
 const INLINE_EF={
-  length:{field:'length', col:'length_cm', mode:'numeric', parse:v=>{ const n=parseInt((''+v).replace(/[^0-9\-]/g,''),10); return isNaN(n)?null:n; }, fmt:v=>fmtLen(v), pb:true},
-  weight:{field:'weight', col:'weight_kg', mode:'decimal', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>fmtWeight(v), pb:true},
-  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>String(v).replace('.',',')+' km/h'},
-  water:{field:'location', col:'location', mode:'text', parse:v=>{ const s=(''+v).trim(); return s||null; }, fmt:v=>''+v}
+  length:{field:'length', col:'length_cm', mode:'numeric', unit:'cm', parse:v=>{ const n=parseInt((''+v).replace(/[^0-9\-]/g,''),10); return isNaN(n)?null:n; }, fmt:v=>fmtLen(v), pb:true},
+  weight:{field:'weight', col:'weight_kg', mode:'decimal', unit:'kg', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>fmtWeight(v), pb:true},
+  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>String(v).replace('.',',')+' km/h'},
+  water:{field:'location', col:'location', mode:'text', unit:'', parse:v=>{ const s=(''+v).trim(); return s||null; }, fmt:v=>''+v}
 };
 function startInlineEdit(rowEl, key){
   const cfg=INLINE_EF[key], c=state.current; if(!cfg||!c) return;
-  if(rowEl.querySelector('.ef-input')) return;
+  if(rowEl.querySelector('.ef-edit')) return;
   const vspan=rowEl.querySelector('.v'); if(!vspan) return;
   const raw=c[cfg.field];
+  // clean accent-bordered inline field: [ input  unit ]
+  const box=document.createElement('span'); box.className='ef-edit';
   const inp=document.createElement('input'); inp.className='ef-input'; inp.type='text';
   inp.setAttribute('inputmode', cfg.mode==='text'?'text':cfg.mode);
+  inp.size = cfg.mode==='text' ? 16 : 5;
   inp.value=(cfg.mode==='text') ? (raw||'') : (raw!=null&&raw!==''?String(raw).replace('.',','):'');
-  vspan.style.display='none'; vspan.parentNode.insertBefore(inp, vspan.nextSibling);
+  box.appendChild(inp);
+  if(cfg.unit){ const u=document.createElement('span'); u.className='ef-unit'; u.textContent=cfg.unit; box.appendChild(u); }
+  vspan.style.display='none'; vspan.parentNode.insertBefore(box, vspan.nextSibling);
   rowEl.classList.add('ef-active');
   setTimeout(()=>{ try{ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); }catch(e){} },0);
-  let done=false; const finish=()=>{ if(done) return; done=true; commitInlineEdit(rowEl,key,inp,vspan); };
+  let done=false; const finish=()=>{ if(done) return; done=true; commitInlineEdit(rowEl,key,box,inp,vspan); };
   inp.addEventListener('blur', finish);
   inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } });
 }
-async function commitInlineEdit(rowEl, key, inp, vspan){
+async function commitInlineEdit(rowEl, key, box, inp, vspan){
   const cfg=INLINE_EF[key], c=state.current; if(!cfg||!c) return;
   const nv=cfg.parse(inp.value); const ov=(c[cfg.field]!=null?c[cfg.field]:null);
-  if(inp.parentNode) inp.parentNode.removeChild(inp); rowEl.classList.remove('ef-active'); vspan.style.display='';
+  if(box.parentNode) box.parentNode.removeChild(box); rowEl.classList.remove('ef-active'); vspan.style.display='';
   if(nv===ov || (nv==null&&ov==null)) return;
   c[cfg.field]=nv;
   [state.catches, state.myAllCatches].forEach(arr=>{ const it=(arr||[]).find(x=>x&&x.id===c.id); if(it) it[cfg.field]=nv; });
@@ -4555,7 +4562,8 @@ function openDetailObj(c, from){
     const ef=_editable && INLINE_EF[r[0]];
     const cls='spec'+(wide?' wide':'')+(ef?' ef':'');
     const onc=ef?` onclick="startInlineEdit(this,'${r[0]}')"`:'';
-    return `<div class="${cls}"${onc}>${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span>${ef?'<span class="ef-pen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>':''}</div>`; }).join('');
+    // editable values get a quiet always-on affordance (.v.editable → dotted underline), no per-row icon
+    return `<div class="${cls}"${onc}>${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v${ef?' editable':''}">${esc(''+r[2])}</span></span></div>`; }).join('');
   let pbBanner='';
   if(isPb(c)){ const ml = pbMetric()==='weight'? t('msHeaviest') : t('msLongest'); pbBanner = `<div class="pb-banner">${CROWN_IC}<span>${esc(t('pbRecord'))} · ${esc(ml)} ${esc(trSpecies(c.species))}</span></div>`; }
   let medBanner='';
@@ -4569,6 +4577,9 @@ function openDetailObj(c, from){
     medBanner = `<div class="pb-banner medal-banner medal-${cls}">${MEDAL_IC}<span>${lead}${ord}${esc(mlText)} ${esc(trSpecies(c.species))}${ctxName?' · '+esc(ctxName):''}</span></div>`;
   }
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner;
+  // first time on an editable catch: pulse the editable values once so users learn they're tappable
+  try{ if(_editable && !localStorage.getItem('bf_edit_hint')){ localStorage.setItem('bf_edit_hint','1');
+    setTimeout(()=>{ document.querySelectorAll('#d-rows .spec.ef').forEach(el=>el.classList.add('ef-hint')); }, 350); } }catch(e){}
   const nw=document.getElementById('d-notes-wrap');
   if(c.notes){ nw.style.display='block'; document.getElementById('d-notes').textContent=c.notes; } else nw.style.display='none';
   const isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
