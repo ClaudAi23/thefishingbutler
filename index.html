@@ -186,6 +186,7 @@
   }
   .logo-badge img,.logo-badge svg{width:100%; height:100%; object-fit:contain; display:block;}
   .brandname{font-family:'Barlow',system-ui,sans-serif !important; font-weight:600; letter-spacing:-.01em; text-transform:lowercase; color:var(--teal);}
+  [data-theme="dark"] .brandname{color:#F4EFE2;}
   .wm-fish{color:var(--accent);}
   .beta-pill{display:inline-block; padding:3px 11px; border-radius:999px; font-family:'Barlow Condensed',sans-serif; font-size:0.6875rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; background:transparent; color:var(--teal-bright); border:1px solid var(--border-2); vertical-align:middle;}
   .brand-foot{flex:0 0 auto; text-align:center; padding:10px 16px calc(14px + env(safe-area-inset-bottom));}
@@ -394,6 +395,14 @@
   .detail-band .dt-row{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
   .detail-band .ds{margin:5px 0 0; font-size:0.9375rem; font-weight:500; color:var(--muted);}
   .pending-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.02em; line-height:1.4; background:var(--teal-tint); border:1px solid var(--teal); color:var(--teal-bright); white-space:nowrap; flex:0 0 auto;}
+  /* Welcome (Phantom-Fisch) demo card */
+  .welcome-wrap{position:relative; margin-bottom:12px;}
+  .welcome-catch{border:1px dashed var(--accent) !important;}
+  .welcome-thumb{color:var(--accent);}
+  .demo-pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.06em; background:var(--accent); color:#fff; white-space:nowrap; flex:0 0 auto;}
+  .welcome-x{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--muted); display:flex; align-items:center; justify-content:center; z-index:3; cursor:pointer;}
+  .welcome-x svg{width:16px; height:16px;}
+  .welcome-hint{margin:8px 4px 0; font-size:0.78rem; color:var(--muted); text-align:center;}
   .dspecs{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; grid-auto-flow:dense;}
   .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
   .spec.wide{grid-column:1 / -1;}
@@ -1480,6 +1489,9 @@ Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app
 Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen und entferne Mitglieder.", membersHintMember:"Mitglieder und ihre Rollen.", manageMembers:"Mitglieder verwalten …", viewMembers:"Mitglieder ansehen", me:"ich", loggedByRow:"Erfasst von", unconfirmed:"Noch nicht bestätigt", unconfShort:"unbestätigt", loggedByHint:"Dieser Fang wurde von {name} für dich eingetragen. Bestätige ihn, wenn er stimmt.", unconfirmedHint:"Dieser Fang wartet auf Bestätigung.", confirmCatch:"Bestätigen", rejectCatch:"Ablehnen", confirmReject:"Diesen Fang ablehnen und löschen?", roleMember:"Mitglied", roleAdmin:"Admin", roleTreasurer:"Kassenwart", removeMember:"Entfernen", lastAdminHint:"Der/die letzte Admin kann nicht herabgestuft oder entfernt werden.", confirmRemove:"{name} aus diesem Verein/dieser Gruppe entfernen?", you:"du", roleTapHint:"Tippe eine Rolle an, um sie zu ändern.", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
 Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles and remove members.", membersHintMember:"Members and their roles.", manageMembers:"Manage members …", viewMembers:"View members", me:"me", loggedByRow:"Logged by", unconfirmed:"Not confirmed yet", unconfShort:"unconfirmed", loggedByHint:"This catch was logged for you by {name}. Confirm it if it's correct.", unconfirmedHint:"This catch is awaiting confirmation.", confirmCatch:"Confirm", rejectCatch:"Reject", confirmReject:"Reject and delete this catch?", roleMember:"Member", roleAdmin:"Admin", roleTreasurer:"Treasurer", removeMember:"Remove", lastAdminHint:"The last admin can't be demoted or removed.", confirmRemove:"Remove {name} from this club/group?", you:"you", roleTapHint:"Tap a role to change it.", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
 Object.assign(I18N.nl, {membersTitle:"Leden", membersHint:"Beheer rollen en verwijder leden.", membersHintMember:"Leden en hun rollen.", manageMembers:"Leden beheren …", viewMembers:"Leden bekijken", me:"ik", loggedByRow:"Ingevoerd door", unconfirmed:"Nog niet bevestigd", unconfShort:"onbevestigd", loggedByHint:"Deze vangst is voor jou ingevoerd door {name}. Bevestig als het klopt.", unconfirmedHint:"Deze vangst wacht op bevestiging.", confirmCatch:"Bevestigen", rejectCatch:"Afwijzen", confirmReject:"Deze vangst afwijzen en verwijderen?", roleMember:"Lid", roleAdmin:"Beheerder", roleTreasurer:"Penningmeester", removeMember:"Verwijderen", lastAdminHint:"De laatste beheerder kan niet worden gedegradeerd of verwijderd.", confirmRemove:"{name} uit deze vereniging/groep verwijderen?", you:"jij", roleTapHint:"Tik op een rol om die te wijzigen.", openMailbox:"Postvak openen", openMailApp:"Mail-app openen"});
+Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen"});
+Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish"});
+Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen"});
 Object.assign(I18N.de, {fldLockedHint:"Immer dabei – kann nicht abgewählt werden.", dangerZone:"Gefahrenzone", deleteAccount:"Konto löschen", deleteAccountHint:"Löscht dein Konto und alle deine Daten (Fänge, Fotos, Mitgliedschaften) unwiderruflich.", confirmDeleteAccount:"Konto wirklich löschen? Alle deine Daten werden unwiderruflich gelöscht.", confirmDeleteAccount2:"Letzte Warnung: Das kann nicht rückgängig gemacht werden. Fortfahren?", accountDeletedTitle:"Konto gelöscht", accountDeletedBody:"Dein Konto und deine Daten wurden gelöscht.", leaveAreaBtn:"Verein/Gruppe verlassen", deleteContext:"Verein/Gruppe löschen", deleteContextHint:"Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.", confirmDeleteContext:"„{name}“ wirklich löschen? Alle Mitgliedschaften, Fänge und Fotos werden unwiderruflich gelöscht.", confirmLeave:"„{name}“ verlassen?", soleAdminLeave:"Du bist der/die einzige Admin. Mach zuerst jemanden zum Admin oder lösche den Verein/die Gruppe."});
 Object.assign(I18N.en, {fldLockedHint:"Always included – can't be turned off.", dangerZone:"Danger zone", deleteAccount:"Delete account", deleteAccountHint:"Permanently deletes your account and all your data (catches, photos, memberships).", confirmDeleteAccount:"Really delete your account? All your data will be permanently deleted.", confirmDeleteAccount2:"Last warning: this cannot be undone. Continue?", accountDeletedTitle:"Account deleted", accountDeletedBody:"Your account and data have been deleted.", leaveAreaBtn:"Leave club/group", deleteContext:"Delete club/group", deleteContextHint:"Permanently deletes everything: memberships, catches and photos.", confirmDeleteContext:"Really delete \"{name}\"? All memberships, catches and photos will be permanently deleted.", confirmLeave:"Leave \"{name}\"?", soleAdminLeave:"You are the only admin. Make someone else an admin first, or delete the club/group."});
 Object.assign(I18N.nl, {fldLockedHint:"Altijd inbegrepen – kan niet worden uitgezet.", dangerZone:"Gevarenzone", deleteAccount:"Account verwijderen", deleteAccountHint:"Verwijdert je account en al je gegevens (vangsten, foto's, lidmaatschappen) definitief.", confirmDeleteAccount:"Account echt verwijderen? Al je gegevens worden definitief verwijderd.", confirmDeleteAccount2:"Laatste waarschuwing: dit kan niet ongedaan worden gemaakt. Doorgaan?", accountDeletedTitle:"Account verwijderd", accountDeletedBody:"Je account en gegevens zijn verwijderd.", leaveAreaBtn:"Vereniging/groep verlaten", deleteContext:"Vereniging/groep verwijderen", deleteContextHint:"Verwijdert alles definitief: lidmaatschappen, vangsten en foto's.", confirmDeleteContext:"\"{name}\" echt verwijderen? Alle lidmaatschappen, vangsten en foto's worden definitief verwijderd.", confirmLeave:"\"{name}\" verlaten?", soleAdminLeave:"Je bent de enige beheerder. Maak eerst iemand anders beheerder of verwijder de vereniging/groep."});
@@ -2867,8 +2879,40 @@ async function exportPdf(target){
   const fname=(target==='stats'?'meine-faenge':'faenge')+'-'+isoDateOnly(today)+'.pdf';
   doc.save(fname);
 }
+// ---------- Welcome (Phantom-Fisch) demo seed ----------
+// Client-side only (never written to DB). Shows in an empty Solo logbook, is excluded
+// from stats/PB/export (it lives outside state.catches), and vanishes once a real catch exists.
+const WELCOME_KEY='bf_welcome_dismissed';
+function welcomeDismissed(){ try{ return localStorage.getItem(WELCOME_KEY)==='1'; }catch(e){ return false; } }
+function setWelcomeDismissed(){ try{ localStorage.setItem(WELCOME_KEY,'1'); }catch(e){} }
+function shouldShowWelcome(){ return state.mode==='solo' && !welcomeDismissed(); }
+function welcomeCatchObj(){
+  const me=(state.me&&state.me.name)||state.soloName||state.user||t('me');
+  return { id:'__welcome__', _welcome:true, _db:false, species:t('welcomeSpecies'),
+    length:235, weight:99.99, location:t('welcomeLoc'), notes:t('welcomeNote'),
+    angler:me, date:new Date().toISOString(), photos:[], photo:null, userId:null, lat:null, lon:null };
+}
+function welcomeCardHtml(){
+  const c=welcomeCatchObj();
+  return `<div class="welcome-wrap">
+    <button class="catch welcome-catch" onclick="openWelcomeDetail()">
+      <span class="thumb welcome-thumb">${FISH_IC}</span>
+      <span style="flex:1; min-width:0;">
+        <span class="top"><span style="display:flex;align-items:center;gap:7px;min-width:0;"><span class="sp">${esc(c.species)}</span><span class="demo-pill">${esc(t('welcomeDemo'))}</span></span><span class="val">${primaryStr(c)}</span></span>
+        <span class="meta">${[c.angler, c.location, fmtDate(c.date)].filter(Boolean).join(' · ')}</span>
+      </span>
+    </button>
+    <button type="button" class="welcome-x" onclick="dismissWelcome()" aria-label="${esc(t('welcomeRemove'))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <p class="welcome-hint">${esc(t('welcomeHint'))}</p>
+  </div>`;
+}
+function openWelcomeDetail(){ openDetailObj(welcomeCatchObj(),'welcome'); }
+function dismissWelcome(){ setWelcomeDismissed(); try{ if(state.detailFrom==='welcome') go('list'); }catch(e){} renderList(); }
+
 function renderList(){
   try{ updateSyncBanner(); }catch(e){}
+  // Once a real Solo catch exists, retire the Welcome seed for good (no resurrection on later delete).
+  if(state.mode==='solo' && (state.catches||[]).length>0 && !welcomeDismissed()) setWelcomeDismissed();
   const cnt=activeFilterCount();
   const fc=document.getElementById('filter-count');
   if(cnt>0){ fc.style.display='inline-block'; fc.textContent=cnt; }
@@ -2892,6 +2936,7 @@ function renderList(){
   const list=document.getElementById('catch-list'); list.innerHTML=''; _openSwipe=null;
   const sorted=sortCatches(items);
   if(sorted.length===0){
+    if(cnt===0 && shouldShowWelcome()){ list.innerHTML=welcomeCardHtml(); return; }
     list.innerHTML=`<div class="empty"><div class="mascot-free mb-empty"><img src="/mascot.png" alt=""></div><p>${cnt>0?t('emptyFilter'):t('emptyNone')}</p></div>`;
     return;
   }
@@ -4152,6 +4197,13 @@ function openDetailObj(c, from){
       <div style="font-weight:600; margin-bottom:4px;">⏳ ${esc(t('unconfirmed'))}</div>
       <p class="hint" style="margin:0 0 8px;">${hint}</p>
       ${iAmOwner ? `<div style="display:flex; gap:8px; flex-wrap:wrap;"><button type="button" class="btn sm" onclick="confirmCatch('${c.id}')">${esc(t('confirmCatch'))}</button><button type="button" class="btn secondary sm" onclick="rejectCatch('${c.id}')">${esc(t('rejectCatch'))}</button></div>` : ''}
+    </div>`;
+  }
+  if(c._welcome){
+    banner = `<div class="card-box" style="margin-top:10px; border:1px dashed var(--accent);">
+      <div style="font-weight:600; margin-bottom:4px;">${esc(t('welcomeDemoTitle'))}</div>
+      <p class="hint" style="margin:0 0 8px;">${esc(t('welcomeHint'))}</p>
+      <button type="button" class="btn secondary sm" onclick="dismissWelcome()">${esc(t('welcomeRemove'))}</button>
     </div>`;
   }
   const specHTML=rows.map(r=>{ const wide=r[3] || (''+r[2]).length>18; return `<div class="spec${wide?' wide':''}">${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
