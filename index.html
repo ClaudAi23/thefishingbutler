@@ -568,6 +568,20 @@
   .selfield .acc-chev{width:18px; height:18px; stroke:var(--muted); flex:0 0 auto;}
   .selfield-sm{width:auto; padding:6px 10px; font-size:0.8125rem; gap:6px; border-radius:8px;}
   .selfield-sm .acc-chev{width:16px; height:16px;}
+  /* Unified typeahead sheet */
+  .ta-searchwrap{position:relative;}
+  .ta-searchwrap .ta-searchic{position:absolute; left:12px; top:12px; width:18px; height:18px; stroke:var(--muted); fill:none;}
+  #ta-search{width:100%; border:1.5px solid var(--teal-bright); border-radius:11px; background:var(--surface); padding:11px 12px 11px 38px; font-size:1rem; color:var(--text); box-shadow:0 0 0 2px rgba(30,116,135,.14);}
+  .ta-opt{display:flex; align-items:center; gap:11px; padding:12px; border-radius:11px; font-size:0.96rem; cursor:pointer;}
+  .ta-opt:hover,.ta-opt:active{background:var(--surface-2);}
+  .ta-opt .ta-tick{margin-left:auto;}
+  .ta-opt .ta-tick svg{width:18px; height:18px; stroke:var(--teal); fill:none; stroke-width:2.4;}
+  .ta-opt b{background:rgba(201,153,43,.22); border-radius:3px; padding:0 1px; font-weight:700;}
+  .ta-add{display:flex; align-items:center; gap:11px; padding:12px; border-radius:11px; color:var(--accent); font-weight:600; cursor:pointer;}
+  .ta-add .ta-plus{width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ta-add .ta-plus svg{width:15px; height:15px; stroke:#fff; fill:none; stroke-width:2.4;}
+  .ta-group{font-size:0.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; padding:10px 12px 4px;}
+  .ta-empty{color:var(--muted); font-size:0.9rem; padding:14px 12px;}
   .toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(10px);
     background:var(--teal-dark); color:#fff; padding:10px 16px; border-radius:10px; font-size:0.875rem; font-weight:500;
     box-shadow:0 4px 16px rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:300; max-width:88%; text-align:center;}
@@ -710,10 +724,8 @@
       <div class="field">
         <label><span data-i18n="species">Fischart</span> <span class="req">*</span></label>
         <div class="combo">
-          <input id="f-species" type="text" autocomplete="off" placeholder="Art wählen oder eingeben" data-i18n-ph="speciesPh"
-                 oninput="filterSpecies()" onfocus="openSpecies()" />
-          <button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onmousedown="event.preventDefault(); toggleCombo('species')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-          <div id="combo-list" class="combo-list"></div>
+          <input id="f-species" type="text" readonly autocomplete="off" placeholder="Art wählen oder eingeben" data-i18n-ph="speciesPh" onclick="openTypeahead('f-species')" />
+          <button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('f-species')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         </div>
       </div>
       <div class="row">
@@ -778,26 +790,22 @@
       <div class="field" id="ff-method">
         <label data-i18n="method">Angelmethode</label>
         <div class="combo">
-          <input id="f-method" type="text" autocomplete="off" placeholder="z. B. Spinnfischen" data-i18n-ph="methodPh" oninput="filterMethods()" onfocus="openMethods()" />
-          <button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onmousedown="event.preventDefault(); toggleCombo('method')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-          <div id="method-list" class="combo-list"></div>
+          <input id="f-method" type="text" readonly autocomplete="off" placeholder="z. B. Spinnfischen" data-i18n-ph="methodPh" onclick="openTypeahead('f-method')" />
+          <button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('f-method')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         </div>
       </div>
       <div class="field" id="ff-bait">
         <label data-i18n="bait">Köder</label>
-        <input id="f-bait" type="text" autocomplete="off" list="dl-bait" placeholder="z. B. Gummifisch 12 cm" data-i18n-ph="baitPh" />
-        <datalist id="dl-bait"></datalist>
+        <div class="combo"><input id="f-bait" type="text" readonly autocomplete="off" placeholder="z. B. Gummifisch 12 cm" data-i18n-ph="baitPh" onclick="openTypeahead('f-bait')" /><button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('f-bait')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
       </div>
       <div class="row">
         <div class="field" id="ff-rod">
           <label data-i18n="rod">Rute</label>
-          <input id="f-rod" type="text" autocomplete="off" list="dl-rod" placeholder="z. B. 2,70 m / 40 g" data-i18n-ph="rodPh" />
-          <datalist id="dl-rod"></datalist>
+          <div class="combo"><input id="f-rod" type="text" readonly autocomplete="off" placeholder="z. B. 2,70 m / 40 g" data-i18n-ph="rodPh" onclick="openTypeahead('f-rod')" /><button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('f-rod')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
         </div>
         <div class="field" id="ff-boat">
           <label data-i18n="boat">Boot</label>
-          <input id="f-boat" type="text" autocomplete="off" list="dl-boat" placeholder="z. B. Schlauchboot" data-i18n-ph="boatPh" />
-          <datalist id="dl-boat"></datalist>
+          <div class="combo"><input id="f-boat" type="text" readonly autocomplete="off" placeholder="z. B. Schlauchboot" data-i18n-ph="boatPh" onclick="openTypeahead('f-boat')" /><button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('f-boat')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
         </div>
       </div>
       <div class="field" id="ff-trolling">
@@ -1288,6 +1296,18 @@
       <button type="button" class="btn secondary" style="margin-top:12px;" onclick="closeModal('sel-sheet')" data-i18n="cancel">Abbrechen</button>
     </div>
   </div>
+  <!-- Unified typeahead sheet (Fischart, Methode, Köder, Rute, Boot, Ort) -->
+  <div id="ta-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('ta-sheet')">
+    <div class="modal-box">
+      <h2 id="ta-title" style="font-size:1.25rem; margin:0 0 10px;">—</h2>
+      <div class="ta-searchwrap">
+        <svg class="ta-searchic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3 -4.3"/></svg>
+        <input id="ta-search" type="text" autocomplete="off" oninput="renderTA()" onkeydown="if(event.key==='Enter'){event.preventDefault(); taEnter();}" />
+      </div>
+      <div id="ta-list" style="max-height:52vh; overflow:auto; margin:10px -2px 0;"></div>
+      <button type="button" class="btn secondary" style="margin-top:12px;" onclick="closeModal('ta-sheet')" data-i18n="cancel">Abbrechen</button>
+    </div>
+  </div>
   <div id="success-ov" onclick="hideSuccess()" style="display:none;">
     <div class="success-card">
       <span class="su-badge" data-i18n="msBadge">Meilenstein</span>
@@ -1395,7 +1415,7 @@
       <div class="field"><label data-i18n="species">Fischart</label><select id="flt-species" style="display:none;"></select><button type="button" class="selfield" onclick="openSelSheet('flt-species', t('species'))"><span id="flt-species-lbl">Alle</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="field" id="flt-angler-field"><label data-i18n="angler">Angler</label><select id="flt-angler" style="display:none;"></select><button type="button" class="selfield" onclick="openSelSheet('flt-angler', t('angler'))"><span id="flt-angler-lbl">Alle</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="field" id="flt-ctx-field" style="display:none;"><label data-i18n="showCatchesFrom">Fänge aus</label><button type="button" class="selfield" onclick="openCtxFilterSheet()"><span id="flt-ctx-summary" data-i18n="all">Alle</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
-      <div class="field"><label data-i18n="locationContains">Ort / Gewässer enthält</label><input id="flt-ort" type="text" list="flt-ort-dl" placeholder="z. B. Vereinsteich" data-i18n-ph="locationPh" /><datalist id="flt-ort-dl"></datalist></div>
+      <div class="field"><label data-i18n="locationContains">Ort / Gewässer enthält</label><div class="combo"><input id="flt-ort" type="text" readonly placeholder="z. B. Vereinsteich" data-i18n-ph="locationPh" onclick="openTypeahead('flt-ort')" /><button type="button" class="combo-chev" tabindex="-1" aria-hidden="true" onclick="openTypeahead('flt-ort')"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
       <label class="chkrow" style="margin:12px 4px 4px;"><input type="checkbox" id="flt-hideunconf"><span data-i18n="hideUnconfirmed">Unbestätigte Fänge ausblenden</span></label>
 
       <div class="sectionlabel" style="margin-top:20px;" data-i18n="fltSize">Maße</div>
@@ -1539,9 +1559,9 @@ Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app
 Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen und entferne Mitglieder.", membersHintMember:"Mitglieder und ihre Rollen.", manageMembers:"Mitglieder verwalten …", viewMembers:"Mitglieder ansehen", me:"ich", loggedByRow:"Erfasst von", unconfirmed:"Noch nicht bestätigt", unconfShort:"unbestätigt", loggedByHint:"Dieser Fang wurde von {name} für dich eingetragen. Bestätige ihn, wenn er stimmt.", unconfirmedHint:"Dieser Fang wartet auf Bestätigung.", confirmCatch:"Bestätigen", rejectCatch:"Ablehnen", confirmReject:"Diesen Fang ablehnen und löschen?", roleMember:"Mitglied", roleAdmin:"Admin", roleTreasurer:"Kassenwart", removeMember:"Entfernen", lastAdminHint:"Der/die letzte Admin kann nicht herabgestuft oder entfernt werden.", confirmRemove:"{name} aus diesem Verein/dieser Gruppe entfernen?", you:"du", roleTapHint:"Tippe eine Rolle an, um sie zu ändern.", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
 Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles and remove members.", membersHintMember:"Members and their roles.", manageMembers:"Manage members …", viewMembers:"View members", me:"me", loggedByRow:"Logged by", unconfirmed:"Not confirmed yet", unconfShort:"unconfirmed", loggedByHint:"This catch was logged for you by {name}. Confirm it if it's correct.", unconfirmedHint:"This catch is awaiting confirmation.", confirmCatch:"Confirm", rejectCatch:"Reject", confirmReject:"Reject and delete this catch?", roleMember:"Member", roleAdmin:"Admin", roleTreasurer:"Treasurer", removeMember:"Remove", lastAdminHint:"The last admin can't be demoted or removed.", confirmRemove:"Remove {name} from this club/group?", you:"you", roleTapHint:"Tap a role to change it.", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
 Object.assign(I18N.nl, {membersTitle:"Leden", membersHint:"Beheer rollen en verwijder leden.", membersHintMember:"Leden en hun rollen.", manageMembers:"Leden beheren …", viewMembers:"Leden bekijken", me:"ik", loggedByRow:"Ingevoerd door", unconfirmed:"Nog niet bevestigd", unconfShort:"onbevestigd", loggedByHint:"Deze vangst is voor jou ingevoerd door {name}. Bevestig als het klopt.", unconfirmedHint:"Deze vangst wacht op bevestiging.", confirmCatch:"Bevestigen", rejectCatch:"Afwijzen", confirmReject:"Deze vangst afwijzen en verwijderen?", roleMember:"Lid", roleAdmin:"Beheerder", roleTreasurer:"Penningmeester", removeMember:"Verwijderen", lastAdminHint:"De laatste beheerder kan niet worden gedegradeerd of verwijderd.", confirmRemove:"{name} uit deze vereniging/groep verwijderen?", you:"jij", roleTapHint:"Tik op een rol om die te wijzigen.", openMailbox:"Postvak openen", openMailApp:"Mail-app openen"});
-Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen", pbRecord:"Persönlicher Rekord", recordsShelfTitle:"Deine Rekorde", clubRecord:"Vereinsrekord", groupRecord:"Gruppenrekord", recordsSettingTitle:"Rekorde & Podium", recordMetricLabel:"Podium-Wertung", recordsEnabledLabel:"Rekorde anzeigen", recordsSettingHint:"Bestimmt, ob im Verein/der Gruppe ein Podium (Gold/Silber/Bronze je Art) angezeigt wird und ob nach Länge oder Gewicht gewertet wird. Nur Admins.", joinedTitle:"Beigetreten!", joinedBody:"Willkommen! Du bist dem Verein bzw. der Gruppe beigetreten.", sortTitle:"Sortieren nach"});
-Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish", pbRecord:"Personal best", recordsShelfTitle:"Your records", clubRecord:"Club record", groupRecord:"Group record", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium ranking", recordsEnabledLabel:"Show records", recordsSettingHint:"Controls whether the club/group shows a podium (gold/silver/bronze per species) and whether it ranks by length or weight. Admins only.", joinedTitle:"You're in!", joinedBody:"Welcome! You've joined the club or group.", sortTitle:"Sort by"});
-Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen", pbRecord:"Persoonlijk record", recordsShelfTitle:"Je records", clubRecord:"Verenigingsrecord", groupRecord:"Groepsrecord", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium-waardering", recordsEnabledLabel:"Records tonen", recordsSettingHint:"Bepaalt of de vereniging/groep een podium toont (goud/zilver/brons per soort) en of er op lengte of gewicht wordt gerangschikt. Alleen beheerders.", joinedTitle:"Je bent lid!", joinedBody:"Welkom! Je bent lid geworden van de vereniging of groep.", sortTitle:"Sorteren op"});
+Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen", pbRecord:"Persönlicher Rekord", recordsShelfTitle:"Deine Rekorde", clubRecord:"Vereinsrekord", groupRecord:"Gruppenrekord", recordsSettingTitle:"Rekorde & Podium", recordMetricLabel:"Podium-Wertung", recordsEnabledLabel:"Rekorde anzeigen", recordsSettingHint:"Bestimmt, ob im Verein/der Gruppe ein Podium (Gold/Silber/Bronze je Art) angezeigt wird und ob nach Länge oder Gewicht gewertet wird. Nur Admins.", joinedTitle:"Beigetreten!", joinedBody:"Willkommen! Du bist dem Verein bzw. der Gruppe beigetreten.", sortTitle:"Sortieren nach", taSearchPh:"Suchen oder neu eingeben …", recentLabel:"Zuletzt verwendet", allLabel:"Alle", addNewOpt:"neu hinzufügen"});
+Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish", pbRecord:"Personal best", recordsShelfTitle:"Your records", clubRecord:"Club record", groupRecord:"Group record", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium ranking", recordsEnabledLabel:"Show records", recordsSettingHint:"Controls whether the club/group shows a podium (gold/silver/bronze per species) and whether it ranks by length or weight. Admins only.", joinedTitle:"You're in!", joinedBody:"Welcome! You've joined the club or group.", sortTitle:"Sort by", taSearchPh:"Search or type new …", recentLabel:"Recently used", allLabel:"All", addNewOpt:"add new"});
+Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen", pbRecord:"Persoonlijk record", recordsShelfTitle:"Je records", clubRecord:"Verenigingsrecord", groupRecord:"Groepsrecord", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium-waardering", recordsEnabledLabel:"Records tonen", recordsSettingHint:"Bepaalt of de vereniging/groep een podium toont (goud/zilver/brons per soort) en of er op lengte of gewicht wordt gerangschikt. Alleen beheerders.", joinedTitle:"Je bent lid!", joinedBody:"Welkom! Je bent lid geworden van de vereniging of groep.", sortTitle:"Sorteren op", taSearchPh:"Zoeken of nieuw invoeren …", recentLabel:"Recent gebruikt", allLabel:"Alle", addNewOpt:"nieuw toevoegen"});
 Object.assign(I18N.de, {fldLockedHint:"Immer dabei – kann nicht abgewählt werden.", dangerZone:"Gefahrenzone", deleteAccount:"Konto löschen", deleteAccountHint:"Löscht dein Konto und alle deine Daten (Fänge, Fotos, Mitgliedschaften) unwiderruflich.", confirmDeleteAccount:"Konto wirklich löschen? Alle deine Daten werden unwiderruflich gelöscht.", confirmDeleteAccount2:"Letzte Warnung: Das kann nicht rückgängig gemacht werden. Fortfahren?", accountDeletedTitle:"Konto gelöscht", accountDeletedBody:"Dein Konto und deine Daten wurden gelöscht.", leaveAreaBtn:"Verein/Gruppe verlassen", deleteContext:"Verein/Gruppe löschen", deleteContextHint:"Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.", confirmDeleteContext:"„{name}“ wirklich löschen? Alle Mitgliedschaften, Fänge und Fotos werden unwiderruflich gelöscht.", confirmLeave:"„{name}“ verlassen?", soleAdminLeave:"Du bist der/die einzige Admin. Mach zuerst jemanden zum Admin oder lösche den Verein/die Gruppe."});
 Object.assign(I18N.en, {fldLockedHint:"Always included – can't be turned off.", dangerZone:"Danger zone", deleteAccount:"Delete account", deleteAccountHint:"Permanently deletes your account and all your data (catches, photos, memberships).", confirmDeleteAccount:"Really delete your account? All your data will be permanently deleted.", confirmDeleteAccount2:"Last warning: this cannot be undone. Continue?", accountDeletedTitle:"Account deleted", accountDeletedBody:"Your account and data have been deleted.", leaveAreaBtn:"Leave club/group", deleteContext:"Delete club/group", deleteContextHint:"Permanently deletes everything: memberships, catches and photos.", confirmDeleteContext:"Really delete \"{name}\"? All memberships, catches and photos will be permanently deleted.", confirmLeave:"Leave \"{name}\"?", soleAdminLeave:"You are the only admin. Make someone else an admin first, or delete the club/group."});
 Object.assign(I18N.nl, {fldLockedHint:"Altijd inbegrepen – kan niet worden uitgezet.", dangerZone:"Gevarenzone", deleteAccount:"Account verwijderen", deleteAccountHint:"Verwijdert je account en al je gegevens (vangsten, foto's, lidmaatschappen) definitief.", confirmDeleteAccount:"Account echt verwijderen? Al je gegevens worden definitief verwijderd.", confirmDeleteAccount2:"Laatste waarschuwing: dit kan niet ongedaan worden gemaakt. Doorgaan?", accountDeletedTitle:"Account verwijderd", accountDeletedBody:"Je account en gegevens zijn verwijderd.", leaveAreaBtn:"Vereniging/groep verlaten", deleteContext:"Vereniging/groep verwijderen", deleteContextHint:"Verwijdert alles definitief: lidmaatschappen, vangsten en foto's.", confirmDeleteContext:"\"{name}\" echt verwijderen? Alle lidmaatschappen, vangsten en foto's worden definitief verwijderd.", confirmLeave:"\"{name}\" verlaten?", soleAdminLeave:"Je bent de enige beheerder. Maak eerst iemand anders beheerder of verwijder de vereniging/groep."});
@@ -4268,7 +4288,7 @@ function renderSpecies(filter){
 function openSpecies(){ renderSpecies(document.getElementById('f-species').value); }
 function filterSpecies(){ state.speciesKey=null; renderSpecies(document.getElementById('f-species').value); }
 function pickSpecies(key, label){ document.getElementById('f-species').value=label; state.speciesKey=key; closeSpecies(); }
-function closeSpecies(){ document.getElementById('combo-list').classList.remove('open'); }
+function closeSpecies(){ const b=document.getElementById('combo-list'); if(b) b.classList.remove('open'); }
 // --- remembered field suggestions (personal, stored locally) ---
 const SUGGEST_FIELDS=['method','bait','rod','boat'];
 function _suggestGet(){ try{ return JSON.parse(localStorage.getItem('bf_suggest')||'{}')||{}; }catch(e){ return {}; } }
@@ -4320,6 +4340,83 @@ function toggleCombo(kind){
   if(kind==='species') openSpecies(); else openMethods();
 }
 document.addEventListener('click',e=>{ if(!e.target.closest('.combo')){ closeSpecies(); closeMethods(); } });
+
+// ===== Unified typeahead sheet (one pattern for Fischart/Methode/Köder/Rute/Boot/Ort) =====
+function _taSuggestCfg(key, inputId){
+  return {
+    title:()=> t(key),
+    opts:()=> (_suggestGet()[key]||[]).map(v=>({v:v})),
+    recent:()=> (_suggestGet()[key]||[]).map(v=>({v:v})),
+    onPick:(v)=>{ const el=document.getElementById(inputId); if(el){ el.value=v; try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(_e){} } }
+  };
+}
+function _ortSuggest(){ const set=new Set(); (state.catches||[]).concat(state.myAllCatches||[]).forEach(c=>{ const v=(c&&c.location||'').trim(); if(v) set.add(v); }); return [...set]; }
+const TA_CFG={
+  'f-species':{
+    title:()=> t('species'),
+    opts:()=> SPECIES.map(s=>({v:trSpecies(s), key:s})),
+    recent:()=> [],
+    onPick:(v,key)=>{ const el=document.getElementById('f-species'); el.value=v; state.speciesKey=(key!=null?key:v); try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(_e){} }
+  },
+  'f-method':{
+    title:()=> t('method'),
+    opts:()=>{ const std=METHODS[curLang()]||METHODS.en; const rem=suggestMethods().filter(m=>!std.some(a=>a.toLowerCase()===(m||'').toLowerCase())); return rem.concat(std).map(m=>({v:m})); },
+    recent:()=> suggestMethods().map(m=>({v:m})),
+    onPick:(v)=>{ const el=document.getElementById('f-method'); if(el) el.value=v; }
+  },
+  'f-bait':_taSuggestCfg('bait','f-bait'),
+  'f-rod':_taSuggestCfg('rod','f-rod'),
+  'f-boat':_taSuggestCfg('boat','f-boat'),
+  'flt-ort':{
+    title:()=> t('locationContains'),
+    opts:()=> _ortSuggest().map(v=>({v:v})),
+    recent:()=> _ortSuggest().slice(0,6).map(v=>({v:v})),
+    onPick:(v)=>{ const el=document.getElementById('flt-ort'); if(el){ el.value=v; try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(_e){} } }
+  }
+};
+let _taInput=null, _taCfg=null;
+function openTypeahead(inputId){
+  _taInput=inputId; _taCfg=TA_CFG[inputId]; if(!_taCfg) return;
+  const tt=document.getElementById('ta-title'); if(tt) tt.textContent=_taCfg.title();
+  const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
+  renderTA();
+  const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
+  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
+}
+function _taHi(label, q){ const L=''+(label||''); if(!q) return esc(L); const i=L.toLowerCase().indexOf(q); if(i<0) return esc(L); return esc(L.slice(0,i))+'<b>'+esc(L.slice(i,i+q.length))+'</b>'+esc(L.slice(i+q.length)); }
+function _taRow(o, q, cur){
+  const d=document.createElement('div'); d.className='ta-opt';
+  const sel=(''+(o.v||'')).toLowerCase()===(''+(cur||'')).toLowerCase();
+  d.innerHTML='<span>'+_taHi(o.v,q)+'</span>'+(sel?'<span class="ta-tick"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7"/></svg></span>':'');
+  d.onclick=function(){ taPick(o.v, (o.key!=null?o.key:null)); };
+  return d;
+}
+function renderTA(){
+  const box=document.getElementById('ta-list'); if(!box||!_taCfg) return;
+  const raw=document.getElementById('ta-search').value||''; const q=raw.toLowerCase().trim();
+  const cur=(document.getElementById(_taInput)||{}).value||'';
+  box.innerHTML='';
+  const all=_taCfg.opts()||[];
+  if(!q){
+    const rec=(_taCfg.recent()||[]).slice(0,6);
+    const recSet=new Set(rec.map(o=>(''+(o.v||'')).toLowerCase()));
+    if(rec.length){ const g=document.createElement('div'); g.className='ta-group'; g.textContent=t('recentLabel'); box.appendChild(g); rec.forEach(o=>box.appendChild(_taRow(o,q,cur))); }
+    const rest=all.filter(o=>!recSet.has((''+(o.v||'')).toLowerCase()));
+    if(rest.length){ if(rec.length){ const g=document.createElement('div'); g.className='ta-group'; g.textContent=t('allLabel'); box.appendChild(g); } rest.forEach(o=>box.appendChild(_taRow(o,q,cur))); }
+    if(!rec.length && !rest.length){ const e=document.createElement('div'); e.className='ta-empty'; e.textContent=t('taSearchPh'); box.appendChild(e); }
+    return;
+  }
+  const matches=all.filter(o=>(''+(o.v||'')).toLowerCase().includes(q));
+  matches.forEach(o=>box.appendChild(_taRow(o,q,cur)));
+  if(!all.some(o=>(''+(o.v||'')).toLowerCase()===q)){
+    const d=document.createElement('div'); d.className='ta-add';
+    d.innerHTML='<span class="ta-plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14"/></svg></span><span>'+esc(raw.trim())+' — '+esc(t('addNewOpt'))+'</span>';
+    d.onclick=function(){ taPick(raw.trim(), raw.trim()); };
+    box.appendChild(d);
+  }
+}
+function taPick(v, key){ if(_taCfg) _taCfg.onPick(v, key); closeModal('ta-sheet'); }
+function taEnter(){ const q=(document.getElementById('ta-search').value||'').trim(); if(!q||!_taCfg) return; const all=_taCfg.opts()||[]; const ex=all.find(o=>(''+(o.v||'')).toLowerCase()===q.toLowerCase()); if(ex) taPick(ex.v, (ex.key!=null?ex.key:null)); else taPick(q, q); }
 
 // ---------- detail ----------
 function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
