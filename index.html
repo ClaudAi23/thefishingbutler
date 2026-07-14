@@ -392,9 +392,12 @@
   .hero{height:240px; background:var(--teal); color:#fff; position:relative;
     display:flex; align-items:center; justify-content:center; font-size:3.5rem;}
   .hero img{width:100%; height:100%; object-fit:cover;}
-  /* Hero overlay: species + size chips + crown on the cover photo */
+  /* No-photo hero: same design, solid colour, low height */
+  .hero.nopic{height:132px; background:var(--teal-dark);}
+  /* Hero overlay: species + size chips + crown on the cover photo (click-through so the photo tap opens the zoomable lightbox) */
   .d-hero-grad{position:absolute; left:0; right:0; bottom:0; height:55%; background:linear-gradient(transparent, rgba(3,25,33,.93)); pointer-events:none;}
-  .d-hero-facts{position:absolute; left:16px; right:16px; bottom:13px; color:#fff;}
+  .hero.nopic .d-hero-grad{display:none;}
+  .d-hero-facts{position:absolute; left:16px; right:16px; bottom:13px; color:#fff; pointer-events:none;}
   .d-hero-facts .dt{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2.2rem; line-height:1; margin:0;}
   .d-hero-chips{display:flex; gap:6px; margin-top:7px; flex-wrap:wrap;}
   .d-hero-chip{background:rgba(255,255,255,.16); border-radius:7px; padding:3px 9px; font-weight:600; font-size:0.8rem;}
@@ -4779,19 +4782,18 @@ function openDetailObj(c, from, keepEdit){
     { const dsub=document.getElementById('d-sub'); if(subLine){ dsub.textContent=subLine; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
   } else {
     if(pe) pe.style.display='none';
+    // READ-ONLY: always the hero (photo → immersive; no photo → same design, colour bg + low height). Band unused.
+    const _facts=`<div class="d-hero-grad"></div>${_heroCrown}<div class="d-hero-facts"><div class="dt">${esc(trSpecies(c.species))}</div>${_chips?`<div class="d-hero-chips">${_chips}</div>`:''}</div>`;
+    hero.style.display='flex';
     if(ps.length){
-      // READ-ONLY with photo → immersive hero overlay (species + chips + crown), band hidden
-      hero.style.display='flex';
-      hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${c.coverPos||'50% 50%'};"><div class="d-hero-grad"></div>${_heroCrown}<div class="d-hero-facts"><div class="dt">${esc(trSpecies(c.species))}</div>${_chips?`<div class="d-hero-chips">${_chips}</div>`:''}</div>`;
+      hero.className='hero';
+      hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${c.coverPos||'50% 50%'};">`+_facts;
       bindHeroRepos(c);
-      if(band) band.style.display='none';
     } else {
-      // READ-ONLY no photo → slim band with species + crown + size chips
-      hero.style.display='none'; hero.innerHTML='';
-      if(band){ band.style.display=''; band.classList.add('d-hero-band'); }
-      { const dsp=document.getElementById('d-species'); dsp.innerHTML = esc(trSpecies(c.species)) + _bandCrown; }
-      { const dsub=document.getElementById('d-sub'); if(_chips){ dsub.innerHTML=`<div class="d-hero-chips">${_chips}</div>`; dsub.style.display=''; } else { dsub.innerHTML=''; dsub.style.display='none'; } }
+      hero.className='hero nopic';
+      hero.innerHTML=_facts;
     }
+    if(band) band.style.display='none';
     if(ps.length>1){ strip.style.display='flex'; strip.innerHTML=ps.map((src,i)=>`<img src="${esc(src)}" class="${i===0?'active':''}" onclick="setHeroPhoto(this,'${i}')" data-src="${i}" alt="">`).join(''); strip._photos=ps; }
     else { strip.style.display='none'; strip.innerHTML=''; }
     if(byl){ byl.style.display='flex'; byl.innerHTML=_anglerByline(c); }
