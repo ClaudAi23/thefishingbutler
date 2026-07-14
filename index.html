@@ -457,10 +457,12 @@
   .spec .tr{font-size:0.72rem; color:var(--teal-bright); margin-top:2px; white-space:nowrap;}
   /* Edit-mode fields: same clean spec look, only a quiet accent underline signals editable */
   .spec.efm{cursor:default;}
-  .spec.efm .efm-field{display:flex; align-items:center; gap:5px; min-width:0;}
-  .spec.efm .efm-in{width:100%; min-width:0; border:none; background:transparent; font-family:inherit; font-weight:600; font-size:0.9375rem; color:var(--text); padding:2px 0; outline:none; border-bottom:1.5px solid rgba(224,165,63,.5);}
-  .spec.efm .efm-in:focus{border-bottom-color:var(--accent); box-shadow:0 1px 0 0 var(--accent);}
+  .spec.efm .efm-field{display:flex; align-items:baseline; gap:5px; min-width:0;}
+  /* Style A · Underline: flat ochre underline hugging the value (no rounded tray, no box halo) */
+  .spec.efm .efm-in{width:auto; min-width:2ch; max-width:100%; border:none; border-radius:0; background:transparent; font-family:inherit; font-weight:600; font-size:0.9375rem; color:var(--text); padding:2px 0; outline:none; box-shadow:none; border-bottom:1.5px solid rgba(224,165,63,.55);}
+  .spec.efm .efm-in:focus{border-bottom-color:var(--accent); box-shadow:none;}
   .spec.efm .efm-in::placeholder{color:var(--muted); font-weight:500;}
+  .spec.efm .efm-date{width:auto; min-width:0;}
   .spec.efm .efm-unit{color:var(--muted); font-size:0.85rem; flex:0 0 auto;}
   .spec.efm .v.efm-pick{display:inline-flex; align-items:center; gap:4px; border-bottom:1.5px solid rgba(224,165,63,.5); padding-bottom:1px; cursor:pointer; overflow:visible;}
   .spec.efm .v.efm-pick.empty{color:var(--teal-bright); border-bottom-color:rgba(30,116,135,.5);}
@@ -4481,8 +4483,7 @@ function dSpecIcon(tok){ const p=D_SPEC_IC[tok]||D_SPEC_IC.method; return `<svg 
 const INLINE_EF={
   length:{field:'length', col:'length_cm', mode:'numeric', unit:'cm', parse:v=>{ const n=parseInt((''+v).replace(/[^0-9\-]/g,''),10); return isNaN(n)?null:n; }, fmt:v=>fmtLen(v), pb:true},
   weight:{field:'weight', col:'weight_kg', mode:'decimal', unit:'kg', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>fmtWeight(v), pb:true},
-  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>String(v).replace('.',',')+' km/h'},
-  water:{field:'location', col:'location', mode:'text', unit:'', parse:v=>{ const s=(''+v).trim(); return s||null; }, fmt:v=>''+v}
+  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>String(v).replace('.',',')+' km/h'}
 };
 function startInlineEdit(rowEl, key){
   const cfg=INLINE_EF[key], c=state.current; if(!cfg||!c) return;
@@ -4534,6 +4535,13 @@ function commitEfmInput(inp){
   saveDetailField(c, cfg.col, cfg.field, nv, {pb:cfg.pb});
 }
 function efmNext(inp){ const all=[].slice.call(document.querySelectorAll('#d-rows .efm-in')); const i=all.indexOf(inp); if(i>=0 && i+1<all.length){ all[i+1].focus(); } else { inp.blur(); } }
+function sizeEfm(inp){ if(!inp||inp.classList.contains('efm-date')) return; const n=Math.max((inp.value||'').length, (inp.placeholder||'').length, 2); inp.style.width=(n+1)+'ch'; }
+function commitEfmDate(inp){ const c=state.current; if(!c||!inp.value) return; let iso; try{ iso=new Date(inp.value).toISOString(); }catch(e){ return; } saveDetailField(c,'caught_at','date',iso,{}); }
+function editWaterField(c){
+  openTypeaheadCfg({ title:t('dWater'), allowNew:true, curVal:()=>c.location||'',
+    opts:()=> _ortSuggest().map(v=>({v:v})), recent:()=> _ortSuggest().slice(0,6).map(v=>({v:v})),
+    onPick:async(v)=>{ const val=(v||'').trim()||null; await saveDetailField(c,'location','location',val,{}); openDetailObj(c, state.detailFrom, true); } });
+}
 async function saveDetailField(c, col, field, value, opts){
   opts=opts||{}; c[field]=value;
   [state.catches, state.myAllCatches].forEach(arr=>{ const it=(arr||[]).find(x=>x&&x.id===c.id); if(it) it[field]=value; });
@@ -4548,6 +4556,7 @@ function startFieldEdit(rowEl, key){
   if(INLINE_EF[key]) return startInlineEdit(rowEl, key);
   const c=state.current; if(!c) return;
   if(key==='date') return editDateField(c);
+  if(key==='water') return editWaterField(c);
   if(key==='released') return editReleasedField(c);
   if(key==='angler') return editAnglerField(c);
   if({method:1,bait:1,rod:1,boat:1}[key]) return editTypeaheadField(c, key);
@@ -4681,11 +4690,14 @@ function openDetailObj(c, from, keepEdit){
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,boat:1,released:1,date:1};
   const specHTML=rows.map(r=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
     const canEdit=_editable && (key==='angler' ? (c._db&&c._ctxId) : EDITABLE_FIELDS[key]);
+    if(editing && canEdit && key==='date'){
+      return `<div class="spec efm wide">${dSpecIcon('date')}<span class="kv"><span class="k">${r[1]}</span><input class="efm-in efm-date" type="datetime-local" value="${escAttr(isoToLocalInput(c.date))}" max="${nowLocal()}" onchange="commitEfmDate(this)"></span></div>`;
+    }
     if(editing && canEdit && INLINE_EF[key]){
       const cfg=INLINE_EF[key]; const raw=c[cfg.field]; const val=(cfg.mode==='text')?(raw||''):(raw!=null&&raw!==''?String(raw).replace('.',','):'');
-      return `<div class="spec efm${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-field"><input class="efm-in" inputmode="${cfg.mode==='text'?'text':cfg.mode}" data-key="${key}" value="${escAttr(val)}" placeholder="—" onblur="commitEfmInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();efmNext(this);}">${cfg.unit?'<span class="efm-unit">'+esc(cfg.unit)+'</span>':''}</span></span></div>`;
+      return `<div class="spec efm${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-field"><input class="efm-in" inputmode="${cfg.mode==='text'?'text':cfg.mode}" data-key="${key}" value="${escAttr(val)}" placeholder="—" oninput="sizeEfm(this)" onblur="commitEfmInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();efmNext(this);}">${cfg.unit?'<span class="efm-unit">'+esc(cfg.unit)+'</span>':''}</span></span></div>`;
     }
-    if(editing && canEdit){ // choice / date / angler → tap opens sheet/picker
+    if(editing && canEdit){ // choice / water / angler → tap opens sheet/picker
       return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v efm-pick${empty?' empty':''}">${esc(''+r[2])}<svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
     }
     return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
@@ -4703,6 +4715,7 @@ function openDetailObj(c, from, keepEdit){
   }
   const moreBtn = editing ? `<button type="button" class="btn secondary sm dedit-more" onclick="editCurrentCatch()">${esc(t('editMoreFields'))}</button>` : '';
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner+moreBtn;
+  if(editing){ document.querySelectorAll('#d-rows .efm-in:not(.efm-date)').forEach(sizeEfm); }
   const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
     ta.addEventListener('blur', function(){ const nv=(ta.value||'').trim()||null; if(nv!==(c.notes||null)) saveDetailField(c,'notes','notes',nv,{}); }); dn.appendChild(ta); }
