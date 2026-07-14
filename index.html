@@ -2374,7 +2374,12 @@ function capturePendingJoin(){
     if(changed){ const q=usp.toString(); history.replaceState(null, '', location.pathname + (q?('?'+q):'') + location.hash); }
   }catch(e){}
 }
-function keybarOn(){ try{ return localStorage.getItem('bf_keybar')==='1'; }catch(e){ return false; } }
+function keybarOn(){
+  // explicit per-device override wins; otherwise on for the tester account (JC) so the PWA works without a URL
+  try{ const v=localStorage.getItem('bf_keybar'); if(v==='1') return true; if(v==='0') return false; }catch(e){}
+  try{ return !!(state.me && (state.me.id==='e84b11f7-2c96-48ac-85c2-df6adeabf9d0' || state.me.email==='johannesclaudi@googlemail.com')); }catch(e){}
+  return false;
+}
 // ---- Keyboard-accessory edit bar (prototype, flag-gated) ----
 const KEYBAR_FIELDS=['f-length','f-weight','f-watertemp','f-trolling'];
 const KEYBAR_META={
@@ -2399,12 +2404,14 @@ function keybarShow(id){
   const ic=document.getElementById('keybar-ic'); if(ic) ic.innerHTML=meta.ic||'';
   const bar=document.getElementById('keybar'); bar.style.display='flex';
   keybarSync(); keybarPosition();
+  // the keyboard animates in over ~300ms — re-position a couple of times to land above it
+  setTimeout(keybarPosition, 150); setTimeout(keybarPosition, 350); setTimeout(keybarPosition, 600);
 }
 function keybarSync(){ if(!_keybarCur) return; const el=document.getElementById(_keybarCur); if(!el) return; const meta=KEYBAR_META[_keybarCur]||{};
   document.getElementById('keybar-val').innerHTML = esc(el.value||'—')+' <span style="color:var(--muted);font-size:0.85rem;font-weight:600;">'+esc(meta.unit||'')+'</span>'; }
 function keybarPosition(){ const bar=document.getElementById('keybar'); if(!bar||bar.style.display==='none') return;
   let kb=0; try{ if(window.visualViewport){ kb=Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop); } }catch(e){}
-  bar.style.transform = kb>0 ? ('translateY('+(-kb)+'px)') : 'none'; }
+  bar.style.bottom = kb+'px'; }   // lift the fixed bar above the keyboard (more reliable on iOS than transform)
 function keybarMaybeHide(){ const a=document.activeElement; if(a && KEYBAR_FIELDS.indexOf(a.id)>=0) return; const bar=document.getElementById('keybar'); if(bar) bar.style.display='none'; _keybarCur=null; }
 function keybarNext(){ const i=KEYBAR_FIELDS.indexOf(_keybarCur); for(let k=1;k<=KEYBAR_FIELDS.length;k++){ const nid=KEYBAR_FIELDS[(i+k)%KEYBAR_FIELDS.length]; const el=document.getElementById(nid); if(el){ el.focus(); return; } } }
 async function maybeApplyPendingJoin(){
