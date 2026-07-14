@@ -425,6 +425,13 @@
   .rec-thumb-ph svg{width:26px; height:26px;}
   .rec-sp{font-weight:600; font-size:0.9rem;}
   .rec-val{font-family:'Barlow Condensed',sans-serif; font-weight:700; color:var(--teal); font-size:1.05rem;}
+  /* Group/club podium medals (gold/silver/bronze) */
+  .medal{display:inline-flex; align-items:center; justify-content:center; position:relative; width:20px; height:20px; border-radius:50%; color:#fff; flex:0 0 auto;}
+  .medal svg{width:12px; height:12px; stroke:#fff;}
+  .medal i{position:absolute; bottom:-3px; right:-3px; font-style:normal; font-size:0.55rem; font-weight:800; background:#fff; color:#2a2a2a; min-width:12px; height:12px; padding:0 2px; border-radius:999px; display:flex; align-items:center; justify-content:center; line-height:1;}
+  .medal-g{background:#D4AF37;} .medal-s{background:#AEB4BC;} .medal-b{background:#B5793B;}
+  .rec-word{display:inline-block; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:0.6rem; color:#8a6a17; background:rgba(212,175,55,.18); border:1px solid #D4AF37; border-radius:999px; padding:1px 7px; flex:0 0 auto;}
+  .medal-banner.medal-g{background:#C79A1E;} .medal-banner.medal-s{background:#8f959d;} .medal-banner.medal-b{background:#a76c34;}
   .dspecs{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; grid-auto-flow:dense;}
   .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
   .spec.wide{grid-column:1 / -1;}
@@ -1512,9 +1519,9 @@ Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app
 Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen und entferne Mitglieder.", membersHintMember:"Mitglieder und ihre Rollen.", manageMembers:"Mitglieder verwalten …", viewMembers:"Mitglieder ansehen", me:"ich", loggedByRow:"Erfasst von", unconfirmed:"Noch nicht bestätigt", unconfShort:"unbestätigt", loggedByHint:"Dieser Fang wurde von {name} für dich eingetragen. Bestätige ihn, wenn er stimmt.", unconfirmedHint:"Dieser Fang wartet auf Bestätigung.", confirmCatch:"Bestätigen", rejectCatch:"Ablehnen", confirmReject:"Diesen Fang ablehnen und löschen?", roleMember:"Mitglied", roleAdmin:"Admin", roleTreasurer:"Kassenwart", removeMember:"Entfernen", lastAdminHint:"Der/die letzte Admin kann nicht herabgestuft oder entfernt werden.", confirmRemove:"{name} aus diesem Verein/dieser Gruppe entfernen?", you:"du", roleTapHint:"Tippe eine Rolle an, um sie zu ändern.", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
 Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles and remove members.", membersHintMember:"Members and their roles.", manageMembers:"Manage members …", viewMembers:"View members", me:"me", loggedByRow:"Logged by", unconfirmed:"Not confirmed yet", unconfShort:"unconfirmed", loggedByHint:"This catch was logged for you by {name}. Confirm it if it's correct.", unconfirmedHint:"This catch is awaiting confirmation.", confirmCatch:"Confirm", rejectCatch:"Reject", confirmReject:"Reject and delete this catch?", roleMember:"Member", roleAdmin:"Admin", roleTreasurer:"Treasurer", removeMember:"Remove", lastAdminHint:"The last admin can't be demoted or removed.", confirmRemove:"Remove {name} from this club/group?", you:"you", roleTapHint:"Tap a role to change it.", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
 Object.assign(I18N.nl, {membersTitle:"Leden", membersHint:"Beheer rollen en verwijder leden.", membersHintMember:"Leden en hun rollen.", manageMembers:"Leden beheren …", viewMembers:"Leden bekijken", me:"ik", loggedByRow:"Ingevoerd door", unconfirmed:"Nog niet bevestigd", unconfShort:"onbevestigd", loggedByHint:"Deze vangst is voor jou ingevoerd door {name}. Bevestig als het klopt.", unconfirmedHint:"Deze vangst wacht op bevestiging.", confirmCatch:"Bevestigen", rejectCatch:"Afwijzen", confirmReject:"Deze vangst afwijzen en verwijderen?", roleMember:"Lid", roleAdmin:"Beheerder", roleTreasurer:"Penningmeester", removeMember:"Verwijderen", lastAdminHint:"De laatste beheerder kan niet worden gedegradeerd of verwijderd.", confirmRemove:"{name} uit deze vereniging/groep verwijderen?", you:"jij", roleTapHint:"Tik op een rol om die te wijzigen.", openMailbox:"Postvak openen", openMailApp:"Mail-app openen"});
-Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen", pbRecord:"Persönlicher Rekord", recordsShelfTitle:"Deine Rekorde"});
-Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish", pbRecord:"Personal best", recordsShelfTitle:"Your records"});
-Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen", pbRecord:"Persoonlijk record", recordsShelfTitle:"Je records"});
+Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen", pbRecord:"Persönlicher Rekord", recordsShelfTitle:"Deine Rekorde", clubRecord:"Vereinsrekord", groupRecord:"Gruppenrekord", recordsSettingTitle:"Rekorde & Podium", recordMetricLabel:"Podium-Wertung", recordsEnabledLabel:"Rekorde anzeigen", recordsSettingHint:"Bestimmt, ob im Verein/der Gruppe ein Podium (Gold/Silber/Bronze je Art) angezeigt wird und ob nach Länge oder Gewicht gewertet wird. Nur Admins."});
+Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish", pbRecord:"Personal best", recordsShelfTitle:"Your records", clubRecord:"Club record", groupRecord:"Group record", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium ranking", recordsEnabledLabel:"Show records", recordsSettingHint:"Controls whether the club/group shows a podium (gold/silver/bronze per species) and whether it ranks by length or weight. Admins only."});
+Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen", pbRecord:"Persoonlijk record", recordsShelfTitle:"Je records", clubRecord:"Verenigingsrecord", groupRecord:"Groepsrecord", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium-waardering", recordsEnabledLabel:"Records tonen", recordsSettingHint:"Bepaalt of de vereniging/groep een podium toont (goud/zilver/brons per soort) en of er op lengte of gewicht wordt gerangschikt. Alleen beheerders."});
 Object.assign(I18N.de, {fldLockedHint:"Immer dabei – kann nicht abgewählt werden.", dangerZone:"Gefahrenzone", deleteAccount:"Konto löschen", deleteAccountHint:"Löscht dein Konto und alle deine Daten (Fänge, Fotos, Mitgliedschaften) unwiderruflich.", confirmDeleteAccount:"Konto wirklich löschen? Alle deine Daten werden unwiderruflich gelöscht.", confirmDeleteAccount2:"Letzte Warnung: Das kann nicht rückgängig gemacht werden. Fortfahren?", accountDeletedTitle:"Konto gelöscht", accountDeletedBody:"Dein Konto und deine Daten wurden gelöscht.", leaveAreaBtn:"Verein/Gruppe verlassen", deleteContext:"Verein/Gruppe löschen", deleteContextHint:"Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.", confirmDeleteContext:"„{name}“ wirklich löschen? Alle Mitgliedschaften, Fänge und Fotos werden unwiderruflich gelöscht.", confirmLeave:"„{name}“ verlassen?", soleAdminLeave:"Du bist der/die einzige Admin. Mach zuerst jemanden zum Admin oder lösche den Verein/die Gruppe."});
 Object.assign(I18N.en, {fldLockedHint:"Always included – can't be turned off.", dangerZone:"Danger zone", deleteAccount:"Delete account", deleteAccountHint:"Permanently deletes your account and all your data (catches, photos, memberships).", confirmDeleteAccount:"Really delete your account? All your data will be permanently deleted.", confirmDeleteAccount2:"Last warning: this cannot be undone. Continue?", accountDeletedTitle:"Account deleted", accountDeletedBody:"Your account and data have been deleted.", leaveAreaBtn:"Leave club/group", deleteContext:"Delete club/group", deleteContextHint:"Permanently deletes everything: memberships, catches and photos.", confirmDeleteContext:"Really delete \"{name}\"? All memberships, catches and photos will be permanently deleted.", confirmLeave:"Leave \"{name}\"?", soleAdminLeave:"You are the only admin. Make someone else an admin first, or delete the club/group."});
 Object.assign(I18N.nl, {fldLockedHint:"Altijd inbegrepen – kan niet worden uitgezet.", dangerZone:"Gevarenzone", deleteAccount:"Account verwijderen", deleteAccountHint:"Verwijdert je account en al je gegevens (vangsten, foto's, lidmaatschappen) definitief.", confirmDeleteAccount:"Account echt verwijderen? Al je gegevens worden definitief verwijderd.", confirmDeleteAccount2:"Laatste waarschuwing: dit kan niet ongedaan worden gemaakt. Doorgaan?", accountDeletedTitle:"Account verwijderd", accountDeletedBody:"Je account en gegevens zijn verwijderd.", leaveAreaBtn:"Vereniging/groep verlaten", deleteContext:"Vereniging/groep verwijderen", deleteContextHint:"Verwijdert alles definitief: lidmaatschappen, vangsten en foto's.", confirmDeleteContext:"\"{name}\" echt verwijderen? Alle lidmaatschappen, vangsten en foto's worden definitief verwijderd.", confirmLeave:"\"{name}\" verlaten?", soleAdminLeave:"Je bent de enige beheerder. Maak eerst iemand anders beheerder of verwijder de vereniging/groep."});
@@ -2422,7 +2429,7 @@ async function loadSoloCatches(){
 }
 async function loadMyContexts(){
   const c=getSB(); if(!c || !state.me) return [];
-  const { data } = await c.from('memberships').select('role, contexts(id, type, name, location, logo_url, logo_style, join_code, field_config, share_config)').eq('user_id', state.me.id);
+  const { data } = await c.from('memberships').select('role, contexts(id, type, name, location, logo_url, logo_style, join_code, field_config, share_config, record_metric, records_enabled)').eq('user_id', state.me.id);
   if(!data) return [];
   return data.map(m=>Object.assign({}, m.contexts, {role:m.role, _db:true})).filter(x=>x&&x.id);
 }
@@ -2962,6 +2969,27 @@ async function recomputePb(ownerId, species){
   }catch(e){}
 }
 
+// ---------- Group/club podium (medals) ----------
+// Computed client-side over the current context's catches (all members can see them):
+// top 3 per species by the context metric → gold/silver/bronze. Admin sets metric + on/off.
+const MEDAL_IC=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M9 15l-2 6l5 -3l5 3l-2 -6"/></svg>`;
+function ctxRecordsEnabled(){ return !(state.club && state.club.records_enabled===false); }
+function ctxRecordMetric(){ return (state.club && state.club.record_metric==='weight') ? 'weight' : 'length'; }
+function ctxRecWord(){ return (state.club && state.club.type==='group') ? t('groupRecord') : t('clubRecord'); }
+let _podium={};
+function buildPodium(items){
+  _podium={};
+  if(state.mode==='solo' || !ctxRecordsEnabled()) return;
+  const metric=ctxRecordMetric(); const bySp={};
+  (items||[]).forEach(c=>{ if(c._welcome || (c._db&&c.confirmed===false)) return;
+    const v = metric==='weight' ? c.weight : c.length; if(v==null) return;
+    (bySp[c.species]=bySp[c.species]||[]).push({id:c.id, v:Number(v)}); });
+  Object.values(bySp).forEach(arr=>{ arr.sort((a,b)=>b.v-a.v); arr.slice(0,3).forEach((x,i)=>{ _podium[x.id]=i+1; }); });
+}
+function podiumRank(c){ return (c && _podium[c.id]) || 0; }
+function medalBadge(rank){ const cls=rank===1?'g':(rank===2?'s':'b'); return `<span class="medal medal-${cls}">${MEDAL_IC}<i>${rank}</i></span>`; }
+function podiumOrdinal(rank){ return rank===1 ? '' : (rank+'.-'); }  // "" / "2.-" / "3.-"
+
 function renderList(){
   try{ updateSyncBanner(); }catch(e){}
   // Once a real Solo catch exists, retire the Welcome seed for good (no resurrection on later delete).
@@ -2973,6 +3001,7 @@ function renderList(){
   document.getElementById('list-label').textContent = cnt>0 ? t('filtered') : sortHeadline();
 
   const items=state.catches.filter(matchesFilter);
+  try{ buildPodium(state.catches); }catch(e){ _podium={}; }   // rank over the FULL context, independent of active filter
   // stats
   let bigLen=null, bigWt=null;
   items.forEach(c=>{ if(c.length!=null && (bigLen==null || c.length>bigLen.length)) bigLen=c; if(c.weight!=null && (bigWt==null || c.weight>bigWt.weight)) bigWt=c; });
@@ -2998,7 +3027,7 @@ function renderList(){
     const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
-        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
+        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
         <span class="meta">${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:0.625rem;font-weight:700;background:var(--teal-dark);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}${[c.angler, c.location, fmtDate(c.date)].filter(Boolean).join(' · ')}</span>
       </span>
       ${CHEV_IC}`;
@@ -3061,6 +3090,7 @@ function renderRecordsShelf(items){
 }
 function openStatsRecord(id){ const c=(myCatches()||[]).find(x=>String(x.id)===String(id)); if(c) openDetailObj(c,'stats'); }
 function renderStats(){
+  _podium={};   // podium is context-scoped; the cross-context stats list must not show medals
   try{ updateSyncBanner(); }catch(e){}
   { const a=document.getElementById('stats-hdr-av'); if(a){ try{ a.innerHTML=userAvatarHTML(); }catch(e){} } }
   const cnt=activeFilterCount();
@@ -3109,7 +3139,7 @@ function renderStats(){
     const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
-        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
+        <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
         <span class="meta" style="display:flex; align-items:center; gap:6px; white-space:normal; overflow:visible; text-overflow:clip;"><span style="display:flex; align-items:center; min-width:0; overflow:hidden; white-space:nowrap;"><span class="ctxbadge">${c._ctx}</span>${otherCtxBadge(c)}${(c._db&&c.confirmed===false)?`<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:0.625rem;font-weight:700;background:var(--teal-dark);color:#fff;margin-right:4px;">${esc(t('unconfShort'))}</span>`:''}</span><span style="margin-left:auto; flex-shrink:0; white-space:nowrap;">${esc(c.angler)} · ${fmtDate(c.date)}</span></span>
       </span>
       ${CHEV_IC}`;
@@ -4304,7 +4334,17 @@ function openDetailObj(c, from){
   const specHTML=rows.map(r=>{ const wide=r[3] || (''+r[2]).length>18; return `<div class="spec${wide?' wide':''}">${dSpecIcon(r[0])}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
   let pbBanner='';
   if(isPb(c)){ const ml = pbMetric()==='weight'? t('msHeaviest') : t('msLongest'); pbBanner = `<div class="pb-banner">${CROWN_IC}<span>${esc(t('pbRecord'))} · ${esc(ml)} ${esc(trSpecies(c.species))}</span></div>`; }
-  document.getElementById('d-rows').innerHTML=pbBanner+`<div class="dspecs">${specHTML}</div>`+banner;
+  let medBanner='';
+  const _pr=podiumRank(c);
+  if(_pr){
+    const ml = ctxRecordMetric()==='weight'? t('msHeaviest') : t('msLongest');
+    const ord = podiumOrdinal(_pr); const mlText = ord ? ml.toLowerCase() : ml;
+    const ctxName = (state.club&&state.club.name)||'';
+    const lead = _pr===1 ? (esc(ctxRecWord())+' · ') : '';
+    const cls = _pr===1?'g':(_pr===2?'s':'b');
+    medBanner = `<div class="pb-banner medal-banner medal-${cls}">${MEDAL_IC}<span>${lead}${ord}${esc(mlText)} ${esc(trSpecies(c.species))}${ctxName?' · '+esc(ctxName):''}</span></div>`;
+  }
+  document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner;
   const nw=document.getElementById('d-notes-wrap');
   if(c.notes){ nw.style.display='block'; document.getElementById('d-notes').textContent=c.notes; } else nw.style.display='none';
   const isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
