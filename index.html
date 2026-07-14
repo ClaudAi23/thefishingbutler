@@ -471,6 +471,9 @@
   .spec.efm .v.efm-pick.empty{color:var(--teal-bright); border-bottom-color:rgba(30,116,135,.5);}
   .efm-chev{width:15px; height:15px; stroke:var(--muted); stroke-width:2; fill:none; flex:0 0 auto;}
   .dedit-more{width:100%; margin-top:18px;}
+  .dgroup-edit{margin-top:22px;}
+  .dgroup-edit .spec.dgroup-pick{border-bottom:none; padding-top:6px; cursor:pointer;}
+  .dgroup-edit .spec.dgroup-pick > svg{width:20px; height:20px; margin-top:2px; flex:0 0 auto; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   /* odd count: last half-width cell keeps its own border, but drop the divider that would visually double up */
   .spec:nth-last-child(1):nth-child(odd){border-bottom:1px solid var(--border);}
 
@@ -1310,12 +1313,12 @@
     </div>
   </div>
 
-  <div id="area-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('area-sheet')">
+  <div id="area-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeAreaSheet()">
     <div class="modal-box">
       <h2 style="font-size:1.25rem; margin:0 0 10px;" data-i18n="logToArea">Eintragen in</h2>
       <input id="area-search" type="text" data-i18n-ph="areaSearch" placeholder="Suchen…" oninput="renderAreaSheet()" style="margin-bottom:8px;">
       <div id="area-sheet-list" style="max-height:52vh; overflow:auto; margin:0 -2px;"></div>
-      <button type="button" class="btn" style="margin-top:12px;" onclick="closeModal('area-sheet')" data-i18n="areaDone">Fertig</button>
+      <button type="button" class="btn" style="margin-top:12px;" onclick="closeAreaSheet()" data-i18n="areaDone">Fertig</button>
     </div>
   </div>
 
@@ -3808,7 +3811,38 @@ function updateAreaSummary(){
   const names=tg.map(id=>{ const c=ctxs.find(x=>x.id===id); return c?c.name:''; }).filter(Boolean);
   el.textContent = names.length<=2 ? names.join(', ') : (names[0]+' +'+(names.length-1));
 }
-function openAreaSheet(){ const s=document.getElementById('area-search'); if(s) s.value=''; const sh=document.getElementById('area-sheet'); if(sh) sh.style.display='flex'; renderAreaSheet(); }
+let _areaMode='form';
+function openAreaSheet(){ _areaMode='form'; const s=document.getElementById('area-search'); if(s) s.value=''; const sh=document.getElementById('area-sheet'); if(sh) sh.style.display='flex'; renderAreaSheet(); }
+// Detail edit-mode: change which club/group an existing catch is logged to — WITHOUT switching the app's active context.
+function detailAreaSummary(c){
+  const tg=(c._ctxIds&&c._ctxIds.length)?c._ctxIds:(c._ctxId!=null?[c._ctxId]:[]);
+  const ctxs=state.myContexts||[];
+  if(!tg.length) return t('solo');
+  const names=tg.map(id=>{ const x=ctxs.find(y=>y.id===id); return x?x.name:''; }).filter(Boolean);
+  return names.length<=2 ? names.join(', ') : (names[0]+' +'+(names.length-1));
+}
+function openDetailAreaSheet(){
+  const c=state.current; if(!c) return;
+  _areaMode='detail';
+  state.formTargets = (c._ctxIds&&c._ctxIds.length)?c._ctxIds.slice():(c._ctxId!=null?[c._ctxId]:[]);
+  const s=document.getElementById('area-search'); if(s) s.value='';
+  const sh=document.getElementById('area-sheet'); if(sh) sh.style.display='flex';
+  renderAreaSheet();
+}
+async function detailToggleArea(key){
+  const c=state.current; if(!c) return;
+  let tg=(state.formTargets||[]).slice();
+  if(key==='solo'){ tg=[]; } else { const i=tg.indexOf(key); if(i>=0) tg.splice(i,1); else tg.push(key); }
+  state.formTargets=tg;
+  const primary = tg.length ? tg[0] : null;
+  const patch={ context_id: primary, context_ids: tg.length>1 ? tg : null };
+  try{ if(c._db){ const { error }=await getSB().from('catches').update(patch).eq('id', c.id); if(error) throw error; } }catch(e){ try{ toast(t('errSave')); }catch(_e){} }
+  c._ctxId=primary; c._ctxIds=tg.slice(); c._ctxIds=(tg.length?tg.slice():[]);
+  [state.catches, state.myAllCatches].forEach(a=>{ const it=(a||[]).find(x=>x&&x.id===c.id); if(it){ it._ctxId=primary; it._ctxIds=tg.slice(); } });
+  try{ haptic(8); }catch(e){}
+  renderAreaSheet();
+}
+function closeAreaSheet(){ const wasDetail=(_areaMode==='detail'); closeModal('area-sheet'); _areaMode='form'; if(wasDetail){ try{ reloadCurrentDb(); }catch(e){} if(state.current) openDetailObj(state.current, state.detailFrom, true); } }
 function renderAreaSheet(){
   const box=document.getElementById('area-sheet-list'); if(!box) return;
   const ctxs=state.myContexts||[]; const tg=state.formTargets||[]; const solo=tg.length===0;
@@ -3837,6 +3871,7 @@ function populateAreaSelect(){
   updateAreaSummary(); wrap.style.display='';
 }
 async function toggleArea(key){
+  if(_areaMode==='detail') return detailToggleArea(key);
   let tg=(state.formTargets||[]).slice();
   if(key==='solo'){ tg=[]; }
   else { const i=tg.indexOf(key); if(i>=0) tg.splice(i,1); else tg.push(key); }
@@ -4781,9 +4816,9 @@ function openDetailObj(c, from, keepEdit){
     const cls = _pr===1?'g':(_pr===2?'s':'b');
     medBanner = `<div class="pb-banner medal-banner medal-${cls}">${MEDAL_IC}<span>${lead}${ord}${esc(mlText)} ${esc(trSpecies(c.species))}${ctxName?' · '+esc(ctxName):''}</span></div>`;
   }
-  const canGroup = (state.myContexts||[]).length>0;
-  const moreBtn = (editing && canGroup) ? `<button type="button" class="btn secondary sm dedit-more" onclick="editCurrentCatch()">${esc(t('editMoreFields'))}</button>` : '';
-  document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner+moreBtn;
+  const canGroup = c._db && (state.myContexts||[]).length>0;
+  const groupRow = (editing && canGroup) ? `<div class="dgroup-edit"><div class="sectionlabel" data-i18n="logToArea">Eintragen in</div><div class="spec efm dgroup-pick" onclick="openDetailAreaSheet()"><svg viewBox="0 0 24 24"><path d="M9 7a3 3 0 1 0 0 6a3 3 0 0 0 0 -6M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg><span class="kv"><span class="efm-pickrow"><span class="v efm-pick">${esc(detailAreaSummary(c))}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div></div>` : '';
+  document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner+groupRow;
   if(editing){ document.querySelectorAll('#d-rows .efm-in:not(.efm-date)').forEach(sizeEfm); }
   const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
