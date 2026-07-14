@@ -389,9 +389,24 @@
     cursor:pointer; opacity:.65; transition:opacity .15s;}
   .detail-strip img.active{opacity:1; outline:2px solid var(--teal); outline-offset:-2px;}
 
-  .hero{height:240px; background:var(--teal); color:#fff;
+  .hero{height:240px; background:var(--teal); color:#fff; position:relative;
     display:flex; align-items:center; justify-content:center; font-size:3.5rem;}
   .hero img{width:100%; height:100%; object-fit:cover;}
+  /* Hero overlay: species + size chips + crown on the cover photo */
+  .d-hero-grad{position:absolute; left:0; right:0; bottom:0; height:55%; background:linear-gradient(transparent, rgba(3,25,33,.93)); pointer-events:none;}
+  .d-hero-facts{position:absolute; left:16px; right:16px; bottom:13px; color:#fff;}
+  .d-hero-facts .dt{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2.2rem; line-height:1; margin:0;}
+  .d-hero-chips{display:flex; gap:6px; margin-top:7px; flex-wrap:wrap;}
+  .d-hero-chip{background:rgba(255,255,255,.16); border-radius:7px; padding:3px 9px; font-weight:600; font-size:0.8rem;}
+  .d-hero-crown{position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;}
+  .d-hero-crown svg{width:17px; height:17px;}
+  /* No-photo hero band */
+  .d-hero-band .dt{display:flex; align-items:center; gap:10px;}
+  .d-hero-band .d-hero-chips .d-hero-chip{background:var(--surface); border:1px solid var(--border); color:var(--text);}
+  /* Angler byline (avatar + name) under the photos */
+  .d-byline{display:flex; align-items:center; gap:9px; padding:12px 18px; border-bottom:1px solid var(--border);}
+  .d-byline .av{width:26px; height:26px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.7rem; background:var(--teal); color:#04222e;}
+  .d-byline .nm{font-weight:600; font-size:0.9rem; color:var(--text);}
   .detail-title{font-size:2rem; font-weight:700; margin:0; line-height:1;}
   .detail-sub{color:var(--muted); margin:6px 0 0; font-size:0.9375rem; font-weight:500;}
   .detail-band{position:relative; padding:20px 16px 14px;}
@@ -884,6 +899,7 @@
     <div class="scroll">
       <div id="d-hero" class="hero" style="display:none;"></div>
       <div id="d-strip" class="detail-strip" style="display:none;"></div>
+      <div id="d-byline" class="d-byline" style="display:none;"></div>
       <div class="detail-band">
         <h2 id="d-species" class="dt">—</h2>
         <p id="d-sub" class="ds">—</p>
@@ -4546,11 +4562,15 @@ function taEnter(){ const q=(document.getElementById('ta-search').value||'').tri
 function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
 function detailBack(){ if(_detailEdit){ _detailEdit=false; persistDetailPhotos().catch(function(){}); } go(state.detailFrom||'list'); }
 function _detailScroll(){
-  const sc=document.querySelector('#s-detail .scroll'); const band=sc&&sc.querySelector('.detail-band'); const h=document.getElementById('d-htitle');
-  if(!sc||!band||!h) return;
-  const show = band.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 4;
+  const sc=document.querySelector('#s-detail .scroll'); const h=document.getElementById('d-htitle'); if(!sc||!h) return;
+  const hero=document.getElementById('d-hero');
+  const ref = (hero && hero.style.display!=='none') ? hero : sc.querySelector('.detail-band');
+  if(!ref) return;
+  const show = ref.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 4;
   h.style.opacity = show ? '1' : '0';
 }
+function _sizeChips(c){ const out=[]; if(c.length!=null) out.push(fmtLen(c.length)); if(c.weight!=null) out.push(fmtWeight(c.weight)); return out; }
+function _anglerByline(c){ const nm=(c.angler||'').trim()||'—'; const init=((nm.split(/\s+/).map(w=>w[0]).slice(0,2).join(''))||'?').toUpperCase(); return `<span class="av">${esc(init)}</span><span class="nm">${esc(nm)}</span>`; }
 const D_SPEC_IC={
   angler:'<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>',
   water:'<path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0"/>',
@@ -4736,31 +4756,45 @@ function openDetailObj(c, from, keepEdit){
   const _keepScroll = keepEdit ? (((document.querySelector('#s-detail .scroll')||{}).scrollTop)||0) : 0;
   const hero=document.getElementById('d-hero');
   const strip=document.getElementById('d-strip');
+  const byl=document.getElementById('d-byline');
+  const band=document.querySelector('#s-detail .detail-band');
   const pe=document.getElementById('d-photo-edit');
   const ps=photosOf(c);
   state.detailPhotos=ps; state.detailIdx=0;
+  const _chips=_sizeChips(c).map(v=>`<span class="d-hero-chip">${esc(v)}</span>`).join('');
+  const _heroCrown = isPb(c) ? `<span class="d-hero-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
+  const _bandCrown = isPb(c) ? `<span class="d-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
+  const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   if(_detailEdit){
-    // edit mode: swap the read-only hero for the editable photo grid (add / remove / reorder)
+    // EDIT MODE (unchanged): editable photo grid, plain band with species, no byline
     hero.style.display='none'; hero.innerHTML=''; strip.style.display='none'; strip.innerHTML='';
+    if(byl) byl.style.display='none';
+    if(band){ band.style.display=''; band.classList.remove('d-hero-band'); }
     if(!Array.isArray(state.editPhotos)) state.editPhotos=ps.slice();
     if(pe) pe.style.display='block';
     renderFormPhotos();
+    { const dsp=document.getElementById('d-species'); dsp.innerHTML = esc(trSpecies(c.species)) + _bandCrown; }
+    const subLine=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null, (c.location||'').trim()||null, fmtDate(c.date)].filter(Boolean).join(' · ');
+    { const dsub=document.getElementById('d-sub'); if(subLine){ dsub.textContent=subLine; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
   } else {
     if(pe) pe.style.display='none';
-    if(ps.length){ hero.style.display='flex'; hero.innerHTML=`<img id="d-hero-img" src="${ps[0]}" alt="" style="object-position:${c.coverPos||'50% 50%'};">`; bindHeroRepos(c); }
-    else { hero.style.display='none'; hero.innerHTML=''; }
-    if(ps.length>1){
-      strip.style.display='flex';
-      strip.innerHTML=ps.map((src,i)=>`<img src="${src}" class="${i===0?'active':''}" onclick="setHeroPhoto(this,'${i}')" data-src="${i}" alt="">`).join('');
-      strip._photos=ps;
-    } else { strip.style.display='none'; strip.innerHTML=''; }
+    if(ps.length){
+      // READ-ONLY with photo → immersive hero overlay (species + chips + crown), band hidden
+      hero.style.display='flex';
+      hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${c.coverPos||'50% 50%'};"><div class="d-hero-grad"></div>${_heroCrown}<div class="d-hero-facts"><div class="dt">${esc(trSpecies(c.species))}</div>${_chips?`<div class="d-hero-chips">${_chips}</div>`:''}</div>`;
+      bindHeroRepos(c);
+      if(band) band.style.display='none';
+    } else {
+      // READ-ONLY no photo → slim band with species + crown + size chips
+      hero.style.display='none'; hero.innerHTML='';
+      if(band){ band.style.display=''; band.classList.add('d-hero-band'); }
+      { const dsp=document.getElementById('d-species'); dsp.innerHTML = esc(trSpecies(c.species)) + _bandCrown; }
+      { const dsub=document.getElementById('d-sub'); if(_chips){ dsub.innerHTML=`<div class="d-hero-chips">${_chips}</div>`; dsub.style.display=''; } else { dsub.innerHTML=''; dsub.style.display='none'; } }
+    }
+    if(ps.length>1){ strip.style.display='flex'; strip.innerHTML=ps.map((src,i)=>`<img src="${esc(src)}" class="${i===0?'active':''}" onclick="setHeroPhoto(this,'${i}')" data-src="${i}" alt="">`).join(''); strip._photos=ps; }
+    else { strip.style.display='none'; strip.innerHTML=''; }
+    if(byl){ byl.style.display='flex'; byl.innerHTML=_anglerByline(c); }
   }
-  { const dsp=document.getElementById('d-species');
-    const crown = isPb(c) ? `<span class="d-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
-    dsp.innerHTML = esc(trSpecies(c.species)) + crown; }
-  const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
-  const subLine=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null, (c.location||'').trim()||null, fmtDate(c.date)].filter(Boolean).join(' · ');
-  { const dsub=document.getElementById('d-sub'); if(subLine){ dsub.textContent=subLine; dsub.style.display=''; } else { dsub.textContent=''; dsub.style.display='none'; } }
   // Sticky header (species + measurement · date) fades in once the hero band is scrolled out of view.
   { const h=document.getElementById('d-h1'); if(h) h.textContent=trSpecies(c.species);
     const hs=document.getElementById('d-h1sub'); if(hs) hs.textContent=[size, fmtDate(c.date)].filter(Boolean).join(' · ');
@@ -4769,19 +4803,40 @@ function openDetailObj(c, from, keepEdit){
   // Spec-sheet rows: [iconToken, label, value, forceWide] — empty fields are omitted entirely.
   // Order: Datum + Angler lead · Länge|Gewicht, Entnahme|Methode, Boot|Tempo paired · Rute+Köder together (wide) · Gewässer · Eingetragen von.
   // Wide = long/text fields; half = short/numeric. Wassertemperatur now lives in the weather section.
+  const _isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
+  const _editable = (state.detailFrom==='list' || state.detailFrom==='stats') && _isMine && !c._welcome;
+  const editing = _detailEdit && _editable;
   const rows=[];
-  rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
-  rows.push(['angler',t('dAngler'),c.angler,true]);
-  if(c.length!=null) rows.push(['length',t('dLength'),fmtLen(c.length),false]);
-  if(c.weight!=null) rows.push(['weight',t('dWeight'),fmtWeight(c.weight),false]);
-  if(c.released!=null) rows.push(['released',t('releasedLabel'), c.released?t('releasedReleased'):t('releasedKept'),false]);
-  if(c.method) rows.push(['method',t('method'), c.method,false]);
-  if(c.boat) rows.push(['boat',t('boat'), c.boat,false]);
-  if(c.trolling!=null) rows.push(['trolling',t('trolling'), String(c.trolling).replace('.',',')+' km/h',false]);
-  if(c.rod) rows.push(['rod',t('rod'), c.rod,true]);
-  if(c.bait) rows.push(['bait',t('bait'), c.bait,true]);
-  if((c.location||'').trim()) rows.push(['water',t('dWater'),c.location,true]);
-  if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName,true]);
+  if(editing){
+    // EDIT MODE: full field set (all editable inline)
+    rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
+    rows.push(['angler',t('dAngler'),c.angler,true]);
+    if(c.length!=null) rows.push(['length',t('dLength'),fmtLen(c.length),false]);
+    if(c.weight!=null) rows.push(['weight',t('dWeight'),fmtWeight(c.weight),false]);
+    if(c.released!=null) rows.push(['released',t('releasedLabel'), c.released?t('releasedReleased'):t('releasedKept'),false]);
+    if(c.method) rows.push(['method',t('method'), c.method,false]);
+    if(c.boat) rows.push(['boat',t('boat'), c.boat,false]);
+    if(c.trolling!=null) rows.push(['trolling',t('trolling'), String(c.trolling).replace('.',',')+' km/h',false]);
+    if(c.rod) rows.push(['rod',t('rod'), c.rod,true]);
+    if(c.bait) rows.push(['bait',t('bait'), c.bait,true]);
+    if((c.location||'').trim()) rows.push(['water',t('dWater'),c.location,true]);
+    if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName,true]);
+  } else {
+    // READ-ONLY: hero holds species+size, byline holds angler → order Datum · Entnahme|Methode · Köder · Rute[|Rolle] · Boot|Tempo · Gewässer.
+    // Pair rule: a pair is both-half or both-full; a lone member spans full.
+    const shrt=(v)=>(''+v).length<=18;
+    rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
+    { const rv=c.released?t('releasedReleased'):t('releasedKept'); const both=(c.released!=null)&&!!c.method; const half=both&&shrt(rv)&&shrt(c.method);
+      if(c.released!=null) rows.push(['released',t('releasedLabel'), rv, !half]);
+      if(c.method) rows.push(['method',t('method'), c.method, !half]); }
+    if(c.bait) rows.push(['bait',t('bait'), c.bait, true]);
+    if(c.rod) rows.push(['rod',t('rod'), c.rod, true]);
+    { const tv=c.trolling!=null?(String(c.trolling).replace('.',',')+' km/h'):null; const both=!!c.boat&&(c.trolling!=null); const half=both&&shrt(c.boat)&&shrt(tv);
+      if(c.boat) rows.push(['boat',t('boat'), c.boat, !half]);
+      if(c.trolling!=null) rows.push(['trolling',t('trolling'), tv, !half]); }
+    if((c.location||'').trim()) rows.push(['water',t('dWater'), c.location, true]);
+    if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName, true]);
+  }
   let banner='';
   if(c._db && c.confirmed===false){
     const iAmOwner = state.me && c.userId===state.me.id;
@@ -4801,9 +4856,6 @@ function openDetailObj(c, from, keepEdit){
       <button type="button" class="btn secondary sm" onclick="dismissWelcome()">${esc(t('welcomeRemove'))}</button>
     </div>`;
   }
-  const _isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
-  const _editable = (state.detailFrom==='list' || state.detailFrom==='stats') && _isMine && !c._welcome;
-  const editing = _detailEdit && _editable;
   // Only in edit mode: surface enabled-but-empty fields as add-rows.
   if(editing){
     const present=new Set(rows.map(r=>r[0]));
