@@ -26,11 +26,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
-    /* ButlerFish palette — sampled from the mascot. Ochre is accent-only. */
+    /* ButlerFish palette — TWO hues, measured from the two fish.
+       Teal H197 = the anglerfish (79% of its surface). Gold H39 = the puffer (39% of the icon).
+       Cream is that same gold at 16% saturation — not a third family. Everything else is a value step.
+       RULE: gold never carries white (1.99:1). Gold + ink are a pair (8.87:1) → --on-accent. */
     --teal:#0D5164; --teal-dark:#03354B; --teal-tint:#dde8e5; --teal-bright:#1E7487;
     --navy:#021B28;
     --spark:#51A6A0;
-    --accent:#C9992B; --accent-strong:#E0A53F; --highlight:#51A6A0;
+    --accent:#F2AA25; --accent-strong:#F2AA25; --on-accent:#021B28; --highlight:#51A6A0;
     --sand:#F4EFE2; --surface:#FFFFFF; --surface-2:#EDE7D6;
     --text:#021B28; --muted:#5f6a68; --border:#ddd6c4; --border-2:#cfc7b2;
     --danger:#B23A3A; --shadow:0 10px 34px rgba(2,27,40,.10);
@@ -41,8 +44,9 @@
     color-scheme:dark;
     --teal:#51A6A0; --teal-dark:#0D5164; --teal-tint:#0e2a30; --teal-bright:#63c0b8;
     --spark:#63c0b8;
-    --accent:#E0A53F; --accent-strong:#E0A53F; --highlight:#51A6A0;
-    --sand:#052a37; --surface:#0b3648; --surface-2:#103f52;
+    --accent:#F2AA25; --accent-strong:#F2AA25; --on-accent:#021B28; --highlight:#51A6A0;
+    /* page = Ink, cards = Ocean, raised = Deep (one hue, three depths — per BRIEFING §2) */
+    --sand:#021B28; --surface:#03354B; --surface-2:#0D5164;
     --text:#F4EFE2; --muted:#93a3a5; --border:#123643; --border-2:#1b4453;
     --danger:#E0716B; --shadow:0 12px 36px rgba(0,0,0,.5);
   }
@@ -69,7 +73,8 @@
     #app{position:relative; top:auto; right:auto; bottom:auto; left:auto; min-height:auto; height:840px; border-radius:32px; border:1px solid var(--border-2);}
   }
   /* Ochre launch splash → cross-fades into the app shell (icon→app continuity). */
-  #app-loader{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#C9992B; transition:opacity .5s ease, visibility 0s linear .5s;}
+  /* Splash = the icon's tile colour, so tapping the teal puffer tile blooms into a teal splash (UPDATE-02). */
+  #app-loader{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#0D5164; transition:opacity .5s ease, visibility 0s linear .5s;}
   #app-loader.hide{opacity:0; visibility:hidden; pointer-events:none;}
   #app-loader .splash-inner{position:relative; display:flex; align-items:center; justify-content:center;}
   #app-loader .glow{position:absolute; width:330px; height:330px; border-radius:50%; background:radial-gradient(circle, rgba(255,238,196,.6), rgba(255,238,196,0) 62%); filter:blur(6px); animation:escaGlow 2.4s ease-in-out infinite;}
@@ -409,7 +414,7 @@
   .d-hero-facts .dt{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2.2rem; line-height:1; margin:0;}
   .d-hero-chips{display:flex; gap:6px; margin-top:7px; flex-wrap:wrap;}
   .d-hero-chip{background:rgba(255,255,255,.16); border-radius:7px; padding:3px 9px; font-weight:600; font-size:0.8rem;}
-  .d-hero-crown{position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;}
+  .d-hero-crown{position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; z-index:2;}
   .d-hero-crown svg{width:17px; height:17px;}
   /* Verein/Gruppe (DB) catches: crown + "PB" label, so a shared list says whose record it is */
   .d-hero-crown.withtx{width:auto; height:28px; border-radius:999px; padding:0 10px 0 7px; gap:5px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.85rem; letter-spacing:.04em;}
@@ -451,18 +456,18 @@
   .welcome-wrap{position:relative; margin-bottom:12px;}
   .welcome-catch{border:1px dashed var(--accent) !important;}
   .welcome-thumb{color:var(--accent);}
-  .demo-pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.06em; background:var(--accent); color:#fff; white-space:nowrap; flex:0 0 auto;}
+  .demo-pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.06em; background:var(--accent); color:var(--on-accent); white-space:nowrap; flex:0 0 auto;}
   .welcome-x{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--muted); display:flex; align-items:center; justify-content:center; z-index:3; cursor:pointer;}
   .welcome-x svg{width:16px; height:16px;}
   .welcome-hint{margin:8px 4px 0; font-size:0.78rem; color:var(--muted); text-align:center;}
   /* Personal Best crown + banner (ochre badge, monochrome symbol) */
   .catch{position:relative;}
-  .pb-crown{position:absolute; top:6px; left:6px; z-index:2; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.28);}
+  .pb-crown{position:absolute; top:6px; left:6px; z-index:2; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.28);}
   .pb-crown svg{width:13px; height:13px;}
-  .pb-banner{display:flex; align-items:center; gap:9px; margin-top:10px; padding:9px 12px; border-radius:12px; background:var(--accent); color:#fff; font-weight:600; font-size:0.9rem;}
+  .pb-banner{display:flex; align-items:center; gap:9px; margin-top:10px; padding:9px 12px; border-radius:12px; background:var(--accent); color:var(--on-accent); font-weight:600; font-size:0.9rem;}
   .pb-banner svg{width:20px; height:20px; flex:0 0 auto;}
   /* Personal PB shown inline: ochre crown badge to the right of the species name */
-  .d-crown{position:relative; display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; vertical-align:middle; margin-left:10px;}
+  .d-crown{position:relative; display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:var(--on-accent); vertical-align:middle; margin-left:10px;}
   /* × badge: makes it visible that the record can be removed (same language as the photo cells) */
   .d-crown .d-crown-x{position:absolute; top:-5px; right:-5px; width:16px; height:16px; border-radius:50%; background:var(--danger); color:#fff; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--bg);}
   .d-crown .d-crown-x svg{width:9px; height:9px;}
@@ -489,7 +494,7 @@
   .rec-head svg{width:16px; height:16px; stroke:var(--accent); fill:none; stroke-width:2;}
   .rec-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;}
   .rec-card{flex:0 0 auto; width:108px; position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left;}
-  .rec-crown{position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;}
+  .rec-crown{position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; z-index:2;}
   .rec-crown svg{width:13px; height:13px; stroke:#fff;}
   .rec-thumb{width:100%; height:64px; border-radius:9px; background:var(--teal-tint); background-size:cover; margin-bottom:6px; display:block;}
   .rec-thumb-ph{display:flex; align-items:center; justify-content:center; color:var(--muted);}
@@ -670,7 +675,7 @@
   .ta-opt .ta-tick svg{width:18px; height:18px; stroke:var(--teal); fill:none; stroke-width:2.4;}
   .ta-opt b{background:rgba(201,153,43,.22); border-radius:3px; padding:0 1px; font-weight:700;}
   .ta-add{display:flex; align-items:center; gap:11px; padding:12px; border-radius:11px; color:var(--accent); font-weight:600; cursor:pointer;}
-  .ta-add .ta-plus{width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ta-add .ta-plus{width:26px; height:26px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
   .ta-add .ta-plus svg{width:15px; height:15px; stroke:#fff; fill:none; stroke-width:2.4;}
   .ta-group{font-size:0.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; padding:10px 12px 4px;}
   .ta-empty{color:var(--muted); font-size:0.9rem; padding:14px 12px;}
@@ -4182,7 +4187,7 @@ function spawnConfetti(ov){
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     clearConfetti(ov);
     const box=document.createElement('div'); box.className='su-confetti';
-    const cols=['#C9992B','#0D5164','#1E7487','#F4EFE2','#E0A53F'];
+    const cols=['#F2AA25','#0D5164','#1E7487','#F4EFE2','#51A6A0'];   // one gold + the teal ramp (no duplicate golds)
     for(let i=0;i<20;i++){ const p=document.createElement('i');
       p.style.left=(Math.random()*100)+'%';
       p.style.background=cols[i%cols.length];
