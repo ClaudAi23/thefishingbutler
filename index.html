@@ -496,7 +496,8 @@
   .spec.efm .kv{align-items:flex-start;}
   .spec.efm .efm-pickrow{display:inline-flex; align-items:center; gap:5px; max-width:100%; cursor:pointer;}
   .spec.efm .v.efm-pick{display:inline-block; max-width:100%; vertical-align:bottom; border-bottom:1.5px solid rgba(224,165,63,.55); padding-bottom:1px;}
-  .spec.efm .v.efm-pick.empty{color:var(--teal-bright); border-bottom-color:rgba(30,116,135,.5);}
+  /* empty field in edit mode = muted "—" placeholder, same as the empty number inputs */
+  .spec.efm .v.efm-pick.empty{color:var(--muted); font-weight:500;}
   .efm-chev{width:15px; height:15px; stroke:var(--muted); stroke-width:2; fill:none; flex:0 0 auto;}
   .dedit-more{width:100%; margin-top:18px;}
   .dgroup-edit{margin:0 0 10px;}
@@ -4870,7 +4871,7 @@ function openDetailObj(c, from, keepEdit){
   if(editing){
     const present=new Set(rows.map(r=>r[0]));
     [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['bait',t('bait'),'bait',true],['water',t('dWater'),'location',true]]
-      .forEach(a=>{ try{ if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '＋ '+t('addField'), a[3], true]); }catch(e){} });
+      .forEach(a=>{ try{ if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
   }
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,boat:1,released:1,date:1};
   const specHTML=rows.map(r=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
