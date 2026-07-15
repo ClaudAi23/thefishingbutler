@@ -414,6 +414,17 @@
   .d-byline .av{width:26px; height:26px; border-radius:50%; overflow:hidden; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:var(--teal-tint); font-family:'Barlow Condensed',sans-serif;}
   .d-byline .av img{width:100%; height:100%; object-fit:cover;}
   .d-byline .nm{font-weight:600; font-size:0.9rem; color:var(--text);}
+  /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
+  .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
+  .wx-card.wide{grid-column:1 / -1;}
+  .wx-card .k{display:flex; align-items:center; gap:5px; font-size:0.5875rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .wx-card .v{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; font-weight:600; font-size:0.9375rem; margin-top:3px; color:var(--text);}
+  .wx-card .tr{font-size:0.7rem; font-weight:600; white-space:nowrap;}
+  .wx-card .tr.up{color:var(--teal-bright);}
+  .wx-card .tr.down{color:var(--accent);}
+  .wx-card .tr.flat{color:var(--muted);}
   .detail-title{font-size:2rem; font-weight:700; margin:0; line-height:1;}
   .detail-sub{color:var(--muted); margin:6px 0 0; font-size:0.9375rem; font-weight:500;}
   .detail-band{position:relative; padding:20px 16px 14px;}
@@ -3481,10 +3492,12 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const box=document.getElementById(boxId); const wrap=wrapId?document.getElementById(wrapId):box; const showEl=wrap||box;
   const _sep=curLang()==='en'?'.':',';
   const _num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',_sep);
-  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="dspecs"><div class="spec wide">${wxIcon('cloud')}<span class="kv"><span class="k">${t('wCond')}</span><span class="v">${esc(weather.text)}</span></span></div>${watertemp!=null?`<div class="spec">${wxIcon('droplet')}<span class="kv"><span class="k">${t('wWaterTemp')}</span><span class="v">${_num(watertemp,1)} °C</span></span></div>`:''}</div>`; return; }
+  // Weather card: icon + label on top, value below, optional coloured trend chip.
+  const card=(icon,label,value,wide,tr)=>`<div class="wx-card${wide?' wide':''}"><span class="k">${wxIcon(icon)}${esc(label)}</span><span class="v">${value}${tr?`<span class="tr ${tr.dir}">${esc(tr.txt)}</span>`:''}</span></div>`;
+  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('cloud',t('wCond'),esc(weather.text),true)}${watertemp!=null?card('droplet',t('wWaterTemp'),_num(watertemp,1)+' °C',false):''}</div>`; return; }
   if(!weather || !weather.cur){
     // No API weather, but a logged water temperature should still appear in this section.
-    if(watertemp!=null){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="dspecs"><div class="spec">${wxIcon('droplet')}<span class="kv"><span class="k">${t('wWaterTemp')}</span><span class="v">${_num(watertemp,1)} °C</span></span></div></div>`; }
+    if(watertemp!=null){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('droplet',t('wWaterTemp'),_num(watertemp,1)+' °C',false)}</div>`; }
     else if(showEl) showEl.style.display='none';
     return;
   }
@@ -3499,27 +3512,25 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const days=daily.length;
   // inline trend chip = net change over the available window via least-squares (robust to single-day spikes)
   const chip=(net,thr,dec,unit)=>{
-    if(net==null) return '';
+    if(net==null) return null;
     const up=net>thr, down=net<-thr;
     const ar=up?'↑':(down?'↓':'→');
     const sign=net>0?'+':(net<0?'−':'±');
-    return `${ar} ${sign}${num(Math.abs(net),dec)} ${unit}`;
+    return {txt:`${ar} ${sign}${num(Math.abs(net),dec)} ${unit}`, dir: up?'up':(down?'down':'flat')};
   };
-  const tChip = days>=2 ? chip(trendNet(temps),0.5,1,'°C') : '';
-  const wChip = days>=2 ? chip(trendNet(winds),3,0,'km/h') : '';
-  const pChip = days>=2 ? chip(trendNet(pres),1.5,0,'hPa') : '';
-  // Spec-sheet cells (matching the catch section): icon + label + value, trend as a small teal sub-line.
-  const spec=(icon,label,value,wide,tr)=>`<div class="spec${wide?' wide':''}">${wxIcon(icon)}<span class="kv"><span class="k">${label}</span><span class="v">${value}</span>${tr?`<span class="tr">${tr}</span>`:''}</span></div>`;
+  const tChip = days>=2 ? chip(trendNet(temps),0.5,1,'°C') : null;
+  const wChip = days>=2 ? chip(trendNet(winds),3,0,'km/h') : null;
+  const pChip = days>=2 ? chip(trendNet(pres),1.5,0,'hPa') : null;
   const cells=[];
-  if(wxOn('wxCond')) cells.push(spec('cloud',t('wCond'), condKey?t(condKey):'—', true));
-  if(wxOn('wxTemp')) cells.push(spec('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip));
-  if(watertemp!=null) cells.push(spec('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
-  if(wxOn('wxWind')) cells.push(spec('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
-  if(wxOn('wxPress')) cells.push(spec('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
-  if(wxOn('wxMoon')) cells.push(spec('moon',t('moon'), moonEmoji(moonKey)+' '+t(moonKey)+(moonDir?' · '+t(moonDir):''), false));
+  if(wxOn('wxCond')) cells.push(card('cloud',t('wCond'), esc(condKey?t(condKey):'—'), true));
+  if(wxOn('wxTemp')) cells.push(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip));
+  if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
+  if(wxOn('wxWind')) cells.push(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
+  if(wxOn('wxPress')) cells.push(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
+  if(wxOn('wxMoon')) cells.push(card('moon',t('moon'), esc(t(moonKey)+(moonDir?' · '+t(moonDir):'')), false));
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
-  let html='<div class="dspecs">'+cells.join('')+'</div>';
+  let html='<div class="wx-grid">'+cells.join('')+'</div>';
   if(days>=2 && (wxOn('wxTemp')||wxOn('wxWind')||wxOn('wxPress'))) html+=`<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>`;
   html+=`<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div>`;
   box.innerHTML=html;
