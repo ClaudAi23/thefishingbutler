@@ -3477,6 +3477,8 @@ async function enrichWeather(c){
 }
 let previewTimer=null, previewSeq=0;
 function wxOn(key){ const pref=getUserFieldPref(); const admin=ctxAdminCfg(); const a=admin[key]; return pref[key]===true || a==='optional' || a==='required'; }
+// Trolling speed only belongs to the dedicated trolling method (de "Trolling/Schleppangeln", en "Trolling", nl "Trollen").
+function isTrollingMethod(m){ const s=(m||'').toLowerCase(); return s.indexOf('trolling')>=0 || s.indexOf('schlepp')>=0 || s.indexOf('trollen')>=0; }
 function previewWeather(){
   const lat=state.formLat, lon=state.formLon;
   const wrap=document.getElementById('f-weather-wrap');
@@ -3504,12 +3506,24 @@ const WX_IC={
   moon:'<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008"/>'
 };
 function wxIcon(t){ return `<svg viewBox="0 0 24 24">${WX_IC[t]||''}</svg>`; }
+// Phase-accurate mono moon icons (replacing the old emoji): outline disc + the lit part filled.
+const MOON_IC={
+  m_new: '',
+  m_wc:  '<path d="M12 3 A 9 9 0 0 1 12 21 A 5 9 0 0 1 12 3 Z" fill="currentColor" stroke="none"/>',
+  m_fq:  '<path d="M12 3 A 9 9 0 0 1 12 21 Z" fill="currentColor" stroke="none"/>',
+  m_wg:  '<path d="M12 3 A 9 9 0 0 1 12 21 A 5 9 0 0 0 12 3 Z" fill="currentColor" stroke="none"/>',
+  m_full:'<circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/>',
+  m_ng:  '<path d="M12 3 A 9 9 0 0 0 12 21 A 5 9 0 0 1 12 3 Z" fill="currentColor" stroke="none"/>',
+  m_lq:  '<path d="M12 3 A 9 9 0 0 0 12 21 Z" fill="currentColor" stroke="none"/>',
+  m_nc:  '<path d="M12 3 A 9 9 0 0 0 12 21 A 5 9 0 0 0 12 3 Z" fill="currentColor" stroke="none"/>'
+};
+function moonIcon(key){ return `<svg viewBox="0 0 24 24" class="moon-ic"><circle cx="12" cy="12" r="9"/>${MOON_IC[key]||''}</svg>`; }
 function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const box=document.getElementById(boxId); const wrap=wrapId?document.getElementById(wrapId):box; const showEl=wrap||box;
   const _sep=curLang()==='en'?'.':',';
   const _num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',_sep);
   // Weather card: icon + label on top, value below, optional coloured trend chip.
-  const card=(icon,label,value,wide,tr)=>`<div class="wx-card${wide?' wide':''}"><span class="k">${wxIcon(icon)}${esc(label)}</span><span class="v">${value}${tr?`<span class="tr ${tr.dir}">${esc(tr.txt)}</span>`:''}</span></div>`;
+  const card=(icon,label,value,wide,tr)=>`<div class="wx-card${wide?' wide':''}"><span class="k">${(icon&&icon.charAt(0)==='<')?icon:wxIcon(icon)}${esc(label)}</span><span class="v">${value}${tr?`<span class="tr ${tr.dir}">${esc(tr.txt)}</span>`:''}</span></div>`;
   if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('cloud',t('wCond'),esc(weather.text),true)}${watertemp!=null?card('droplet',t('wWaterTemp'),_num(watertemp,1)+' °C',false):''}</div>`; return; }
   if(!weather || !weather.cur){
     // No API weather, but a logged water temperature should still appear in this section.
@@ -3543,7 +3557,12 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
   if(wxOn('wxWind')) cells.push(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
   if(wxOn('wxPress')) cells.push(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
-  if(wxOn('wxMoon')) cells.push(card('moon',t('moon'), esc(t(moonKey)+(moonDir?' · '+t(moonDir):'')), false));
+  if(wxOn('wxMoon')){
+    // phase-accurate icon + an explicit waxing/waning chip (new + full have no direction)
+    const md={m_wc:'up',m_fq:'up',m_wg:'up',m_ng:'down',m_lq:'down',m_nc:'down'}[moonKey];
+    const mTr = md ? {txt:(md==='up'?'↑ ':'↓ ')+t(md==='up'?'moonWax':'moonWane'), dir:md} : null;
+    cells.push(card(moonIcon(moonKey), t('moon'), esc(t(moonKey)), false, mTr));
+  }
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="wx-grid">'+cells.join('')+'</div>';
@@ -3712,8 +3731,10 @@ function fieldHasValue(key){
   return true;
 }
 function ctxAdminCfg(){ return ctxIsDb() ? (state.club.field_config||{}) : {}; }
+let _lastFieldForce={};
 function applyFieldConfig(force){
   force = force || {};   // fields (by key) to force-show — e.g. an edited catch that already has a value there
+  _lastFieldForce = force;   // remembered so a method change can re-evaluate without losing force-shown fields
   const pref=getUserFieldPref();
   const admin=ctxAdminCfg();
   CFG_FIELDS.forEach(f=>{
@@ -3721,7 +3742,9 @@ function applyFieldConfig(force){
     const a=admin[f.key];                        // 'off' | 'optional' (immer anzeigen) | 'required' (Pflicht) | undefined
     const required = a==='required';
     const forceShow = a==='optional' || required; // Admin zeigt es zusätzlich an
-    const show = pref[f.key]===true || forceShow || !!force[f.key];
+    let show = pref[f.key]===true || forceShow || !!force[f.key];
+    // Schleppgeschwindigkeit erscheint nur bei der Trolling-Methode (oder wenn der Fang schon einen Wert hat).
+    if(f.key==='trolling' && show && !force.trolling){ show = isTrollingMethod((document.getElementById('f-method')||{}).value); }
     el.style.display = show ? '' : 'none';
     el.classList.toggle('req-on', required);
   });
@@ -4534,7 +4557,9 @@ const TA_CFG={
     title:()=> t('method'),
     opts:()=>{ const std=METHODS[curLang()]||METHODS.en; const rem=suggestMethods().filter(m=>!std.some(a=>a.toLowerCase()===(m||'').toLowerCase())); return rem.concat(std).map(m=>({v:m})); },
     recent:()=> suggestMethods().map(m=>({v:m})),
-    onPick:(v)=>{ const el=document.getElementById('f-method'); if(el) el.value=v; }
+    onPick:(v)=>{ const el=document.getElementById('f-method'); if(el) el.value=v;
+      // the trolling-speed field hangs off the method → re-evaluate visibility right away
+      try{ applyFieldConfig(_lastFieldForce||{}); syncFormGroups(); }catch(e){} }
   },
   'f-bait':_taSuggestCfg('bait','f-bait'),
   'f-rod':_taSuggestCfg('rod','f-rod'),
@@ -4952,7 +4977,9 @@ function openDetailObj(c, from, keepEdit){
   if(editing){
     const present=new Set(rows.map(r=>r[0]));
     [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['reel',t('reel'),'reel',true],['bait',t('bait'),'bait',true],['water',t('dWater'),'location',true]]
-      .forEach(a=>{ try{ if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
+      .forEach(a=>{ try{
+        if(a[0]==='trolling' && !isTrollingMethod(c.method)) return;   // trolling speed only under the trolling method
+        if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
   }
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,reel:1,boat:1,released:1,date:1};
   const specHTML=rows.map(r=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
