@@ -76,11 +76,9 @@
   /* Splash = the icon's tile colour, so tapping the teal puffer tile blooms into a teal splash (UPDATE-02). */
   #app-loader{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#0D5164; transition:opacity .5s ease, visibility 0s linear .5s;}
   #app-loader.hide{opacity:0; visibility:hidden; pointer-events:none;}
-  #app-loader .splash-inner{position:relative; display:flex; align-items:center; justify-content:center;}
-  #app-loader .glow{position:absolute; width:330px; height:330px; border-radius:50%; background:radial-gradient(circle, rgba(255,238,196,.6), rgba(255,238,196,0) 62%); filter:blur(6px); animation:escaGlow 2.4s ease-in-out infinite;}
-  #app-loader img{position:relative; width:200px; height:200px; object-fit:contain; animation:splashIn .85s cubic-bezier(.2,.8,.2,1) both;}
-  @keyframes splashIn{0%{opacity:0; transform:scale(.82) translateY(10px);} 55%{opacity:1;} 78%{transform:scale(1.03) translateY(-2px);} 100%{opacity:1; transform:scale(1) translateY(0);}}
-  @keyframes escaGlow{0%,100%{transform:scale(1); opacity:.55;} 50%{transform:scale(1.14); opacity:1;}}
+  /* The splash hosts the hero lockup, which brings its own glow + choreography.
+     The old "#app-loader img{width:200px}" rule was an ID selector and beat the lockup's
+     class rules — it blew the puffer dot up to 200px. Sizing belongs to the lockup only. */
   @media (prefers-reduced-motion: reduce){ #app-loader img{animation:none;} #app-loader .glow{animation:none; opacity:.7;} }
   @keyframes loaderPulse{0%,100%{transform:scale(1); opacity:.8;} 50%{transform:scale(1.06); opacity:1;}}
   .screen{display:none; flex:1; flex-direction:column; min-height:0;}
