@@ -513,8 +513,9 @@
   .spec.efm .kv{align-items:flex-start;}
   .spec.efm .efm-pickrow{display:inline-flex; align-items:center; gap:5px; max-width:100%; cursor:pointer;}
   .spec.efm .v.efm-pick{display:inline-block; max-width:100%; vertical-align:bottom; border-bottom:1.5px solid rgba(224,165,63,.55); padding-bottom:1px;}
-  /* empty field in edit mode = muted "—" placeholder, same as the empty number inputs */
-  .spec.efm .v.efm-pick.empty{color:var(--muted); font-weight:500;}
+  /* empty field in edit mode = muted "—" placeholder, same as the empty number inputs.
+     NOTE: must not be called ".empty" — that's the global empty-state class (padding:42px) and it blew the row height up. */
+  .spec.efm .v.efm-pick.efm-empty{color:var(--muted); font-weight:500;}
   .efm-chev{width:15px; height:15px; stroke:var(--muted); stroke-width:2; fill:none; flex:0 0 auto;}
   .dedit-more{width:100%; margin-top:18px;}
   .dgroup-edit{margin:0 0 10px;}
@@ -4992,7 +4993,7 @@ function openDetailObj(c, from, keepEdit){
       return `<div class="spec efm${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-field"><input class="efm-in" inputmode="${cfg.mode==='text'?'text':cfg.mode}" data-key="${key}" value="${escAttr(val)}" placeholder="—" oninput="sizeEfm(this)" onblur="commitEfmInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();efmNext(this);}">${cfg.unit?'<span class="efm-unit">'+esc(cfg.unit)+'</span>':''}</span></span></div>`;
     }
     if(editing && canEdit){ // choice / water / angler → tap opens sheet/picker
-      return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-pickrow"><span class="v efm-pick${empty?' empty':''}">${esc(''+r[2])}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
+      return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-pickrow"><span class="v efm-pick${empty?' efm-empty':''}">${esc(''+r[2])}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
     }
     return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
   let pbBanner='';   // personal PB now shown as an ochre crown next to the species (see d-crown), no banner
