@@ -3379,6 +3379,7 @@ async function saveDetailLatLon(c,lat,lon){
   [state.catches, state.myAllCatches].forEach(a=>{ const it=(a||[]).find(x=>x&&x.id===c.id); if(it){ it.lat=lat; it.lon=lon; } });
   try{ if(c._db){ await getSB().from('catches').update({lat,lon}).eq('id',c.id); } else { const idx=(state.catches||[]).findIndex(x=>x&&x.id===c.id); if(idx>=0){ state.catches[idx].lat=lat; state.catches[idx].lon=lon; } saveCatches(); } }catch(e){}
   try{ haptic(6); }catch(e){}
+  refreshWeatherFor(c);   // weather belongs to the new spot too
 }
 function detailUseMyLocation(){
   const c=state.current; if(!c||!navigator.geolocation) return;
@@ -3476,6 +3477,20 @@ async function enrichWeather(c){
   c.weather=w; saveCatches();
   if(state.current && state.current===c) renderWeather(c);
 }
+// Weather is tied to place + time: re-fetch and persist whenever the date or the pin changes.
+// (enrichWeather only fills a gap — it bails out when weather already exists.)
+async function refreshWeatherFor(c){
+  try{
+    if(!c || c.lat==null) return;
+    const w=await fetchWeather(c.lat, c.lon, c.date);
+    if(!w) return;
+    c.weather=w;
+    [state.catches, state.myAllCatches].forEach(a=>{ const it=(a||[]).find(x=>x&&x.id===c.id); if(it) it.weather=w; });
+    if(c._db){ try{ await getSB().from('catches').update({weather:w}).eq('id', c.id); }catch(e){} }
+    else { try{ saveCatches(); }catch(e){} }
+    if(state.current && state.current.id===c.id) renderWeather(c);
+  }catch(e){}
+}
 let previewTimer=null, previewSeq=0;
 function wxOn(key){ const pref=getUserFieldPref(); const admin=ctxAdminCfg(); const a=admin[key]; return pref[key]===true || a==='optional' || a==='required'; }
 // Trolling speed only belongs to the dedicated trolling method (de "Trolling/Schleppangeln", en "Trolling", nl "Trollen").
@@ -3558,12 +3573,8 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
   if(wxOn('wxWind')) cells.push(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
   if(wxOn('wxPress')) cells.push(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
-  if(wxOn('wxMoon')){
-    // phase-accurate icon + an explicit waxing/waning chip (new + full have no direction)
-    const md={m_wc:'up',m_fq:'up',m_wg:'up',m_ng:'down',m_lq:'down',m_nc:'down'}[moonKey];
-    const mTr = md ? {txt:(md==='up'?'↑ ':'↓ ')+t(md==='up'?'moonWax':'moonWane'), dir:md} : null;
-    cells.push(card(moonIcon(moonKey), t('moon'), esc(t(moonKey)), false, mTr));
-  }
+  // Phase-accurate icon + the phase name — no trend chip: the name already carries waxing/waning (JC).
+  if(wxOn('wxMoon')) cells.push(card(moonIcon(moonKey), t('moon'), esc(t(moonKey)), false));
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="wx-grid">'+cells.join('')+'</div>';
@@ -4649,10 +4660,10 @@ function openPbMenu(ev){
   if(ev){ try{ ev.stopPropagation(); }catch(e){} }
   const c=state.current; if(!c||!pbCtlOn(c)) return;
   const mine=isPb(c);
+  if(!mine && speciesHasRecord(c)) return;   // (a): nothing to offer here — the crown lives on the record
   const opts=[];
   if(mine) opts.push({v:t('pbRemove'), key:'__remove'});
-  else if(!speciesHasRecord(c)) opts.push({v:t('pbMark'), key:'__mark'});
-  else opts.push({v:t('pbNotRecord'), key:'__info'});
+  else opts.push({v:t('pbMark'), key:'__mark'});
   openTypeaheadCfg({ title:t('pbRecord'), allowNew:false, curVal:()=>'', recent:()=>[], opts:()=>opts,
     onPick:async(v,key)=>{
       if(key==='__remove') return pbSetFlag(c, {pb_optout:true, pb_manual:false});
@@ -4768,7 +4779,10 @@ function sizeEfm(inp){
   inp.style.width = Math.ceil(w + 2) + 'px';   // exact glyph width + 2px for the caret
 }
 function _resizeAllEfm(){ document.querySelectorAll('#d-rows .efm-in:not(.efm-date)').forEach(sizeEfm); }
-function commitEfmDate(inp){ const c=state.current; if(!c||!inp.value) return; let iso; try{ iso=new Date(inp.value).toISOString(); }catch(e){ return; } saveDetailField(c,'caught_at','date',iso,{}); }
+async function commitEfmDate(inp){ const c=state.current; if(!c||!inp.value) return; let iso; try{ iso=new Date(inp.value).toISOString(); }catch(e){ return; }
+  await saveDetailField(c,'caught_at','date',iso,{});
+  refreshWeatherFor(c);   // weather belongs to the new date
+}
 function editWaterField(c){
   openTypeaheadCfg({ title:t('dWater'), allowNew:true, curVal:()=>c.location||'',
     opts:()=> ((c.location||'').trim() ? [{v:t('clearField'), key:'__clear'}] : []).concat(_ortSuggest().map(v=>({v:v}))),
@@ -4875,10 +4889,12 @@ function openDetailObj(c, from, keepEdit){
     ? `<span class="d-hero-crown withtx" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}<span>PB</span></span>`
     : `<span class="d-hero-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>`) : '';
   // Band crown (edit mode / no-photo): in edit mode it's the entry point for the manual PB control.
+  // Option (a): the ghost crown only appears when marking is actually possible (no record for this species yet).
+  // If another catch holds the record there is nothing to do here → no crown, no dead-end menu.
   const _pbTap = _detailEdit && pbCtlOn(c);
   const _bandCrown = isPb(c)
     ? `<span class="d-crown${_pbTap?' tap':''}"${_pbTap?' onclick="openPbMenu(event)" role="button" tabindex="0"':''} title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>`
-    : (_pbTap ? `<span class="d-crown ghost tap" onclick="openPbMenu(event)" role="button" tabindex="0" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '');
+    : ((_pbTap && !speciesHasRecord(c)) ? `<span class="d-crown ghost tap" onclick="openPbMenu(event)" role="button" tabindex="0" title="${esc(t('pbMark'))}" aria-label="${esc(t('pbMark'))}">${CROWN_IC}</span>` : '');
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   if(_detailEdit){
     // EDIT MODE (unchanged): editable photo grid, plain band with species, no byline
