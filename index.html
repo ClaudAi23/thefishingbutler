@@ -403,6 +403,9 @@
   .d-hero-chip{background:rgba(255,255,255,.16); border-radius:7px; padding:3px 9px; font-weight:600; font-size:0.8rem;}
   .d-hero-crown{position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;}
   .d-hero-crown svg{width:17px; height:17px;}
+  /* Verein/Gruppe (DB) catches: crown + "PB" label, so a shared list says whose record it is */
+  .d-hero-crown.withtx{width:auto; height:28px; border-radius:999px; padding:0 10px 0 7px; gap:5px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.85rem; letter-spacing:.04em;}
+  .d-hero-crown.withtx svg{width:15px; height:15px;}
   /* No-photo hero band */
   .d-hero-band .dt{display:flex; align-items:center; gap:10px;}
   .d-hero-band .d-hero-chips .d-hero-chip{background:var(--surface); border:1px solid var(--border); color:var(--text);}
@@ -4153,15 +4156,15 @@ function saveCatch(){
   const w=document.getElementById('f-weight').value, l=document.getElementById('f-length').value;
   const obj={
     id: state.editId || Date.now(), species,
-    weight: w!==''? parseFloat(w.replace(',','.')) : null,
+    weight: w!==''? dec2(parseFloat(w.replace(',','.'))) : null,
     length: l!==''? parseInt(l,10) : null,
     location:document.getElementById('f-location').value.trim(),
     method:document.getElementById('f-method').value.trim(),
     bait:document.getElementById('f-bait').value.trim(),
     rod:document.getElementById('f-rod').value.trim(),
     boat:document.getElementById('f-boat').value.trim(),
-    watertemp: document.getElementById('f-watertemp').value.trim()!=='' ? parseFloat(document.getElementById('f-watertemp').value.replace(',','.')) : null,
-    trolling: document.getElementById('f-trolling').value.trim()!=='' ? parseFloat(document.getElementById('f-trolling').value.replace(',','.')) : null,
+    watertemp: document.getElementById('f-watertemp').value.trim()!=='' ? dec2(parseFloat(document.getElementById('f-watertemp').value.replace(',','.'))) : null,
+    trolling: document.getElementById('f-trolling').value.trim()!=='' ? dec2(parseFloat(document.getElementById('f-trolling').value.replace(',','.'))) : null,
     released: (()=>{ const v=document.getElementById('f-released').value; return v==='released'?true:(v==='kept'?false:null); })(),
     angler: anglerDisplay, forUser: forUser, date:new Date(date).toISOString(),
     notes:document.getElementById('f-notes').value.trim(),
@@ -4573,6 +4576,8 @@ function _detailScroll(){
   const show = ref.getBoundingClientRect().bottom <= sc.getBoundingClientRect().top + 4;
   h.style.opacity = show ? '1' : '0';
 }
+// Decimals are capped at two places everywhere a decimal field is accepted (weight, water temp, trolling speed).
+function dec2(n){ return (n==null||isNaN(n)) ? null : Math.round(n*100)/100; }
 function _sizeChips(c){ const out=[]; if(c.length!=null) out.push(fmtLen(c.length)); if(c.weight!=null) out.push(fmtWeight(c.weight)); return out; }
 function _anglerByline(c){ const nm=(c.angler||'').trim()||'—'; const isMe = !c._db || (state.me && c.userId===state.me.id); const av = isMe ? userAvatarHTML() : initialsAvatar(nm); return `<span class="av">${av}</span><span class="nm">${esc(nm)}</span>`; }
 const D_SPEC_IC={
@@ -4594,8 +4599,8 @@ function dSpecIcon(tok){ const p=D_SPEC_IC[tok]||D_SPEC_IC.method; return `<svg 
 // ===== Inline "view = edit": tap a text/number spec row → edit in place, blur commits =====
 const INLINE_EF={
   length:{field:'length', col:'length_cm', mode:'numeric', unit:'cm', parse:v=>{ const n=parseInt((''+v).replace(/[^0-9\-]/g,''),10); return isNaN(n)?null:n; }, fmt:v=>fmtLen(v), pb:true},
-  weight:{field:'weight', col:'weight_kg', mode:'decimal', unit:'kg', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>fmtWeight(v), pb:true},
-  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; }, fmt:v=>String(v).replace('.',',')+' km/h'}
+  weight:{field:'weight', col:'weight_kg', mode:'decimal', unit:'kg', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>fmtWeight(v), pb:true},
+  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>String(v).replace('.',',')+' km/h'}
 };
 function startInlineEdit(rowEl, key){
   const cfg=INLINE_EF[key], c=state.current; if(!cfg||!c) return;
@@ -4766,7 +4771,9 @@ function openDetailObj(c, from, keepEdit){
   const ps=photosOf(c);
   state.detailPhotos=ps; state.detailIdx=0;
   const _chips=_sizeChips(c).map(v=>`<span class="d-hero-chip">${esc(v)}</span>`).join('');
-  const _heroCrown = isPb(c) ? `<span class="d-hero-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
+  const _heroCrown = isPb(c) ? (c._db
+    ? `<span class="d-hero-crown withtx" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}<span>PB</span></span>`
+    : `<span class="d-hero-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>`) : '';
   const _bandCrown = isPb(c) ? `<span class="d-crown" title="${esc(t('pbRecord'))}" aria-label="${esc(t('pbRecord'))}">${CROWN_IC}</span>` : '';
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   if(_detailEdit){
