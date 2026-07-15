@@ -72,15 +72,13 @@
     body{align-items:center; padding:24px 0; overflow:auto;}
     #app{position:relative; top:auto; right:auto; bottom:auto; left:auto; min-height:auto; height:840px; border-radius:32px; border:1px solid var(--border-2);}
   }
-  /* Ochre launch splash → cross-fades into the app shell (icon→app continuity). */
-  /* Splash = the icon's tile colour, so tapping the teal puffer tile blooms into a teal splash (UPDATE-02). */
+  /* Launch splash = the icon's tile colour, so tapping the teal puffer tile blooms into a
+     teal splash, then cross-fades into the app shell (icon→app continuity, UPDATE-02).
+     It only positions the hero lockup — the lockup owns its own sizing, glow, choreography
+     and reduced-motion rule. (A former "#app-loader img{width:200px}" here was an ID
+     selector and beat the lockup's class rules, blowing the puffer dot up to 200px.) */
   #app-loader{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#0D5164; transition:opacity .5s ease, visibility 0s linear .5s;}
   #app-loader.hide{opacity:0; visibility:hidden; pointer-events:none;}
-  /* The splash hosts the hero lockup, which brings its own glow + choreography.
-     The old "#app-loader img{width:200px}" rule was an ID selector and beat the lockup's
-     class rules — it blew the puffer dot up to 200px. Sizing belongs to the lockup only. */
-  @media (prefers-reduced-motion: reduce){ #app-loader img{animation:none;} #app-loader .glow{animation:none; opacity:.7;} }
-  @keyframes loaderPulse{0%,100%{transform:scale(1); opacity:.8;} 50%{transform:scale(1.06); opacity:1;}}
   .screen{display:none; flex:1; flex-direction:column; min-height:0;}
   .screen.active{display:flex; animation:scrIn .24s cubic-bezier(.22,.61,.36,1);}
   .screen.active.is-back{animation:scrBack .24s cubic-bezier(.22,.61,.36,1);}
