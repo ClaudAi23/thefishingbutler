@@ -405,6 +405,16 @@
   /* Map credit: same size, same colour, same right edge as the weather source — the two sit on one axis. */
   .mfoot .msrc{margin-left:auto;}
   .msrc{padding:0 4px; text-align:right; font-size:0.625rem; line-height:1.5;}
+  /* TEMPORARY crop test log — remove with dlog(). */
+  .dbg-panel{position:fixed; left:0; right:0; bottom:0; z-index:99999; background:rgba(2,27,40,.97);
+    border-top:1px solid var(--teal); max-height:42vh; display:flex; flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom);}
+  .dbg-bar{display:flex; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--border);}
+  .dbg-bar b{flex:1; font-size:.75rem; color:var(--teal-bright);}
+  .dbg-bar button{font-family:inherit; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:7px;
+    border:1px solid var(--border-2); background:var(--surface); color:var(--text);}
+  .dbg-panel pre{margin:0; padding:8px 10px; overflow:auto; font-size:9px; line-height:1.45;
+    color:var(--text); white-space:pre-wrap; word-break:break-all;}
   .msrc a{color:var(--muted); font-size:0.625rem; text-decoration:none;}
   .msrc a:hover{text-decoration:underline;}
   .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
@@ -1482,6 +1492,10 @@
         <div class="accbody">
           <button type="button" id="del-ctx-btn" class="btn secondary sm" style="width:100%; color:var(--danger); border-color:var(--danger); font-weight:600; display:none;" onclick="deleteContext()">Verein/Gruppe löschen</button>
           <p class="hint" id="del-ctx-hint" style="display:none; margin-top:8px;" data-i18n="deleteContextHint">Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.</p>
+          <!-- TEMPORARY (16 Jul): crop test log. An installed PWA always launches at "/" with no query
+               string, so ?debug=1 can never reach it — the switch has to live inside the app. Remove
+               this block, dlog() and the .dbg-* CSS once the round trip is confirmed on the device. -->
+          <button type="button" class="btn secondary sm" style="width:100%; margin-top:10px;" onclick="dbgToggle()">Test-Log an/aus</button>
         </div>
       </div>
       </div><!-- /tab-area -->
@@ -2928,6 +2942,7 @@ async function rowsToCatches(rows, nameById){
     arr.forEach(p=>{ const u=signedMap[p.path]; if(!u) return; urls.push(u); thumbs.push((p.thumb_path&&signedMap[p.thumb_path])||u);
       crops.push({p:p.crop_pos||null, z:p.crop_zoom||null}); paths.push(p.path); });
     const cc=dbRowToCatch(r, urls, thumbs, crops, paths);
+    if(_dbgOn && crops.some(x=>x.p||x.z)) dlog('GELADEN '+String(r.species), {fotos:urls.length, crops});
     if(nameById){
       if(nameById[r.owner_id]) cc.angler=nameById[r.owner_id];
       if(r.logged_by && nameById[r.logged_by]) cc.loggedByName=nameById[r.logged_by];
@@ -3063,8 +3078,12 @@ async function saveSoloPhotos(catchId, photos){
   (existing||[]).forEach(r=>{ if(!kept.has(r.path)){ toRemove.push(r.path); if(r.thumb_path) toRemove.push(r.thumb_path); } });
   if(toRemove.length){ try{ await c.storage.from('catch-photos').remove(toRemove); }catch(e){} }
   // rewrite rows to reflect new order + cover
+  dlog('FOTO-EDIT: Zeilen werden geloescht und neu angelegt', {
+    vorher:(existing||[]).length, nachher:finalRows.length,
+    zuschnitteGerettet: finalRows.filter(r=>r.crop_pos||r.crop_zoom).length });
   await c.from('catch_photos').delete().eq('catch_id', catchId);
-  if(finalRows.length) await c.from('catch_photos').insert(finalRows);
+  if(finalRows.length){ const { error } = await c.from('catch_photos').insert(finalRows);
+    if(error) dlog('!! Neuanlegen fehlgeschlagen', error.message||error); else dlog('FOTO-EDIT ok'); }
 }
 async function saveCatchDb(obj, editId, contextId){
   const c=getSB(); const row=catchToDbRow(obj, contextId);
@@ -4672,6 +4691,31 @@ let _lb={photos:[],idx:0,scale:1,tx:0,ty:0};
    Interpolating the stored text raw therefore let one member's string break out of the attribute on
    everyone else's screen. Never pass the stored value through: parse it to numbers and rebuild it.
    Same for the zoom — a hostile or broken value must not reach transform:scale(). */
+/* ---- TEMPORARY crop test log (16 Jul) — remove with the button in Settings once verified. ---------
+   Lives on screen because iOS has no console to hand. Kept out of the way: it only renders when it is
+   switched on, and it never throws into the calling code. */
+let _dbgOn=false, _dbgLines=[];
+function dbgToggle(){ _dbgOn=!_dbgOn; try{ localStorage.setItem('bf_dbg', _dbgOn?'1':''); }catch(e){}
+  if(!_dbgOn){ const p=document.getElementById('dbg-panel'); if(p) p.remove(); _dbgLines=[]; }
+  else { dlog('Log an — Version ' + (document.querySelector('meta[name="build"]')||{content:'?'}).content); }
+  try{ toast(_dbgOn?'Test-Log an':'Test-Log aus'); }catch(e){}
+}
+function dlog(msg, obj){
+  if(!_dbgOn) return;
+  try{
+    const t=new Date().toLocaleTimeString();
+    _dbgLines.push(t+'  '+msg+(obj!==undefined?('  '+JSON.stringify(obj)):''));
+    if(_dbgLines.length>60) _dbgLines.shift();
+    let p=document.getElementById('dbg-panel');
+    if(!p){ p=document.createElement('div'); p.id='dbg-panel'; p.className='dbg-panel';
+      p.innerHTML='<div class="dbg-bar"><b>Test-Log</b><button type="button" onclick="dbgCopy()">Kopieren</button><button type="button" onclick="dbgToggle()">Zu</button></div><pre id="dbg-out"></pre>';
+      document.body.appendChild(p); }
+    const o=document.getElementById('dbg-out'); o.textContent=_dbgLines.join('\n'); o.scrollTop=o.scrollHeight;
+  }catch(e){}
+}
+function dbgCopy(){ const s=_dbgLines.join('\n');
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(s); else { const a=document.createElement('textarea'); a.value=s; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } toast('Log kopiert'); }catch(e){} }
+try{ if(localStorage.getItem('bf_dbg')==='1'){ _dbgOn=true; } }catch(e){}
 const COVER_ZMIN=1, COVER_ZMAX=4;
 function coverPosOf(v){
   const m=/^\s*(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%\s*$/.exec(String(v==null?'':v));
@@ -4709,9 +4753,15 @@ function saveCoverPos(c, pos, zoom, idx){
     // Branch on _db, not on "did we find a path": a DB catch with a missing path must NOT fall through
     // to saveCatches(), which writes the local list and would look like it saved while it did not.
     const path=(c.photoPaths||[])[idx];
-    if(getSB() && path) getSB().from('catch_photos').update({crop_pos:pos, crop_zoom:zoom}).eq('catch_id', c.id).eq('path', path).then(()=>{}, ()=>{});
+    dlog('SPEICHERN Bild '+idx, {pos, zoom, path:path?('…'+String(path).slice(-24)):null});
+    if(!path){ dlog('!! kein path fuer dieses Bild — nichts gespeichert'); }
+    else if(getSB()){
+      getSB().from('catch_photos').update({crop_pos:pos, crop_zoom:zoom}).eq('catch_id', c.id).eq('path', path)
+        .then(r=>{ if(r && r.error) dlog('!! DB-Fehler', r.error.message||r.error); else dlog('DB ok'); },
+              e=>{ dlog('!! DB abgelehnt', (e&&e.message)||String(e)); });
+    }
   }
-  else { try{ saveCatches(); }catch(e){} }   // local catches keep their crops in the object
+  else { try{ saveCatches(); dlog('lokal gespeichert Bild '+idx, {pos, zoom}); }catch(e){} }
   /* No toast (JC): the picture visibly moved under the thumb and haptic() already fired — a message
      700px below the hero confirming what you just did with your own hand explains your own wrist.
      It also fired on EVERY drag-end, so three nudges meant three toasts. Other saves keep theirs,
