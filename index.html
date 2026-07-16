@@ -34,6 +34,11 @@
     --navy:#021B28;
     --spark:#51A6A0;
     --accent:#F2AA25; --accent-strong:#F2AA25; --on-accent:#021B28; --highlight:#51A6A0;
+    /* Buttons: fill and its text are a PAIR, because the fill token flips per theme and the text
+       must flip with it. #0D5164 carries cream at 7.7:1; the dark theme's #51A6A0 does NOT (2.5:1)
+       — a light fill takes ink, exactly like gold does. Keeping these two apart is how you ship a
+       button nobody can read in one of the themes. */
+    --btn-fill:#0D5164; --btn-fill-hover:#12617a; --btn-fill-active:#03354B; --on-btn:#F4EFE2;
     --sand:#F4EFE2; --surface:#FFFFFF; --surface-2:#EDE7D6;
     --text:#021B28; --muted:#5f6a68; --border:#ddd6c4; --border-2:#cfc7b2;
     --danger:#B23A3A; --shadow:0 10px 34px rgba(2,27,40,.10);
@@ -45,6 +50,9 @@
     --teal:#51A6A0; --teal-dark:#0D5164; --teal-tint:#0e2a30; --teal-bright:#63c0b8;
     --spark:#63c0b8;
     --accent:#F2AA25; --accent-strong:#F2AA25; --on-accent:#021B28; --highlight:#51A6A0;
+    /* Dark keeps the primary aqua-ish (BRIEFING §2) — which is exactly why the button text flips
+       to ink here. Measured: cream on #51A6A0 = 2.50:1 (fails), ink = 6.14:1 (passes). */
+    --btn-fill:#51A6A0; --btn-fill-hover:#63c0b8; --btn-fill-active:#43918b; --on-btn:#021B28;
     /* page = Ink, cards = Ocean, raised = Deep (one hue, three depths — per BRIEFING §2) */
     --sand:#021B28; --surface:#03354B; --surface-2:#0D5164;
     --text:#F4EFE2; --muted:#93a3a5; --border:#123643; --border-2:#1b4453;
@@ -111,8 +119,8 @@
   @media (prefers-reduced-motion: reduce){ .screen.active, .screen.active.is-back, .skel, .modal-box{animation:none!important;} }
   .scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(8px + env(safe-area-inset-bottom));}
   .form-actions{flex:0 0 auto; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--border); box-shadow:0 -8px 22px rgba(0,0,0,.28);}
-  .form-actions .btn{margin:0; transition:filter .18s, opacity .18s, box-shadow .18s;}
-  .btn.not-ready{filter:saturate(.3) brightness(.92); opacity:.55; box-shadow:none;}
+  .form-actions .btn{margin:0; transition:filter .18s, opacity .18s, background .16s;}
+  .btn.not-ready{filter:saturate(.3) brightness(.92); opacity:.55;}
   .del-link{background:none; border:0; color:var(--danger); font-size:0.875rem; font-weight:600; padding:10px 16px; cursor:pointer; opacity:.85; display:inline-flex; align-items:center; gap:7px; border-radius:8px;}
   .del-link:hover{opacity:1;} .del-link:active{opacity:.7;} .del-link svg{width:15px; height:15px;}
 
@@ -131,24 +139,30 @@
   .iconbtn:active{background:var(--surface-2);}
 
   .pad{padding:20px 16px;}
+  /* UPDATE-02 FIX 3: flat brand fill — no gradient, no glow, no inset gloss, "at most a subtle
+     hover". The 22px teal glow made every button look like it was lit from behind; three
+     decorations stacked on one control is what read as overdone. */
   .btn{
-    width:100%; border:none; background:linear-gradient(180deg,var(--teal),var(--teal-dark)); color:#fff;
+    width:100%; border:none; background:var(--btn-fill); color:var(--on-btn);
     font-family:'Barlow Condensed',sans-serif; font-size:1.1875rem; font-weight:600;
     text-transform:uppercase; letter-spacing:.04em; padding:15px;
-    border-radius:13px; cursor:pointer;
-    box-shadow:0 10px 22px rgba(46,122,142,.40), inset 0 1px 0 rgba(255,255,255,.22);
+    border-radius:13px; cursor:pointer; transition:background .16s ease;
   }
-  .btn:active{background:var(--teal-dark); box-shadow:0 4px 12px rgba(46,122,142,.30);}
+  .btn:hover{background:var(--btn-fill-hover);}
+  .btn:active{background:var(--btn-fill-active);}
   .btn.secondary{background:transparent; color:var(--teal); border:1.5px solid var(--border-2); box-shadow:none;}
   .btn.sm{padding:10px; font-size:1rem;}
   label{display:block; font-size:0.75rem; font-weight:600; color:var(--muted); margin:0 0 6px;
     text-transform:uppercase; letter-spacing:.05em;}
   .req{color:var(--teal); font-weight:600;}
+  /* Same treatment. The FAB floats over content, so it keeps a shadow — but a NEUTRAL one that
+     reads as elevation, not the teal halo that read as glow. */
   .fab{position:fixed; right:max(18px, calc(50% - 192px)); bottom:calc(18px + env(safe-area-inset-bottom)); z-index:50;
-    width:60px; height:60px; border-radius:50%; border:none; background:linear-gradient(180deg,var(--teal),var(--teal-dark)); color:#fff;
-    box-shadow:0 12px 28px rgba(46,122,142,.5), inset 0 1px 0 rgba(255,255,255,.25); cursor:pointer;
+    width:60px; height:60px; border-radius:50%; border:none; background:var(--btn-fill); color:var(--on-btn);
+    box-shadow:0 6px 16px rgba(2,27,40,.30); cursor:pointer; transition:background .16s ease;
     display:flex; align-items:center; justify-content:center;}
-  .fab:active{background:var(--teal-dark); box-shadow:0 5px 14px rgba(46,122,142,.4);}
+  .fab:hover{background:var(--btn-fill-hover);}
+  .fab:active{background:var(--btn-fill-active); box-shadow:0 3px 9px rgba(2,27,40,.26);}
   .fab .ic{width:28px; height:28px; stroke-width:2.4;}
   .fab.extended{width:auto; height:56px; border-radius:28px; padding:0 20px 0 15px; gap:8px; justify-content:flex-start; max-width:min(66vw,230px);}
   .fab-label{display:none; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.9375rem; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -754,10 +768,14 @@
     100.0%{transform:translateX(calc(var(--lk-shift,0px) + 0.0000em)) translateY(0.0000em) rotate(0.000deg);}
   }
 @media(prefers-reduced-motion:reduce){ .lockup.anim .lockup-word, .lockup.anim .lockup-fish, .lockup.anim .lockup-fish > img, .lockup.anim .lk-esca, .lockup.anim .lk-sh i, .lockup.anim .lk-pool, .lockup.anim .lw-dot{animation:none;} }
-  .mascot-free::before{content:""; position:absolute; inset:-8%; z-index:0; pointer-events:none; border-radius:50%; background:radial-gradient(circle at 50% 46%, rgba(92,206,226,.30), rgba(92,206,226,.08) 46%, transparent 66%);}
-  .mascot-free img{position:relative; z-index:1; max-width:99%; max-height:99%; width:auto; height:auto; display:block; filter:drop-shadow(0 0 13px rgba(95,205,225,.5)) drop-shadow(0 8px 18px rgba(0,0,0,.42));}
-  .mascot-free.mf-sm::before{inset:-9%; background:radial-gradient(circle at 50% 46%, rgba(96,210,230,.34), rgba(96,210,230,.11) 45%, transparent 67%);}
-  .mascot-free.mf-sm img{max-width:100%; max-height:100%; filter:drop-shadow(0 0 9px rgba(100,214,234,.7)) drop-shadow(0 2px 6px rgba(0,0,0,.45));}
+  /* UPDATE-02 FIX 4: the lure light pooling around the mascot — puffer orange #EB9E18 = rgb(235,158,24).
+     This was cyan (92,206,226) from before the rebrand: the anglerfish glowed COLD while its whole
+     story is warm light. Same hue as the pool under the puffer in the lockup, so the mascot is lit
+     by the same lamp everywhere. Soft, not neon — the brief is explicit about that. */
+  .mascot-free::before{content:""; position:absolute; inset:-8%; z-index:0; pointer-events:none; border-radius:50%; background:radial-gradient(circle at 50% 46%, rgba(235,158,24,.30), rgba(235,158,24,.08) 46%, transparent 66%);}
+  .mascot-free img{position:relative; z-index:1; max-width:99%; max-height:99%; width:auto; height:auto; display:block; filter:drop-shadow(0 0 13px rgba(235,158,24,.42)) drop-shadow(0 8px 18px rgba(0,0,0,.42));}
+  .mascot-free.mf-sm::before{inset:-9%; background:radial-gradient(circle at 50% 46%, rgba(235,158,24,.34), rgba(235,158,24,.11) 45%, transparent 67%);}
+  .mascot-free.mf-sm img{max-width:100%; max-height:100%; filter:drop-shadow(0 0 9px rgba(235,158,24,.58)) drop-shadow(0 2px 6px rgba(0,0,0,.45));}
   .mb-empty{width:100%; max-width:340px; height:190px; margin:2px auto 12px;}
   .mb-home{width:150px; height:150px; margin:0 auto;}
   .mb-ob{width:150px; height:150px;}
