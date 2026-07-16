@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Byline — Angler · Datum · Entnahme</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --sand:#021B28; --surface:#03354B; --surface-2:#0D5164; --text:#F4EFE2; --muted:#93a3a5;
+         --border:#123643; --border-2:#1b4453; --teal:#51A6A0; --teal-bright:#63c0b8; --accent:#F2AA25; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:#0f1417; color:var(--text); font-family:'Barlow',system-ui,sans-serif; padding:24px 18px 80px;}
+  h1{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:1.4rem; margin:0 0 4px;}
+  .sub{color:#93a3a5; margin:0 0 16px; max-width:84ch; line-height:1.5; font-size:.88rem;}
+  .sub b{color:var(--accent); font-weight:600;}
+  .sec{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.06em; font-size:1rem; color:#cfe;
+       margin:30px 0 10px; padding-bottom:5px; border-bottom:1px solid #223;}
+  .row{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start;}
+  .cap{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:.8rem; color:#cfe; margin:0 0 4px;}
+  .cap.rec{color:#9fe1cb;} .cap.bad{color:#f0acac;}
+  .note{font-size:.78rem; color:#93a3a5; line-height:1.5; margin:6px 0 0; max-width:36ch;}
+  .m{font-family:ui-monospace,monospace; font-size:.68rem; color:#7f9; margin:4px 0 0;}
+
+  /* Telefon 390px — die Byline ist genau da kritisch, nicht am Desktop */
+  .phone{background:var(--sand); border:1px solid #223; border-radius:16px; width:390px; overflow:hidden;}
+  .hero{background:var(--surface-2); padding:30px 16px 12px;}
+  .hero .dt{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2.2rem; line-height:1;}
+  .chips{display:flex; gap:6px; margin-top:7px;}
+  .chips span{background:rgba(255,255,255,.16); border-radius:7px; padding:3px 9px; font-weight:600; font-size:.85rem;}
+  .pad{padding:0 16px 16px;}
+
+  /* --- Byline: exakt .d-byline aus index.html --- */
+  .by{display:flex; align-items:center; gap:9px; padding:12px 18px; border-bottom:1px solid var(--border);}
+  .by .av{width:26px; height:26px; border-radius:50%; flex:0 0 auto; background:var(--teal); color:#021B28;
+          display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.75rem;}
+  .by .nm{font-weight:600; font-size:0.9rem; color:var(--text);}
+  .by .dt{font-size:0.9rem; color:var(--muted);}
+  .by .sep{color:var(--border-2);}
+
+  /* Badge: klar KEINE Karte — rund, klein, wie die Krone eine Auszeichnung statt eines Feldes */
+  .badge{margin-left:auto; flex:0 0 auto; display:inline-flex; align-items:center; gap:5px;
+    font-size:.72rem; font-weight:600; padding:3px 9px; border-radius:999px; white-space:nowrap;}
+  .badge.rel{background:rgba(81,166,160,.18); color:var(--teal-bright); border:1px solid rgba(81,166,160,.45);}
+  .badge.kept{background:rgba(147,163,165,.14); color:var(--muted); border:1px solid var(--border-2);}
+  .badge svg{width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* B2: zweizeilig */
+  .by.two{display:grid; grid-template-columns:26px 1fr; gap:2px 9px; align-items:center;}
+  .by.two .av{grid-row:1 / span 2;}
+  .by.two .line2{display:flex; align-items:center; gap:6px; min-width:0;}
+  .by.two .badge{margin-left:0;}
+
+  .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+  .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px;}
+  .wx-card.wide{grid-column:1 / -1;}
+  .wx-card .k{font-size:0.5875rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  .wx-card .v{font-weight:600; font-size:0.9375rem; margin-top:3px;}
+  .sectionlabel{font-size:0.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:16px 4px 8px;}
+</style>
+</head>
+<body>
+
+<h1>Byline — Angler · Datum · Entnahme</h1>
+<p class="sub">Entnahme wird ein <b>Badge</b>, keine Karte: rund und klein, wie die Krone eine Auszeichnung statt eines Feldes.
+Damit verschwinden „Fang" und „Bedingungen" als Gruppen, und die einsame Byline bekommt beide fehlenden Teile.
+Alles unten bei <b>390 px</b> — am Desktop passt jede Byline.</p>
+
+<div class="sec">Wie lang darf der Name sein?</div>
+<div class="row">
+  <div>
+    <p class="cap rec">B1 · einzeilig — kurzer Name</p>
+    <div class="phone"><div class="hero"><div class="dt">Hecht</div><div class="chips"><span>78 cm</span><span>4,2 kg</span></div></div>
+      <div class="by" id="b1"><div class="av">J</div><span class="nm">Johannes</span><span class="sep">·</span><span class="dt">16. Juli 2026, 13:38</span>
+        <span class="badge rel"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurückgesetzt</span></div>
+    </div>
+    <p class="m" id="m1"></p>
+  </div>
+
+  <div>
+    <p class="cap bad">B1 · einzeilig — langer Name</p>
+    <div class="phone"><div class="hero"><div class="dt">Hecht</div><div class="chips"><span>78 cm</span><span>4,2 kg</span></div></div>
+      <div class="by" id="b2"><div class="av">J</div><span class="nm">Johannes Claudi</span><span class="sep">·</span><span class="dt">16. Juli 2026, 13:38</span>
+        <span class="badge rel"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurückgesetzt</span></div>
+    </div>
+    <p class="m" id="m2"></p>
+    <p class="note">Hier zeigt sich, ob mein Einwand stimmt.</p>
+  </div>
+
+  <div>
+    <p class="cap rec">B2 · zweizeilig — hält jeden Namen</p>
+    <div class="phone"><div class="hero"><div class="dt">Hecht</div><div class="chips"><span>78 cm</span><span>4,2 kg</span></div></div>
+      <div class="by two" id="b3"><div class="av">J</div>
+        <span class="nm">Johannes Claudi</span>
+        <div class="line2"><span class="dt">16. Juli 2026, 13:38</span>
+          <span class="badge rel"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurückgesetzt</span></div>
+      </div>
+    </div>
+    <p class="m" id="m3"></p>
+    <p class="note">Name oben, Ereignis darunter. Kostet ~18 px Höhe, kann aber nie brechen.</p>
+  </div>
+</div>
+
+<div class="sec">Entnommen statt zurückgesetzt</div>
+<div class="row">
+  <div>
+    <p class="cap">Zurückgesetzt · teal</p>
+    <div class="phone"><div class="by"><div class="av">J</div><span class="nm">Johannes</span><span class="sep">·</span><span class="dt">16. Juli 2026</span>
+      <span class="badge rel"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurückgesetzt</span></div></div>
+    <p class="note">Teal = die Aussage, auf die Angler stolz sind.</p>
+  </div>
+  <div>
+    <p class="cap">Entnommen · neutral</p>
+    <div class="phone"><div class="by"><div class="av">J</div><span class="nm">Johannes</span><span class="sep">·</span><span class="dt">16. Juli 2026</span>
+      <span class="badge kept"><svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Entnommen</span></div></div>
+    <p class="note">Neutral, nicht rot: Entnehmen ist erlaubt und normal — kein Fehlerzustand.</p>
+  </div>
+</div>
+
+<div class="sec">Ganze Seite, ohne „Fang" und „Bedingungen"</div>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="hero"><div class="dt">Hecht</div><div class="chips"><span>78 cm</span><span>4,2 kg</span></div></div>
+      <div class="by two"><div class="av">J</div><span class="nm">Johannes Claudi</span>
+        <div class="line2"><span class="dt">16. Juli 2026, 13:38</span>
+          <span class="badge rel"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>Zurückgesetzt</span></div></div>
+      <div class="pad">
+        <div class="sectionlabel">Methode</div>
+        <div class="wx-grid" style="margin-top:0;">
+          <div class="wx-card"><div class="k">Methode</div><div class="v">Spinnfischen</div></div>
+          <div class="wx-card"><div class="k">Boot</div><div class="v">Ja</div></div>
+        </div>
+        <div class="sectionlabel">Ausrüstung</div>
+        <div class="wx-grid" style="margin-top:0;">
+          <div class="wx-card wide"><div class="k">Köder</div><div class="v">Savage Gear 4Play Herring 19cm</div></div>
+          <div class="wx-card wide"><div class="k">Rute</div><div class="v">Shimano Beastmaster BX 270 MH</div></div>
+          <div class="wx-card wide"><div class="k">Rolle</div><div class="v">Daiwa Ninja LT 3000-C</div></div>
+        </div>
+        <div class="sectionlabel">Wetter</div>
+        <div class="wx-grid" style="margin-top:0;">
+          <div class="wx-card"><div class="k">Luft</div><div class="v">17 °C</div></div>
+          <div class="wx-card"><div class="k">Wasser</div><div class="v">14,5 °C</div></div>
+        </div>
+        <div class="sectionlabel">Ort</div>
+        <div class="wx-grid" style="margin-top:0;">
+          <div class="wx-card wide"><div class="k">Gewässer</div><div class="v">Kleiner Brombachsee</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note" style="max-width:390px;">Vier Gruppen, jede mit einer eigenen Frage: <b>wie · womit · unter welchen Bedingungen · wo</b>.
+      Datum und Entnahme stehen in der Byline, wo das Ereignis erzählt wird. Keine Gruppe mit nur einem Feld mehr.</p>
+  </div>
+</div>
+
+<script>
+/* Ueberlauf messen statt schaetzen: scrollWidth > clientWidth heisst, die Zeile passt nicht. */
+function check(id, out){
+  const el=document.getElementById(id); if(!el) return;
+  const over = el.scrollWidth > el.clientWidth + 1;
+  const badge = el.querySelector('.badge').getBoundingClientRect();
+  const box = el.getBoundingClientRect();
+  const cut = badge.right > box.right - 17;      // 18px padding minus 1 Toleranz
+  document.getElementById(out).textContent =
+    'Zeile ' + el.scrollWidth + 'px / Platz ' + el.clientWidth + 'px · Badge endet ' +
+    (box.right - badge.right).toFixed(0) + 'px vor dem Rand · ' +
+    (over||cut ? 'PASST NICHT' : 'passt');
+  document.getElementById(out).style.color = (over||cut) ? '#f0acac' : '#7f9';
+}
+function run(){ check('b1','m1'); check('b2','m2'); check('b3','m3'); }
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(run); else window.addEventListener('load',run);
+setTimeout(run,500);
+</script>
+</body>
+</html>
