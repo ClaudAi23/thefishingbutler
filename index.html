@@ -336,11 +336,15 @@
     padding:12px; margin-bottom:10px; cursor:pointer; font-family:inherit; color:var(--text);
   }
   .catch:active{border-color:var(--teal);}
+  /* .thumb used to BE the <img>. It is now always the frame, with the picture inside it: an element
+     cannot clip its own transform, so a zoomed image needs a parent with overflow:hidden. The
+     no-photo case keeps using .thumb directly for the fish icon, which is why the flex centring stays. */
   .thumb{
-    width:60px; height:60px; border-radius:8px; flex:0 0 auto; object-fit:cover;
+    width:60px; height:60px; border-radius:8px; flex:0 0 auto; overflow:hidden;
     background:var(--teal-tint); color:var(--teal);
     display:flex; align-items:center; justify-content:center;
   }
+  .thumb > img{width:100%; height:100%; object-fit:cover; display:block;}
   .thumb .fishic{width:30px; height:30px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .catch .top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
   .catch .sp{font-weight:600; font-size:1.0625rem; line-height:1.2;}
@@ -635,7 +639,11 @@
   .rec-card{flex:0 0 auto; width:108px; position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; color:var(--text);}
   .rec-crown{position:absolute; top:8px; right:8px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; z-index:2;}
   .rec-crown svg{width:13px; height:13px; stroke:#fff;}
-  .rec-thumb{width:100%; height:64px; border-radius:9px; background:var(--teal-tint); background-size:cover; margin-bottom:6px; display:block;}
+  /* Was a background-image with background-size:cover. A background cannot be zoomed relative to
+     "cover", so it is an <img> in a clipping frame now — same construction as .thumb and the hero,
+     which also means the photo URL sits in src="" instead of inside a CSS url('…') string. */
+  .rec-thumb{width:100%; height:64px; border-radius:9px; background:var(--teal-tint); margin-bottom:6px; display:block; overflow:hidden;}
+  .rec-thumb > img{width:100%; height:100%; object-fit:cover; display:block;}
   .rec-thumb-ph{display:flex; align-items:center; justify-content:center; color:var(--muted);}
   .rec-thumb-ph svg{width:26px; height:26px;}
   .rec-sp{font-weight:600; font-size:0.9rem;}
@@ -3531,7 +3539,7 @@ function renderList(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${coverPosOf(c.coverPos)}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<span class="thumb">${coverImg(c, _cov, 'loading="lazy" decoding="async"')}</span>` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -3590,7 +3598,7 @@ function renderRecordsShelf(items){
   const cards=uniq.map(c=>{
     const val = metric==='weight' ? (c.weight!=null?fmtWeight(c.weight):'—') : (c.length!=null?fmtLen(c.length):'—');
     const cov=coverThumbOf(c);
-    const thumb = cov ? `<span class="rec-thumb" style="background-image:url('${cov}'); background-position:${coverPosOf(c.coverPos)};"></span>` : `<span class="rec-thumb rec-thumb-ph">${FISH_IC}</span>`;
+    const thumb = cov ? `<span class="rec-thumb">${coverImg(c, cov, 'loading="lazy" decoding="async"')}</span>` : `<span class="rec-thumb rec-thumb-ph">${FISH_IC}</span>`;
     return `<button type="button" class="rec-card" onclick="openStatsRecord('${c.id}')"><span class="rec-crown">${CROWN_IC}</span>${thumb}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`;
   }).join('');
   box.innerHTML=`<div class="rec-head">${CROWN_IC}<span>${esc(t('recordsShelfTitle'))}</span></div><div class="rec-strip">${cards}</div>`;
@@ -3643,7 +3651,7 @@ function renderStats(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${coverPosOf(c.coverPos)}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<span class="thumb">${coverImg(c, _cov, 'loading="lazy" decoding="async"')}</span>` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -4663,6 +4671,13 @@ function coverZoomOf(v){
   if(!isFinite(z)) return 1;
   return Math.round(Math.max(COVER_ZMIN, Math.min(COVER_ZMAX, z))*100)/100;
 }
+/* One place that turns a catch + a photo URL into the cropped image, so the thumbnails cannot drift
+   away from the hero again. The url is escaped too: it used to sit inside src="" and inside a CSS
+   url('…') string unescaped, and it comes from the database like everything else here. */
+function coverImg(c, url, extra){
+  const p=coverPosOf(c&&c.coverPos), z=coverZoomOf(c&&c.coverZoom);
+  return `<img src="${escAttr(url)}" alt="" ${extra||''} style="object-position:${p}; transform-origin:${p}; transform:scale(${z});">`;
+}
 function saveCoverPos(c, pos, zoom){
   pos=coverPosOf(pos); zoom=coverZoomOf(zoom==null?c.coverZoom:zoom);
   c.coverPos=pos; c.coverZoom=zoom;
@@ -5427,10 +5442,9 @@ function openDetailObj(c, from, keepEdit){
     hero.style.display='flex';
     if(ps.length){
       hero.className='hero';
-      /* transform-origin is tied to object-position so zooming pulls TOWARDS the chosen focal point
-         instead of towards the middle — otherwise picking a spot and then zooming would lose it. */
-      { const _cp=coverPosOf(c.coverPos), _cz=coverZoomOf(c.coverZoom);
-        hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${_cp}; transform-origin:${_cp}; transform:scale(${_cz});">`+_facts; }
+      /* Same builder as the thumbnails — transform-origin is tied to object-position so zooming pulls
+         TOWARDS the chosen focal point instead of towards the middle. */
+      hero.innerHTML=coverImg(c, ps[0], 'id="d-hero-img"')+_facts;
       bindHeroRepos(c);
     } else {
       hero.className='hero nopic';
