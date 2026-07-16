@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero-Lockup — Ziel vs. Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --teal-tile:#0D5164; --teal-art:#08323B; --cream:#F4EFE2; --gold:#F2AA25; --puffer-orange:#EB9E18; --ink:#021B28; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:#0f1417; color:var(--cream); font-family:'Barlow',system-ui,sans-serif; padding:28px 20px 80px;}
+  h1{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.04em; font-size:1.6rem; margin:0 0 4px;}
+  .sub{color:#93a3a5; margin:0 0 26px; max-width:70ch; line-height:1.5; font-size:.95rem;}
+  .card{border:1px solid #223; border-radius:14px; overflow:hidden; margin:0 0 22px; background:#12181c;}
+  .card > h2{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:.9rem; margin:0; padding:11px 14px; background:#1a2228; color:#cfe; border-bottom:1px solid #223;}
+  .note{padding:10px 14px; font-size:.85rem; color:#93a3a5; line-height:1.5; border-top:1px solid #223;}
+  .note b{color:var(--gold); font-weight:600;}
+  .stage{background:var(--teal-tile); display:flex; align-items:center; justify-content:center; padding:44px 12px; position:relative;}
+  .stage.art{background:var(--teal-art);}
+  .stage img.ref{max-width:100%; display:block;}
+
+  /* ---------- LOCKUP ---------- */
+  .lockup{display:flex; flex-direction:column; align-items:center; gap:.18em; line-height:1; position:relative;}
+  .lockup-fish{position:relative; width:3.5em; height:3.5em; display:flex; align-items:center; justify-content:center;}
+  .lockup-fish > img{position:relative; z-index:1; width:100%; height:100%; object-fit:contain;}
+  .lockup-glow{position:absolute; left:50%; top:56%; width:4.2em; height:4.2em; border-radius:50%; z-index:0; pointer-events:none;
+    transform:translate(-50%,-50%); background:radial-gradient(circle, rgba(235,158,24,.50), rgba(235,158,24,.12) 45%, rgba(235,158,24,0) 68%); filter:blur(3px);}
+  .lockup-word{display:flex; align-items:center; justify-content:center; font-family:'Barlow',system-ui,sans-serif; font-weight:700; letter-spacing:-.015em; text-transform:lowercase; white-space:nowrap; position:relative; z-index:1;}
+  .lockup-word .lw-butler{color:var(--cream);}
+  .lockup-word .lw-fish{color:var(--gold);}
+  .lockup-word .lw-dot{width:.72em; height:.72em; object-fit:contain; margin:0 .11em; position:relative; top:.06em; flex:0 0 auto;}
+
+  /* ---------- B: Proportion korrigiert ---------- */
+  .v-b .lockup-fish{width:2em; height:2em;}
+  .v-b .lockup-glow{width:2.4em; height:2.4em;}
+  .v-b .lw-dot{width:.52em; height:.52em;}
+
+  /* ---------- C: + Licht (Laterne, Kegel, Pool) ---------- */
+  .v-c .lockup-fish{width:2em; height:2em;}
+  .v-c .lockup-glow{display:none;}                 /* kalter Halo hinter dem Fisch entfaellt */
+  .v-c .lw-dot{width:.52em; height:.52em;}
+  /* Laterne: Punktlicht an der Esca (gemessen: 91,3% x / 22,5% y der mascot.png) */
+  .v-c .lk-esca{position:absolute; left:91.3%; top:22.5%; width:1.1em; height:1.1em; transform:translate(-50%,-50%); z-index:2; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,255,250,.95) 0%, rgba(255,236,180,.55) 26%, rgba(242,170,37,.22) 50%, rgba(242,170,37,0) 72%); filter:blur(1px);}
+  /* Lichtkegel: von der Laterne nach unten zum Puffer */
+  .v-c .lk-cone{position:absolute; left:91.3%; top:22.5%; width:2.6em; height:3.1em; z-index:0; pointer-events:none;
+    transform:translateX(-50%); clip-path:polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+    background:linear-gradient(to bottom, rgba(255,236,180,.30), rgba(255,236,180,.10) 55%, rgba(255,236,180,0) 100%); filter:blur(4px);}
+  /* Lichtpool: unter dem Puffer, warm (#EB9E18) */
+  .v-c .lk-pool{position:absolute; width:3.2em; height:1.5em; border-radius:50%; z-index:0; pointer-events:none;
+    transform:translate(-50%,-50%); filter:blur(5px);
+    background:radial-gradient(ellipse, rgba(235,158,24,.55), rgba(235,158,24,.18) 45%, rgba(235,158,24,0) 72%);}
+
+  /* ---------- D: wie C, aber Fisch so versetzt, dass die Laterne ueber dem Puffer haengt ---------- */
+  .v-d .lockup-fish{width:2em; height:2em;}
+  .v-d .lockup-glow{display:none;}
+  .v-d .lw-dot{width:.52em; height:.52em;}
+  .v-d .lk-esca{position:absolute; left:91.3%; top:22.5%; width:1.1em; height:1.1em; transform:translate(-50%,-50%); z-index:2; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,255,250,.95) 0%, rgba(255,236,180,.55) 26%, rgba(242,170,37,.22) 50%, rgba(242,170,37,0) 72%); filter:blur(1px);}
+  .v-d .lk-cone{position:absolute; left:91.3%; top:22.5%; width:2.6em; height:3.1em; z-index:0; pointer-events:none;
+    transform:translateX(-50%); clip-path:polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+    background:linear-gradient(to bottom, rgba(255,236,180,.30), rgba(255,236,180,.10) 55%, rgba(255,236,180,0) 100%); filter:blur(4px);}
+  .v-d .lk-pool{position:absolute; width:3.2em; height:1.5em; border-radius:50%; z-index:0; pointer-events:none;
+    transform:translate(-50%,-50%); filter:blur(5px);
+    background:radial-gradient(ellipse, rgba(235,158,24,.55), rgba(235,158,24,.18) 45%, rgba(235,158,24,0) 72%);}
+
+  .measure{padding:10px 14px; font-size:.8rem; color:#7f9; font-family:ui-monospace,monospace; border-top:1px solid #223; background:#0d1215;}
+</style>
+</head>
+<body>
+
+<h1>Hero-Lockup — Ziel vs. Live</h1>
+<p class="sub">Alle Zahlen unten sind am Zielbild gemessen (PIL) bzw. live im Browser (Canvas-Metriken), nicht geschätzt.
+Bezugsgröße ist die <b>Glyphenhöhe</b> von „b“ (Oberlänge → Grundlinie), weil sie unabhängig von der Schriftgröße vergleichbar ist.</p>
+
+<div class="card">
+  <h2>0 · Ziel (hero-lockup-puffer.png)</h2>
+  <div class="stage art"><img class="ref" src="_ref-hero-lockup.png" alt="Ziel-Lockup"></div>
+  <div class="note">Gemessen: Fisch/Glyphe <b>2,5–3,1</b> · Puffer/Glyphe <b>0,56</b> · Laterne = reines Weiß (255,255,253) ·
+    Hintergrund unter dem Puffer <b>1,8× heller</b> als in der Ecke (Lichtpool) · Laterne (x=705) steht <b>über dem Puffer</b> (Mitte x=743).
+    Schrift ist DejaVu Bold — <b>Platzhalter</b>, laut Brief absichtlich durch Barlow zu ersetzen.</div>
+</div>
+
+<div class="card">
+  <h2>A · Live (aktuell deployed)</h2>
+  <div class="stage">
+    <div class="lockup" style="font-size:2.6rem;">
+      <div class="lockup-fish"><div class="lockup-glow"></div><img src="https://thefishingbutler.app/mascot.png" alt=""></div>
+      <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="https://thefishingbutler.app/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
+    </div>
+  </div>
+  <div class="note">Fisch/Glyphe <b>4,94</b> statt 2,5–3,1 → der Fisch dominiert, die Wortmarke ist die Nebenrolle. Laterne dunkel, kein Lichtkegel, kein Pool.
+    Der Halo sitzt hinter dem <b>Fisch</b> statt unter dem <b>Puffer</b> — er beleuchtet den Jäger statt der Beute.</div>
+</div>
+
+<div class="card v-b">
+  <h2>B · Nur Proportion korrigiert (Fisch 3,5em → 2em, Puffer .72em → .52em)</h2>
+  <div class="stage">
+    <div class="lockup" style="font-size:2.6rem;">
+      <div class="lockup-fish"><div class="lockup-glow"></div><img src="https://thefishingbutler.app/mascot.png" alt=""></div>
+      <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="https://thefishingbutler.app/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
+    </div>
+  </div>
+  <div class="note">Wortmarke trägt, Fisch begleitet — wie im Ziel. Aber die Geschichte fehlt weiter: die Laterne ist aus.</div>
+</div>
+
+<div class="card v-c">
+  <h2>C · B + Licht: Laterne glüht, Kegel fällt, Pool unter dem Puffer</h2>
+  <div class="stage">
+    <div class="lockup" style="font-size:2.6rem;">
+      <div class="lockup-fish"><div class="lk-cone"></div><div class="lk-esca"></div><img src="https://thefishingbutler.app/mascot.png" alt=""></div>
+      <div class="lockup-word"><span class="lw-pool-anchor"></span><span class="lw-butler">butler</span><img class="lw-dot" src="https://thefishingbutler.app/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
+    </div>
+  </div>
+  <div class="note">Laternenlicht an der gemessenen Esca-Position (91,3 % / 22,5 %), warmer Pool in <b>#EB9E18</b> (Puffer-Orange, laut UPDATE-02 die „Licht“-Farbe) — nicht im Wortmarken-Gold.
+    Fisch bleibt zentriert, das Licht fällt daher <b>neben</b> den Puffer.</div>
+</div>
+
+<div class="card v-d">
+  <h2>D · C + Fisch versetzt, damit die Laterne über dem Puffer hängt (= Ziel-Logik)</h2>
+  <div class="stage">
+    <div class="lockup" style="font-size:2.6rem;">
+      <div class="lockup-fish"><div class="lk-cone"></div><div class="lk-esca"></div><img src="https://thefishingbutler.app/mascot.png" alt=""></div>
+      <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="https://thefishingbutler.app/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
+    </div>
+  </div>
+  <div class="note">Der Fisch ist nicht dekorativ nach links gerückt, sondern <b>weil seine Laterne rechts sitzt</b>: so hängt sie senkrecht über dem Puffer,
+    und Kegel + Pool treffen ihn. Damit liest sich die Kette Laterne → Licht → Puffer = der „·“. Das ist die Aussage des Briefs.</div>
+  <div class="measure" id="m-d">messe …</div>
+</div>
+
+<script>
+// Fisch so verschieben, dass die Esca senkrecht ueber der Puffer-Mitte steht,
+// und den Lichtpool exakt auf dem Puffer verankern. Nach Font-Load, da textabhaengig.
+function place(){
+  document.querySelectorAll('.v-c, .v-d').forEach(card=>{
+    const lk=card.querySelector('.lockup'), fishBox=card.querySelector('.lockup-fish'),
+          dot=card.querySelector('.lw-dot'), word=card.querySelector('.lockup-word');
+    if(!lk||!dot) return;
+    const isD=card.classList.contains('v-d');
+    fishBox.style.transform='';                       // erst zuruecksetzen, dann messen
+    const dotR=dot.getBoundingClientRect(), fishR=fishBox.getBoundingClientRect();
+    const escaX = fishR.left + fishR.width*0.913;     // gemessene Esca-Position
+    const dotCx = dotR.left + dotR.width/2;
+    if(isD){ fishBox.style.transform = `translateX(${(dotCx-escaX).toFixed(1)}px)`; }
+
+    // Lichtpool auf den Puffer setzen
+    let pool=card.querySelector('.lk-pool');
+    if(!pool){ pool=document.createElement('div'); pool.className='lk-pool'; lk.appendChild(pool); }
+    const lkR=lk.getBoundingClientRect();
+    pool.style.left=(dotCx-lkR.left)+'px';
+    pool.style.top =(dotR.top+dotR.height/2-lkR.top)+'px';
+
+    if(isD){
+      const out=document.getElementById('m-d');
+      const f2=fishBox.getBoundingClientRect();
+      out.textContent='Esca x='+Math.round(f2.left+f2.width*0.913)+'px · Puffer-Mitte x='+Math.round(dotCx)
+        +'px · Versatz '+Math.round(dotCx-escaX)+'px  → Laterne steht über dem Puffer ✓';
+    }
+  });
+}
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(place); else window.addEventListener('load',place);
+window.addEventListener('resize',place);
+setTimeout(place,600);
+</script>
+</body>
+</html>
