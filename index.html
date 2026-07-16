@@ -538,6 +538,11 @@
   .v.empty{color:var(--teal-bright); font-weight:500;}
   #d-notes.ef-notes{cursor:pointer;}
   #d-notes.empty{color:var(--teal-bright); font-weight:500;}
+  /* #9 (JC): the note gets the same surface as every other read-only field. Read mode only —
+     in edit mode it already holds a textarea with its own border, and a box around that is the
+     box-in-a-box we keep removing. */
+  #d-notes.dnote-box{background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:9px 11px; line-height:1.45; white-space:pre-wrap;}
   .ef-textarea{width:100%; min-height:80px; font-family:inherit; font-size:0.95rem; color:var(--text); background:var(--surface); border:1.5px solid var(--accent); border-radius:9px; padding:9px 10px; outline:none; box-shadow:0 0 0 3px rgba(224,165,63,.15); resize:vertical;}
   /* "Deine Rekorde" shelf (Stats) */
   .rec-head{display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:0.78rem; color:var(--muted); margin:0 0 10px;}
@@ -563,12 +568,11 @@
   .dspecs{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; grid-auto-flow:dense;}
   /* #9 experiment (?tiles=1): rows bundled into modules by meaning. The last row inside a module
      drops its hairline — otherwise the line and the module's own edge sit on top of each other. */
-  .dmodul{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:2px 12px 8px; margin:0 0 4px;}
-  /* Heading sits ABOVE the module, not inside — the same shape the weather section already uses.
-     .sectionlabel brings its own rhythm; dmh-out only adds the gap between two stacked modules. */
-  .sectionlabel.dmh-out{margin-top:16px;}
+  /* #9: the catch fields use the weather's own card + grid, so there is no second container class
+     here — only the rhythm between the stacked sections. */
+  .sectionlabel.dmh-out{margin-top:18px;}
   .sectionlabel.dmh-out:first-child{margin-top:2px;}
-  .dmodul .dspecs .spec:last-child{border-bottom:none;}
+  .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; margin-right:5px; stroke:var(--muted); fill:none; stroke-width:2;}
   .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
   .spec.wide{grid-column:1 / -1;}
   .spec > svg{width:20px; height:20px; margin-top:2px; flex:0 0 auto; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
@@ -5329,6 +5333,13 @@ function openDetailObj(c, from, keepEdit){
     if(editing && canEdit){ // choice / water / angler → tap opens sheet/picker
       return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-pickrow"><span class="v efm-pick${empty?' efm-empty':''}">${esc(''+r[2])}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
     }
+    // #9 (JC): read-only catch fields ARE weather cards — same class, same structure, same grid.
+    // The wide rule already exists on both sides (long values span full width), so a rod name is
+    // never squeezed into a half tile. Edit mode keeps the open .spec row: a field inside a card
+    // would be the box-in-a-box the old form was killed for.
+    if(_TILES && !editing){
+      return `<div class="wx-card${wide?' wide':''}"><span class="k">${dSpecIcon(key)}${r[1]}</span><span class="v">${esc(''+r[2])}</span></div>`;
+    }
     return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; };
   /* #9 experiment (?tiles=1): the same rows, only bundled by meaning into modules — JC's T3.
      Deliberately a switch, not a rewrite: the rows are untouched, so this can be judged on real
@@ -5346,10 +5357,13 @@ function openDetailObj(c, from, keepEdit){
       const mine=rows.filter(r=>keys.indexOf(r[0])>=0);
       mine.forEach(r=>used.add(r[0]));
       if(!mine.length) return '';
-      return `<div class="sectionlabel dmh-out">${esc(t(lab))}</div><div class="dmodul"><div class="dspecs">${mine.map(_specOne).join('')}</div></div>`;
+      const inner = editing ? `<div class="dspecs">${mine.map(_specOne).join('')}</div>`
+                            : `<div class="wx-grid">${mine.map(_specOne).join('')}</div>`;
+      return `<div class="sectionlabel dmh-out">${esc(t(lab))}</div>${inner}`;
     }).join('');
     const rest=rows.filter(r=>!used.has(r[0]));         // never silently drop a field the groups don't know
-    if(rest.length) specHTML+=`<div class="dmodul"><div class="dspecs">${rest.map(_specOne).join('')}</div></div>`;
+    if(rest.length) specHTML+= editing ? `<div class="dspecs">${rest.map(_specOne).join('')}</div>`
+                                       : `<div class="wx-grid">${rest.map(_specOne).join('')}</div>`;
   } else {
     specHTML=rows.map(_specOne).join('');
   }
@@ -5371,10 +5385,10 @@ function openDetailObj(c, from, keepEdit){
   { const rl=document.getElementById('d-rows-label'); if(rl) rl.style.display=_TILES?'none':''; }
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+(_TILES?specHTML:`<div class="dspecs">${specHTML}</div>`)+banner;
   if(editing){ _resizeAllEfm(); if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(_resizeAllEfm); } }
-  const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty');
+  const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty','dnote-box');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
     ta.addEventListener('blur', function(){ const nv=(ta.value||'').trim()||null; if(nv!==(c.notes||null)) saveDetailField(c,'notes','notes',nv,{}); }); dn.appendChild(ta); }
-  else if(c.notes){ nw.style.display='block'; dn.textContent=c.notes; }
+  else if(c.notes){ nw.style.display='block'; dn.textContent=c.notes; if(_TILES) dn.classList.add('dnote-box'); }
   else nw.style.display='none';
   document.getElementById('edit-btn').style.display = (_editable && !_detailEdit) ? '' : 'none';
   { const _db2=document.getElementById('edit-done-btn'); if(_db2) _db2.style.display = (_editable && _detailEdit) ? '' : 'none'; }
