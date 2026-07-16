@@ -362,10 +362,17 @@
   .map-fab:hover,.map-fab:active{background:var(--surface-2); color:var(--teal);}
   .map-fab svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   /* Leaflet zoom control restyled to the app's surface/teal language (default is white browser chrome) */
+  /* THE MAP IS ITS OWN ZONE (JC, 16 Jul). OSM tiles are always light — in BOTH themes — so anything
+     sitting on them must answer to the map, not to the app around it. --map-ink is therefore a fixed
+     colour, not a theme token: it is --teal's light-theme value, measured at 5.51 contrast on OSM water
+     and 5.21 on its worst tile. Binding this to --teal instead would give the dark theme #51A6A0 —
+     1.79 on water, i.e. an invisible pin, and a fishing pin sits on water almost every time.
+     White buttons look wrong everywhere else in this app; here they are right. */
+  :root{ --map-ink:#0D5164; }
   .leaflet-control-zoom{border:none !important; border-radius:11px !important; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.28) !important;}
-  .leaflet-control-zoom a{background:var(--surface) !important; color:var(--teal) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid var(--border-2) !important; border-bottom:none !important;}
-  .leaflet-control-zoom a:last-child{border-bottom:1px solid var(--border-2) !important;}
-  .leaflet-control-zoom a:hover{background:var(--surface-2) !important; color:var(--teal) !important;}
+  .leaflet-control-zoom a{background:#fff !important; color:var(--map-ink) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid rgba(13,81,100,.25) !important; border-bottom:none !important;}
+  .leaflet-control-zoom a:last-child{border-bottom:1px solid rgba(13,81,100,.25) !important;}
+  .leaflet-control-zoom a:hover{background:#eef4f6 !important; color:var(--map-ink) !important;}
   .leaflet-control-zoom a.leaflet-disabled{opacity:.4 !important;}
   .listtoolbar{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 2px 10px; padding-bottom:9px; border-bottom:1px solid var(--border);}
   .listtoolbar-title{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.9375rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
@@ -1984,13 +1991,13 @@ const I18N = {
 Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Wie gefangen", gTilesBait:"Köder & Gerät", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
 Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"How it was caught", gTilesBait:"Lure & gear", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
 Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Hoe gevangen", gTilesBait:"Aas & uitrusting", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
-Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung in den {n} Tagen vor dem Fang.", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
+Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", wSourceFields:"Luft, Wind, Druck", trendNote:"Pfeile: Veränderung in den {n} Tagen vor dem Fang.", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
-Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", trendNote:"Arrows: change over the {n} days before the catch.", sparkCap:"Daily mean temperature, last {n} days",
+Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", wSourceFields:"Air, wind, pressure", trendNote:"Arrows: change over the {n} days before the catch.", sparkCap:"Daily mean temperature, last {n} days",
   m_new:"New moon", m_wc:"Waxing crescent", m_fq:"First quarter", m_wg:"Waxing gibbous", m_full:"Full moon", m_ng:"Waning gibbous", m_lq:"Last quarter", m_nc:"Waning crescent",
   wc_clear:"Clear", wc_partly:"Partly cloudy", wc_cloudy:"Cloudy", wc_fog:"Fog", wc_drizzle:"Drizzle", wc_rain:"Rain", wc_snow:"Snow", wc_thunder:"Thunderstorm"});
-Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Luchttemperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", trendNote:"Pijlen: verandering in de {n} dagen vóór de vangst.", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
+Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Luchttemperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", wSourceFields:"Lucht, wind, druk", trendNote:"Pijlen: verandering in de {n} dagen vóór de vangst.", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
@@ -3699,6 +3706,18 @@ let fMap=null, fMarker=null, dMap=null, dMarker=null, sMap=null, sMarkers=[];
 const DEFAULT_CENTER=[52.37, 4.90];
 const TILE='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_OPT={maxZoom:19, attribution:'© OpenStreetMap'};
+/* One ink for everything ON the map — pin, dots and the zoom buttons (see --map-ink in the CSS).
+   #2E7A8E was in no palette at all; this is --teal's light value, fixed rather than theme-bound
+   because the tiles are light in both themes. */
+const MAP_INK='#0D5164';
+/* The detail map gets a teardrop, not a dot: a dot's CENTRE is the spot and you cannot see that, a
+   teardrop's TIP says it. iconAnchor must therefore be [w/2, h] — anchoring it centred would place
+   the pin ~18px above the real position, pointing at the wrong place.
+   The stats map keeps dots (JC): one catch = one pin, many catches = a scatter. */
+function fishPinIcon(){
+  return L.divIcon({ className:'fish-pin', iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-30],
+    html:`<svg viewBox="0 0 26 34" width="26" height="34"><path d="M13 33.5C13 33.5 24.5 20 24.5 12A11.5 11.5 0 1 0 1.5 12C1.5 20 13 33.5 13 33.5Z" fill="${MAP_INK}" stroke="#fff" stroke-width="2"/><circle cx="13" cy="12" r="3.8" fill="#fff"/></svg>` });
+}
 function ensureFormMap(lat, lon){
   if(typeof L==='undefined') return;
   const has=(lat!=null&&lon!=null);
@@ -3714,7 +3733,7 @@ function ensureFormMap(lat, lon){
 }
 function setFormPin(lat, lon){
   state.formLat=lat; state.formLon=lon;
-  if(!fMarker){ fMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:2,fillColor:'#2E7A8E',fillOpacity:1}).addTo(fMap); }
+  if(!fMarker){ fMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(fMap); }   // form: one spot -> a pin, same as the detail
   else fMarker.setLatLng([lat,lon]);
   document.getElementById('f-coord').textContent = lat.toFixed(5)+', '+lon.toFixed(5);
   previewWeather();
@@ -3735,13 +3754,13 @@ function ensureDetailMap(lat,lon){
     // attribution entirely — which is what it used to do.
     dMap=L.map('d-map',{zoomControl:true, attributionControl:false, scrollWheelZoom:false}).setView([lat,lon],13);
     L.tileLayer(TILE,TILE_OPT).addTo(dMap);
-    dMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:2,fillColor:'#2E7A8E',fillOpacity:1}).addTo(dMap);
+    dMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(dMap);
   } else { try{ dMap.off('click'); dMap.scrollWheelZoom.disable(); }catch(e){} dMap.setView([lat,lon],13); _detailMapDraw(lat,lon); }
   setTimeout(()=>{ try{dMap.invalidateSize();}catch(e){} }, 80);
 }
 function _detailMapDraw(lat,lon){
   if(!dMap) return;
-  if(!dMarker){ dMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:2,fillColor:'#2E7A8E',fillOpacity:1}).addTo(dMap); }
+  if(!dMarker){ dMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(dMap); }
   else dMarker.setLatLng([lat,lon]);
 }
 function initDetailEditMap(c){
@@ -3801,7 +3820,8 @@ function ensureStatsMap(items){
   sMarkers.forEach(m=>sMap.removeLayer(m)); sMarkers=[];
   const bounds=[];
   pts.forEach(c=>{
-    const m=L.circleMarker([c.lat,c.lon],{radius:7,color:'#fff',weight:2,fillColor:'#2E7A8E',fillOpacity:1}).addTo(sMap);
+    // Stats map keeps dots (JC) — many catches are a scatter, not a pincushion. Only the ink follows.
+    const m=L.circleMarker([c.lat,c.lon],{radius:7,color:'#fff',weight:2,fillColor:MAP_INK,fillOpacity:1}).addTo(sMap);
     m.on('click', ()=>openDetailObj(c,'stats'));
     sMarkers.push(m); bounds.push([c.lat,c.lon]);
   });
@@ -3971,12 +3991,17 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const tChip = days>=2 ? chip(trendNet(temps),0.5,1,'°C') : null;
   const wChip = days>=2 ? chip(trendNet(winds),3,0,'km/h') : null;
   const pChip = days>=2 ? chip(trendNet(pres),1.5,0,'hPa') : null;
+  /* (8, JC): a card needs a VALUE, not just a switched-on preference. wxOn() alone let an empty field
+     take a full slot and say "— hPa", which is a hole with a label on it, not information. The catch
+     fields have always worked this way (if(c.method) …) — the weather did not. */
   const cells=[];
-  if(wxOn('wxCond')) cells.push(card('cloud',t('wCond'), esc(condKey?t(condKey):'—'), true));
-  if(wxOn('wxTemp')) cells.push(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip));
-  if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));
-  if(wxOn('wxWind')) cells.push(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip));
-  if(wxOn('wxPress')) cells.push(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip));
+  let vonApi=0, mitPfeil=0;   // what ACTUALLY rendered — the footer must describe the cards, not the settings
+  const api=(c,ch)=>{ cells.push(c); vonApi++; if(ch) mitPfeil++; };
+  if(wxOn('wxCond') && condKey) api(card('cloud',t('wCond'), esc(t(condKey)), true));
+  if(wxOn('wxTemp') && cur.temp!=null) api(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip), tChip);
+  if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));   // typed, NOT from Open-Meteo
+  if(wxOn('wxWind') && cur.wind!=null) api(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip), wChip);
+  if(wxOn('wxPress') && cur.pressure!=null) api(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip), pChip);
   // Phase-accurate icon + the phase name — no trend chip: the name already carries waxing/waning.
   // Exception (JC): the two quarters look identical apart from the mirroring, so they get a bare + / −.
   if(wxOn('wxMoon')){
@@ -3986,10 +4011,14 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="wx-grid">'+cells.join('')+'</div>';
-  // JC: note left, source right, on one line. The note keeps its own left edge when there is no note.
-  const _tn = (days>=2 && (wxOn('wxTemp')||wxOn('wxWind')||wxOn('wxPress')))
-    ? `<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>` : '<div></div>';
-  html+=`<div class="wfoot">${_tn}<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div></div>`;
+  /* The footer must describe what is on screen, not what is switched on. Two silent lies were in here:
+     the note explained arrows whenever the fields were ENABLED (even with no arrow rendered), and the
+     Open-Meteo credit appeared even when the only card was the water temperature — which JC types
+     himself. Now the note needs a real arrow, and the credit needs a real Open-Meteo card. And it
+     names WHAT it covers (9/W1): the water temp stands next to the air, but it is not their data. */
+  const _tn = mitPfeil>0 ? `<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>` : '<div></div>';
+  const _src = vonApi>0 ? `<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSourceFields')}: Open-Meteo</a></div>` : '';
+  html += (_tn!=='<div></div>' || _src) ? `<div class="wfoot">${_tn}${_src}</div>` : '';
   box.innerHTML=html;
 }
 function autoLocate(){
