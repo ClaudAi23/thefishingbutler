@@ -498,19 +498,17 @@
   /* M3: the method is a STATEMENT, not a card — no box, no field label ("METHODE" over "ANGELMETHODE"
      said the word twice). It is the headline of the gear tiles below it, so it is set like a heading.
      baseline alignment keeps the qualifiers sitting on the method's baseline, not floating mid-cap. */
-  .m-line{display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 9px; margin:0 4px 10px;}
+  .m-line{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 9px; margin:0 4px;}
+  .m-line + .m-line{margin-top:6px;}
   .m-line .head{font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase;
     letter-spacing:.03em; font-size:1.35rem; line-height:1.1; color:var(--text);}
+  .m-line .bait{font-weight:600; font-size:1.0625rem; line-height:1.3;}
+  /* The pair is its own flex container so it wraps as a UNIT (see _howBlock). Default flex-shrink is
+     what makes tier 3 work — do not set flex-shrink:0 here, or a long pair would overflow instead of
+     splitting onto two lines. */
+  .m-line .qs{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 9px; min-width:0;}
   .m-line .q{display:inline-flex; align-items:center; gap:5px; font-size:.85rem; color:var(--muted); white-space:nowrap;}
   .m-line .q svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
-  /* G1: bait = statement, rod+reel = footnote. flex-start (not center) so a pair longer than the line
-     wraps under the icon instead of clipping — the longest realistic pair measures 335px of 360. */
-  .m-gear{margin:0 4px;}
-  .m-gear .bait{font-weight:600; font-size:1.0625rem; line-height:1.3;}
-  .m-gear .rr{display:flex; align-items:flex-start; gap:6px; margin-top:5px;
-    font-size:.85rem; line-height:1.4; color:var(--muted);}
-  .m-gear .rr svg{width:13px; height:13px; margin-top:3px; stroke:currentColor; fill:none; stroke-width:2;
-    stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
@@ -5435,25 +5433,29 @@ function openDetailObj(c, from, keepEdit){
      The unit also stops appearing twice: the label ("Schleppgeschw. (km/h)") is gone, the value keeps it.
      Read mode only — edit mode keeps the open .spec rows, or these fields would lose their editors.
      No method → return null and let the plain grid render, rather than invent a headline. */
+  /* G1 (JC): the bait is the SECOND statement, rod and reel are its footnote. "Womit?" means the bait;
+     rod and reel are inventory. Both statements share one grammar: a headline with a pair of muted
+     qualifiers hanging off it — method|boat+speed, bait|rod+reel.
+     The pair travels as ONE unit (JC): it never splits so that only the speed drops to the next line.
+     That is why .qs is its own flex container, and it gives all three tiers for free:
+       1. head + pair fit          -> one line
+       2. pair too wide for line 1 -> the WHOLE pair wraps (flex breaks lines on max-content, so the
+                                      pair is never split by the outer wrap)
+       3. pair too wide even alone -> it shrinks (shrink applies within a line, after breaking) and
+                                      its own flex-wrap splits boat and speed onto two lines. */
   const _howBlock=(mine)=>{
-    const head=mine.find(r=>r[0]==='method');
+    const get=k=>mine.find(r=>r[0]===k);
+    const head=get('method');
     if(!head) return null;
-    const quals=mine.filter(r=>r[0]==='boat'||r[0]==='trolling')
-      .map(r=>`<span class="q">${dSpecIcon(r[0])}${esc(''+r[2])}</span>`).join('');
-    /* G1 (JC): the bait is the SECOND statement, rod and reel are its footnote. "Womit?" means the bait;
-       rod and reel are inventory. Three equal tiles claimed three equally important facts — the same
-       mistake as the method, one level down. No labels: a tile now means exactly one thing on this
-       page — a measured value — and the weather is the only dashboard. */
-    const bait=mine.find(r=>r[0]==='bait');
-    const rr=mine.filter(r=>r[0]==='rod'||r[0]==='reel').map(r=>esc(''+r[2])).join(' · ');
-    let gear='';
-    if(bait||rr){
-      gear = `<div class="m-gear">`
-        + (bait?`<div class="bait">${esc(''+bait[2])}</div>`:'')
-        + (rr?`<div class="rr">${dSpecIcon('rod')}<span>${rr}</span></div>`:'')
-        + `</div>`;
-    }
-    return `<div class="m-line"><span class="head">${esc(''+head[2])}</span>${quals}</div>` + gear;
+    const pair=(keys)=>{
+      const qs=keys.map(get).filter(Boolean)
+        .map(r=>`<span class="q">${dSpecIcon(r[0])}${esc(''+r[2])}</span>`).join('');
+      return qs?`<span class="qs">${qs}</span>`:'';
+    };
+    let html=`<div class="m-line"><span class="head">${esc(''+head[2])}</span>${pair(['boat','trolling'])}</div>`;
+    const bait=get('bait'), gear=pair(['rod','reel']);   // reel carries its own icon (JC), so no "·" separator
+    if(bait||gear) html+=`<div class="m-line"><span class="bait">${bait?esc(''+bait[2]):''}</span>${gear}</div>`;
+    return html;
   };
   let specHTML;
   if(_TILES){
