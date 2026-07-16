@@ -476,10 +476,23 @@
   .d-hero-band .dt{display:flex; align-items:center; gap:10px;}
   .d-hero-band .d-hero-chips .d-hero-chip{background:var(--surface); border:1px solid var(--border); color:var(--text);}
   /* Angler byline (avatar + name) under the photos */
-  .d-byline{display:flex; align-items:center; gap:9px; padding:12px 18px; border-bottom:1px solid var(--border);}
-  .d-byline .av{width:26px; height:26px; border-radius:50%; overflow:hidden; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:var(--teal-tint); font-family:'Barlow Condensed',sans-serif;}
+  /* Avatar spans both rows · name + badge share row 1 · date sits underneath, smaller, because
+     the date is the side note and the name is not. minmax(0,1fr) is what lets the name ellipsis
+     instead of pushing the badge off the edge. */
+  .d-byline{display:grid; grid-template-columns:26px minmax(0,1fr) auto; gap:2px 9px; align-items:center;
+    padding:12px 18px; border-bottom:1px solid var(--border);}
+  .d-byline .dt{grid-column:2 / span 2; grid-row:2; font-size:0.8rem; color:var(--muted);}
+  .d-rel{grid-column:3; grid-row:1; justify-self:end; display:inline-flex; align-items:center; gap:5px;
+    font-size:.72rem; font-weight:600; padding:3px 9px; border-radius:999px; white-space:nowrap;}
+  .d-rel svg{width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  /* Released is the statement anglers are proud of -> teal. Kept is neutral, NOT red: keeping a
+     fish is legal and normal, not an error state. */
+  .d-rel.rel{background:rgba(81,166,160,.18); color:var(--teal-bright); border:1px solid rgba(81,166,160,.45);}
+  .d-rel.kept{background:rgba(147,163,165,.14); color:var(--muted); border:1px solid var(--border-2);}
+  .d-byline .av{grid-row:1 / span 2; width:26px; height:26px; border-radius:50%; overflow:hidden; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:var(--teal-tint); font-family:'Barlow Condensed',sans-serif;}
   .d-byline .av img{width:100%; height:100%; object-fit:cover;}
-  .d-byline .nm{font-weight:600; font-size:0.9rem; color:var(--text);}
+  .d-byline .nm{grid-column:2; grid-row:1; font-weight:600; font-size:0.9rem; color:var(--text);
+    min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
@@ -1867,9 +1880,9 @@ const I18N = {
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
-Object.assign(I18N.de, {gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
-Object.assign(I18N.en, {gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
-Object.assign(I18N.nl, {gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
+Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
+Object.assign(I18N.en, {gTilesMethod:"Method", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
+Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
 Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
@@ -4963,7 +4976,22 @@ async function pbSetFlag(c, patch){
   }catch(e){ try{ toast(t('errSave')); }catch(_e){} }
 }
 function _sizeChips(c){ const out=[]; if(c.length!=null) out.push(fmtLen(c.length)); if(c.weight!=null) out.push(fmtWeight(c.weight)); return out; }
-function _anglerByline(c){ const nm=(c.angler||'').trim()||'—'; const isMe = !c._db || (state.me && c.userId===state.me.id); const av = isMe ? userAvatarHTML() : initialsAvatar(nm); return `<span class="av">${av}</span><span class="nm">${esc(nm)}</span>`; }
+function _anglerByline(c){
+  /* The byline is the only line that tells the EVENT rather than the fish or the technique:
+     who (name), how it ended (badge, top right), and — smaller underneath — when.
+     Date and release therefore need no group of their own; both were groups with one field.
+     Name and badge share row 1: measured at 390px the name gets 198px, so it only clips past
+     ~37 characters, and then cleanly via ellipsis. Putting the date on that row cost 115px and
+     truncated "Johannes Claudi" — an ordinary name, not an edge case. */
+  const nm=(c.angler||'').trim()||'—';
+  const isMe = !c._db || (state.me && c.userId===state.me.id);
+  const av = isMe ? userAvatarHTML() : initialsAvatar(nm);
+  const rel = c.released==null ? '' :
+    `<span class="d-rel ${c.released?'rel':'kept'}">${c.released?REL_IC:KEPT_IC}${esc(c.released?t('releasedReleased'):t('releasedKept'))}</span>`;
+  return `<span class="av">${av}</span><span class="nm">${esc(nm)}</span>${rel}<span class="dt">${esc(fmtDateLong(c.date))}</span>`;
+}
+const REL_IC='<svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>';
+const KEPT_IC='<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>';
 const D_SPEC_IC={
   angler:'<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>',
   water:'<path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0"/>',
@@ -5257,7 +5285,7 @@ function openDetailObj(c, from, keepEdit){
     if(band) band.style.display='none';
     if(ps.length>1){ strip.style.display='flex'; strip.innerHTML=ps.map((src,i)=>`<img src="${esc(src)}" class="${i===0?'active':''}" onclick="setHeroPhoto(this,'${i}')" data-src="${i}" alt="">`).join(''); strip._photos=ps; }
     else { strip.style.display='none'; strip.innerHTML=''; }
-    if(byl){ byl.style.display='flex'; byl.innerHTML=_anglerByline(c); }
+    if(byl){ byl.style.display='grid'; byl.innerHTML=_anglerByline(c); }
   }
   // Sticky header (species + measurement · date) fades in once the hero band is scrolled out of view.
   { const h=document.getElementById('d-h1'); if(h) h.textContent=trSpecies(c.species);
@@ -5290,10 +5318,9 @@ function openDetailObj(c, from, keepEdit){
     // READ-ONLY: hero holds species+size, byline holds angler → order Datum · Entnahme|Methode · Köder · Rute[|Rolle] · Boot|Tempo · Gewässer.
     // Pair rule: a pair is both-half or both-full; a lone member spans full.
     const shrt=(v)=>(''+v).length<=18;
-    rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
-    { const rv=c.released?t('releasedReleased'):t('releasedKept'); const both=(c.released!=null)&&!!c.method; const half=both&&shrt(rv)&&shrt(c.method);
-      if(c.released!=null) rows.push(['released',t('releasedLabel'), rv, !half]);
-      if(c.method) rows.push(['method',t('method'), c.method, !half]); }
+    // Date and release live in the byline now (read mode only) — as cards they were two groups
+    // with one field each. Edit mode keeps its own full list further up, so both stay editable.
+    if(c.method) rows.push(['method',t('method'), c.method, false]);
     if(c.bait) rows.push(['bait',t('bait'), c.bait, true]);
     // Rute | Rolle pair — both half, or both full if either is long / only one is set
     { const both=!!c.rod&&!!c.reel; const half=both&&shrt(c.rod)&&shrt(c.reel);
@@ -5369,11 +5396,13 @@ function openDetailObj(c, from, keepEdit){
         : '';
       rows = rows.filter(r=>r[0]!=='water');
     } }
+  /* Every group answers exactly one question: how · with what · (weather: under which conditions)
+     · where. "Fang" said nothing on a catch page — the whole page is the catch — and "Bedingungen"
+     held boat, which is not a condition but part of how you fished. */
   const _TILE_GROUPS=[
-    ['gTilesCatch', ['date','released','method']],
-    ['gTilesGear',  ['bait','rod','reel']],
-    ['gTilesCond',  ['boat','trolling']],
-    ['gTilesMisc',  ['loggedBy','angler']]
+    ['gTilesMethod', ['method','boat','trolling']],
+    ['gTilesGear',   ['bait','rod','reel']],
+    ['gTilesMisc',   ['loggedBy','angler']]
 
   ];
   let specHTML;
