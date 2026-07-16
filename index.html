@@ -3019,8 +3019,10 @@ async function rowsToCatches(rows, nameById){
     const cc=dbRowToCatch(r, urls, thumbs, crops, paths);
     if(_dbgOn && crops.some(x=>x.p||x.z)) dlog('GELADEN '+String(r.species), {fotos:urls.length, crops});
     if(nameById){
-      if(nameById[r.owner_id]) cc.angler=nameById[r.owner_id];
-      if(r.logged_by && nameById[r.logged_by]) cc.loggedByName=nameById[r.logged_by];
+      const own=nameById[r.owner_id];
+      if(own){ cc.angler=own.name; cc.anglerAvatar=own.avatar; cc.anglerStyle=own.style; }   // carry the picture, not just the name
+      const by=r.logged_by && nameById[r.logged_by];
+      if(by) cc.loggedByName=by.name;
     }
     return cc;
   });
@@ -3053,9 +3055,16 @@ async function loadCtxActivity(){
   data.forEach(r=>{ if(!r.context_id || r.owner_id===state.me.id) return; const seenAt=sn[r.context_id]; if(seenAt && r.created_at>seenAt) cnt[r.context_id]=(cnt[r.context_id]||0)+1; });
   state.ctxNew=cnt;
 }
+/* Was select('id, display_name') — the picture was never fetched, so a club mate could only ever be
+   initials. RLS already allowed it (profiles_select: id = auth.uid() OR shares_context(id)), we just
+   never asked. Now returns {name, avatar, style} per id; the string form is gone, so every reader has
+   to say what it wants. */
 async function ownerNameMap(ownerIds){
   const c=getSB(); const map={};
-  if(ownerIds.length){ const { data } = await c.from('profiles').select('id, display_name').in('id', ownerIds); (data||[]).forEach(p=>map[p.id]=p.display_name); }
+  if(ownerIds.length){
+    const { data } = await c.from('profiles').select('id, display_name, avatar_url, avatar_style').in('id', ownerIds);
+    (data||[]).forEach(p=>{ map[p.id]={ name:p.display_name, avatar:p.avatar_url||null, style:p.avatar_style||null }; });
+  }
   return map;
 }
 async function loadContextCatches(ctxId){
@@ -5394,8 +5403,15 @@ function _anglerByline(c){
      ~37 characters, and then cleanly via ellipsis. Putting the date on that row cost 115px and
      truncated "Johannes Claudi" — an ordinary name, not an edge case. */
   const nm=(c.angler||'').trim()||'—';
+  /* JC: "René kann mein Profilbild nicht sehen und umgekehrt." Two faults hid each other — this line
+     used to be `isMe ? userAvatarHTML() : initialsAvatar(nm)`, i.e. everyone else was ALWAYS initials
+     by construction, and the profile query only ever fetched display_name, so there was no picture to
+     show either. RLS was never the problem: profiles_select already allows a club mate through
+     shares_context(). Own picture from state.me (always current, even right after a change), a mate's
+     from the catch. */
   const isMe = !c._db || (state.me && c.userId===state.me.id);
-  const av = isMe ? userAvatarHTML() : initialsAvatar(nm);
+  const av = isMe ? userAvatarHTML()
+    : (c.anglerAvatar ? `<img src="${escAttr(c.anglerAvatar)}" alt="">` : initialsAvatar(nm, c.anglerStyle));
   const rel = c.released==null ? '' :
     `<span class="d-rel ${c.released?'rel':'kept'}">${c.released?REL_IC:KEPT_IC}${esc(c.released?t('releasedReleased'):t('releasedKept'))}</span>`;
   return `<span class="av">${av}</span><span class="nm">${esc(nm)}</span>${rel}<span class="dt">${esc(fmtDateLong(c.date))}</span>`;
