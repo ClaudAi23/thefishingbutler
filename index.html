@@ -3771,8 +3771,23 @@ async function persistDetailPhotos(){
   const orig=photosOf(c); const cur=(state.editPhotos||[]).slice();
   const same = orig.length===cur.length && orig.every((p,i)=>p===cur[i]);
   if(same) return;
+  /* crops[] and photoPaths[] run parallel to photos[], so a new order has to carry them along —
+     otherwise every crop would point at the wrong picture. Mapped by URL, which is what the editor
+     shuffles; a freshly added photo is not in the old list and correctly gets no crop and no path
+     (its storage path only exists after the next load). */
+  const was={}; orig.forEach((u,i)=>{ was[u]={crop:(c.crops||[])[i]||{}, path:(c.photoPaths||[])[i]||null}; });
+  const newCrops=[], newPaths=[];
+  cur.forEach(u=>{ const e=was[u]||{}; newCrops.push(e.crop||{}); newPaths.push(e.path||null); });
+
   if(c._db){ try{ await saveSoloPhotos(c.id, cur); }catch(e){} }
-  else { c.photos=cur.slice(); c.photo=cur[0]||null; const idx=(state.catches||[]).findIndex(x=>x&&x.id===c.id); if(idx>=0){ state.catches[idx].photos=c.photos.slice(); state.catches[idx].photo=c.photo; } try{ saveCatches(); }catch(e){} }
+  /* The DB branch used to stop here: it wrote the new order to Supabase but left the in-memory catch
+     untouched, so the hero and the lists kept showing the old order until a reload re-fetched it.
+     That is exactly what JC saw. Both branches update the object now. */
+  c.photos=cur.slice(); c.photo=cur[0]||null; c.crops=newCrops; c.photoPaths=newPaths;
+  const idx=(state.catches||[]).findIndex(x=>x&&x.id===c.id);
+  if(idx>=0){ const s=state.catches[idx]; s.photos=c.photos.slice(); s.photo=c.photo; s.crops=newCrops.slice(); s.photoPaths=newPaths.slice(); }
+  if(!c._db){ try{ saveCatches(); }catch(e){} }
+  dlog('FOTOS gespeichert', {anzahl:cur.length, mitZuschnitt:newCrops.filter(x=>x&&(x.p||x.z)).length, ohnePfad:newPaths.filter(x=>!x).length});
 }
 function ensureStatsMap(items){
   const wrap=document.getElementById('stats-map');
@@ -5175,13 +5190,20 @@ function taEnter(){ const q=(document.getElementById('ta-search').value||'').tri
 // ---------- detail ----------
 function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
 function detailBack(){
-  if(_detailEdit){ _detailEdit=false; persistDetailPhotos().catch(function(){}); }
   const to=state.detailFrom||'list';
   /* The thumbnails are rendered HTML, not bound to state. Re-cropping the hero updated the catch
      object but left the list DOM exactly as it was, so going back showed the old crop until the app
      was reloaded. Re-render the screen we are returning to. */
-  try{ if(to==='list') renderList(); else if(to==='stats') renderStats(); }catch(e){}
-  go(to);
+  const paint=()=>{ try{ if(to==='list') renderList(); else if(to==='stats') renderStats(); }catch(e){} };
+  if(_detailEdit){
+    _detailEdit=false;
+    // Paint and navigate at once so leaving stays instant, then paint AGAIN when the save lands:
+    // persistDetailPhotos is async and was never awaited, so the first paint still shows the old order.
+    paint(); go(to);
+    persistDetailPhotos().then(paint, paint);
+    return;
+  }
+  paint(); go(to);
 }
 function _detailScroll(){
   const sc=document.querySelector('#s-detail .scroll'); const h=document.getElementById('d-htitle'); if(!sc||!h) return;
