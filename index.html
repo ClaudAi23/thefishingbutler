@@ -406,15 +406,17 @@
   .mfoot .msrc{margin-left:auto;}
   .msrc{padding:0 4px; text-align:right; font-size:0.625rem; line-height:1.5;}
   /* TEMPORARY crop test log — remove with dlog(). */
-  .dbg-panel{position:fixed; left:0; right:0; bottom:0; z-index:99999; background:rgba(2,27,40,.97);
-    border-top:1px solid var(--teal); max-height:42vh; display:flex; flex-direction:column;
-    padding-bottom:env(safe-area-inset-bottom);}
+  /* Distinct on purpose: rgba(2,27,40,.97) was the page background almost exactly, so the panel was
+     invisible against it. A log you have to hunt for is worthless. */
+  .dbg-panel{position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#0a3a4e;
+    border-top:2px solid var(--accent); max-height:42vh; display:flex; flex-direction:column;
+    box-shadow:0 -6px 20px rgba(0,0,0,.5); padding-bottom:env(safe-area-inset-bottom);}
   .dbg-bar{display:flex; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--border);}
   .dbg-bar b{flex:1; font-size:.75rem; color:var(--teal-bright);}
   .dbg-bar button{font-family:inherit; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:7px;
     border:1px solid var(--border-2); background:var(--surface); color:var(--text);}
-  .dbg-panel pre{margin:0; padding:8px 10px; overflow:auto; font-size:9px; line-height:1.45;
-    color:var(--text); white-space:pre-wrap; word-break:break-all;}
+  .dbg-panel pre{margin:0; padding:8px 10px; overflow:auto; font-size:11px; line-height:1.5;
+    color:var(--text); white-space:pre-wrap; word-break:break-all;}   /* 9px was not readable on a phone */
   .msrc a{color:var(--muted); font-size:0.625rem; text-decoration:none;}
   .msrc a:hover{text-decoration:underline;}
   .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
