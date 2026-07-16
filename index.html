@@ -737,7 +737,7 @@
 </style>
 </head>
 <body>
-<div id="app-loader"><div class="lockup anim" style="font-size:2.5rem;">
+<div id="app-loader"><div class="lockup anim" style="font-size:min(4.4rem, 17vw);">
   <div class="lockup-fish"><div class="lk-sh"></div><div class="lk-esca"></div><img src="/mascot.png" alt=""></div>
   <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
 </div></div>
@@ -1973,7 +1973,9 @@ function go(name, isBack){
   try{ hideLoader(); }catch(e){}
 }
 let _loaderShownAt = (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now();
-const LOADER_MIN_MS = 1500;
+/* The launch choreography alone runs ~900ms, so 1500 left barely half a second to actually look
+   at the mark. 2200 gives it ~1,3s to land without making the start feel sluggish. */
+const LOADER_MIN_MS = 2200;
 function _now(){ return (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now(); }
 function showLoader(){ const el=document.getElementById('app-loader'); if(el){ el.classList.remove('hide'); _loaderShownAt=_now(); } }
 function hideLoader(){ const el=document.getElementById('app-loader'); if(!el) return; const elapsed=_now()-_loaderShownAt; if(elapsed>=LOADER_MIN_MS){ el.classList.add('hide'); } else { setTimeout(function(){ el.classList.add('hide'); }, LOADER_MIN_MS-elapsed); } }
