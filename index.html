@@ -541,8 +541,11 @@
   /* #9 (JC): the note gets the same surface as every other read-only field. Read mode only —
      in edit mode it already holds a textarea with its own border, and a box around that is the
      box-in-a-box we keep removing. */
+  /* The note sits directly under the weather now, so it has to read as its sibling: same size and
+     the same left text edge as a card value. .wx-card is padding 8px 10px, so this matches it —
+     1px of padding difference is invisible until the two are stacked, and then it isn't. */
   #d-notes.dnote-box{background:var(--surface); border:1px solid var(--border); border-radius:10px;
-    padding:9px 11px; line-height:1.45; white-space:pre-wrap;}
+    padding:8px 10px; font-size:0.9375rem; line-height:1.45; white-space:pre-wrap; text-align:left;}
   .ef-textarea{width:100%; min-height:80px; font-family:inherit; font-size:0.95rem; color:var(--text); background:var(--surface); border:1.5px solid var(--accent); border-radius:9px; padding:9px 10px; outline:none; box-shadow:0 0 0 3px rgba(224,165,63,.15); resize:vertical;}
   /* "Deine Rekorde" shelf (Stats) */
   .rec-head{display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:0.78rem; color:var(--muted); margin:0 0 10px;}
@@ -1169,14 +1172,7 @@
         </div>
         <div class="sectionlabel" id="d-rows-label" data-i18n="fltCatch" style="margin-top:2px;">Fang</div>
         <div id="d-rows"></div>
-        <div id="d-notes-wrap" style="margin-top:18px; display:none;">
-          <div class="sectionlabel" data-i18n="notes">Notizen</div>
-          <p id="d-notes" style="margin:0; color:var(--text);">—</p>
-        </div>
-        <div id="d-weather-wrap" style="display:none; margin-top:22px;">
-          <div class="sectionlabel" data-i18n="weather">Wetter</div>
-          <div id="d-weather"></div>
-        </div>
+        
         <div id="d-map-wrap" style="display:none; margin-top:22px;">
           <div class="sectionlabel" id="d-map-label" style="display:none;" data-i18n="dWater">Ort</div>
           <div class="map-wrap">
@@ -1188,6 +1184,15 @@
             <button type="button" class="btn secondary sm" style="width:auto; white-space:nowrap;" onclick="detailUseMyLocation()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px; margin-right:5px;"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg><span data-i18n="myLocation">Mein Standort</span></button>
           </div>
         </div>
+        <div id="d-weather-wrap" style="display:none; margin-top:22px;">
+          <div class="sectionlabel" data-i18n="weather">Wetter</div>
+          <div id="d-weather"></div>
+        </div>
+        <div id="d-notes-wrap" style="margin-top:18px; display:none;">
+          <div class="sectionlabel" data-i18n="notes">Notizen</div>
+          <p id="d-notes" style="margin:0; color:var(--text);">—</p>
+        </div>
+        
         <div style="height:24px"></div>
       </div>
     </div>
@@ -5347,8 +5352,10 @@ function openDetailObj(c, from, keepEdit){
   const _TILE_GROUPS=[
     ['gTilesCatch', ['date','released','method']],
     ['gTilesGear',  ['bait','rod','reel']],
-    ['gTilesCond',  ['boat','trolling','water']],
-    ['gTilesMisc',  ['loggedBy','angler']]
+    ['gTilesCond',  ['boat','trolling']],
+    ['gTilesMisc',  ['loggedBy','angler']],
+    ['dWater',      ['water']]        // "Ort" last: its heading also covers the map right below it
+
   ];
   let specHTML;
   if(_TILES){
