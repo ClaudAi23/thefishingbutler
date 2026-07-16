@@ -385,7 +385,9 @@
   /* Footer: note left, source right, one line. Only fits because the note lost its parenthetical —
      with "(lineare Tendenz, Tageswerte)" it needed 455px of 358 and would have wrapped under the source. */
   .wfoot{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:12px 4px 0;}
-  .wfoot .wtrend-note, .wfoot .wsrc{margin:0; min-width:0;}
+  /* .wsrc must carry the link's own size: as a plain wrapper it inherited 16px/24px, so its line box
+     was 24px tall while the note's was 16.5px — baseline alignment then put the two 2px apart. */
+  .wfoot .wtrend-note, .wfoot .wsrc{margin:0; min-width:0; font-size:0.6875rem; line-height:1.5;}
   .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
   .wspark-cap{font-size:0.6875rem; color:var(--muted); text-align:center; margin-top:4px;}
   /* The source line is the sibling of the trend note, not a footer: same size, same left edge,
