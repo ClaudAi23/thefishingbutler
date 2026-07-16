@@ -5419,9 +5419,13 @@ function openDetailObj(c, from, keepEdit){
     { const both=!!c.rod&&!!c.reel; const half=both&&shrt(c.rod)&&shrt(c.reel);
       if(c.rod) rows.push(['rod',t('rod'), c.rod, !half]);
       if(c.reel) rows.push(['reel',t('reel'), c.reel, !half]); }
-    { const tv=c.trolling!=null?(String(c.trolling).replace('.',',')+' km/h'):null; const both=!!c.boat&&(c.trolling!=null); const half=both&&shrt(c.boat)&&shrt(tv);
+    /* Trolling speed belongs to the trolling method only — the FORM has always enforced that (see the
+       isTrollingMethod gate there), the read view never did, so a fly-fishing catch that once held a
+       speed still showed "6,5 km/h". Same rule, two places, one of them forgotten. */
+    { const showTr = c.trolling!=null && isTrollingMethod(c.method);
+      const tv=showTr?(String(c.trolling).replace('.',',')+' km/h'):null; const both=!!c.boat&&showTr; const half=both&&shrt(c.boat)&&shrt(tv);
       if(c.boat) rows.push(['boat',t('boat'), c.boat, !half]);
-      if(c.trolling!=null) rows.push(['trolling',t('trolling'), tv, !half]); }
+      if(showTr) rows.push(['trolling',t('trolling'), tv, !half]); }
     if((c.location||'').trim()) rows.push(['water',t('dWater'), c.location, true]);
     if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName, true]);
   }
