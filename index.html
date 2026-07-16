@@ -495,6 +495,15 @@
   .d-byline .av img{width:100%; height:100%; object-fit:cover;}
   .d-byline .nm{grid-column:2; grid-row:1; font-weight:600; font-size:0.9rem; color:var(--text);
     min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  /* M2: the method as ONE card. Same surface/border/radius as a weather card, but the value carries
+     the section (1.15rem, no field label — "METHODE" over "ANGELMETHODE" said the word twice), and the
+     attributes hang inside it as chips. */
+  .m-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 12px; display:block;}
+  .m-card .v{display:block; font-weight:600; font-size:1.15rem; line-height:1.2;}
+  .m-card .cs{display:flex; gap:6px; flex-wrap:wrap; margin-top:9px;}
+  .m-card .cs span{display:inline-flex; align-items:center; gap:5px; font-size:.75rem; font-weight:600; color:var(--text);
+    background:rgba(255,255,255,.06); border:1px solid var(--border-2); border-radius:999px; padding:3px 9px;}
+  .m-card .cs svg{width:12px; height:12px; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
@@ -5409,6 +5418,20 @@ function openDetailObj(c, from, keepEdit){
     ['gTilesMisc',   ['loggedBy','angler']]
 
   ];
+  /* M2 (JC): the method is not a measurement, so it does not get the weather's grammar of equal tiles.
+     Boat and trolling speed are ATTRIBUTES of the method, not siblings — so they become chips inside
+     the method's own card. One card instead of up to three, and the unit stops appearing twice: the
+     chip drops the label ("Schleppgeschw. (km/h)") and keeps only the value ("6,5 km/h").
+     Read mode only — edit mode keeps the open .spec rows, or every field would need its own editor here.
+     If a catch somehow has boat/trolling but no method, fall back to the plain grid rather than
+     inventing a card with no headline. */
+  const _methodCard=(mine)=>{
+    const head=mine.find(r=>r[0]==='method');
+    if(!head) return null;
+    const chips=mine.filter(r=>r[0]!=='method')
+      .map(r=>`<span>${dSpecIcon(r[0])}${esc(''+r[2])}</span>`).join('');
+    return `<div class="m-card"><span class="v">${esc(''+head[2])}</span>${chips?`<span class="cs">${chips}</span>`:''}</div>`;
+  };
   let specHTML;
   if(_TILES){
     const used=new Set();
@@ -5416,8 +5439,10 @@ function openDetailObj(c, from, keepEdit){
       const mine=rows.filter(r=>keys.indexOf(r[0])>=0);
       mine.forEach(r=>used.add(r[0]));
       if(!mine.length) return '';
-      const inner = editing ? `<div class="dspecs">${mine.map(_specOne).join('')}</div>`
-                            : `<div class="wx-grid">${mine.map(_specOne).join('')}</div>`;
+      let inner;
+      if(lab==='gTilesMethod' && !editing) inner=_methodCard(mine);
+      if(inner==null) inner = editing ? `<div class="dspecs">${mine.map(_specOne).join('')}</div>`
+                                      : `<div class="wx-grid">${mine.map(_specOne).join('')}</div>`;
       return `<div class="sectionlabel dmh-out">${esc(t(lab))}</div>${inner}`;
     }).join('');
     const rest=rows.filter(r=>!used.has(r[0]));         // never silently drop a field the groups don't know
