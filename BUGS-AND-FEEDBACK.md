@@ -107,6 +107,19 @@ Gesamter Gerätetest-Backlog bestätigt & abgehakt: Standalone-Vollbild · #12 F
 
 *(Gefixt & deployed 12. Juli: Mitglieder-Hinweis gekürzt · Reset als Icon-Overlay + Sichtbarkeit (auch Chip-Insert) · Backward-Compat-Token entfernt · Rollen-Badge ohne Chevron · **Profil #16 komplett** (Initialen-Editor über Standort, „Kürzel anpassen"→„Initialen", Tap-Avatar=Farbe wechseln).)*
 
+## ⏳ VERTAGT — Login: gleiche Szene wie der Splash? (JC, 16. Juli)
+
+**Der Login zeigt dasselbe Lockup und damit dieselbe 3,3-s-Choreografie** (Fisch schwimmt ein → Laterne → Licht sinkt → Puffer).
+Kein Blocker: die Eingabefelder sind sofort benutzbar, es animiert nur das Logo darüber.
+
+**Aber:** Wer auf dem Login steht, will rein — nicht zusehen. Und anders als der Splash ist der Login kein Auftritt,
+sondern ein Formular. Die Szene erzählt dort niemandem etwas Neues.
+
+**Optionen:** (a) so lassen · (b) Login bekommt eine kurze Einblendung (~0,9 s, Fisch steht sofort, nur Laterne + Puffer
+blenden auf) · (c) Login zeigt das Lockup ganz ohne Animation.
+
+**Offen für JC.** Technisch trivial: eigene Klasse statt `.anim` am `#login-logo`, die Choreografie selbst bleibt unangetastet.
+
 ## ⏳ VERTAGT — Splash-Dauer bei Wiederkehrern (JC, 16. Juli: „leg es als Punkt in den Backlog")
 
 **Der Ladescreen steht bei jedem Start 4,6 s.** Das ist die volle Szene: Wort → Fisch schwimmt dunkel ein (1,4 s) →

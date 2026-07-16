@@ -1,7 +1,8 @@
 /* ButlerFish — service worker (offline app shell) */
-/* v8: puffer icon set — the old shell cached the anglerfish icons, so this bump is what
-   actually makes installed PWAs pick the new icon up (the ?v= query alone can't evict them). */
-const CACHE = 'fb-shell-v8';
+/* v9: puffer resized 86% -> 70% of the tile (iOS motifs sit at 60-72%; ours was cramped against
+   the squircle corners). The ?v= query alone can't evict an installed PWA's cached shell — only
+   this bump does, which is why it moves with every icon change. */
+const CACHE = 'fb-shell-v9';
 const SHELL = [
   '/', '/index.html', '/site.webmanifest',
   '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/apple-touch-icon-180.png',
