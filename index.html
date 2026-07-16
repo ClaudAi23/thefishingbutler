@@ -681,9 +681,10 @@
      here — only the rhythm between the stacked sections. */
   .sectionlabel.dmh-out{margin-top:18px;}
   /* Air between the water card and the map — they sit under one heading, but they are two things. */
-  /* The water field sits BELOW the map now (JC), so the air belongs above it. This rule still said
-     margin-bottom from the days when it sat on top — it was padding the wrong side. */
-  #d-loc:not(:empty){margin-top:14px;}
+  /* The name leads the section again (JC/B), so the air belongs below it, before the map. */
+  #d-loc:not(:empty){margin-bottom:9px;}
+  /* Same setting as .m-line .bait — the water name is a statement, not a labelled cell. */
+  .loc-name{font-weight:600; font-size:0.9375rem; line-height:1.3; color:var(--text); margin:0 4px;}
   .sectionlabel.dmh-out:first-child{margin-top:2px;}
   .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; margin-right:5px; stroke:var(--muted); fill:none; stroke-width:2;}
   .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
@@ -1298,6 +1299,11 @@
         </div>
         <div id="d-map-wrap" style="display:none; margin-top:22px;">
           <div class="sectionlabel" id="d-map-label" data-i18n="gTilesLoc">Ort</div>
+          <!-- The name leads, the map follows (JC/B): it is the answer to "where?", and it used to sit
+               behind the map, the action AND the credit — dead last. Set like "Wurm", not like the
+               rod/reel qualifiers: those are muted because they hang off a statement, while the water
+               name IS this section's statement. The map is its evidence, not the other way round. -->
+          <div id="d-loc"></div>
           <div class="map-wrap">
             <div id="d-map" class="map map-detail"></div>
             <!-- Action left, source right — the same shape the weather footer has (note left, source
@@ -1312,7 +1318,6 @@
               <div class="msrc"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></div>
             </div>
           </div>
-          <div id="d-loc"></div>
           <div id="d-map-edit-bar" style="display:none; margin-top:8px; align-items:center; gap:10px; justify-content:space-between;">
             <span class="hint" id="d-map-hint" style="margin:0;" data-i18n="tapMap">Tippe auf die Karte, um den Ort zu setzen.</span>
             <button type="button" class="btn secondary sm" style="width:auto; white-space:nowrap;" onclick="detailUseMyLocation()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px; margin-right:5px;"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg><span data-i18n="myLocation">Mein Standort</span></button>
@@ -5750,9 +5755,11 @@ function openDetailObj(c, from, keepEdit){
      The section also can't hang on c.lat alone: a catch with a water name but no pin would lose it. */
   { const locEl=document.getElementById('d-loc');
     if(locEl){ const locRows=rows.filter(r=>r[0]==='water');
+      /* Read mode: a bare statement, no label and no card — the heading already says "Ort".
+         Edit mode keeps the open .spec row, or the name could not be changed. */
       locEl.innerHTML = locRows.length
         ? (editing ? `<div class="dspecs">${locRows.map(_specOne).join('')}</div>`
-                   : `<div class="wx-grid">${locRows.map(_specOne).join('')}</div>`)
+                   : `<div class="loc-name">${esc(''+locRows[0][2])}</div>`)
         : '';
       rows = rows.filter(r=>r[0]!=='water');
     } }
