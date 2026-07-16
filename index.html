@@ -5053,9 +5053,14 @@ function _howTier(l){
   if(ov(head,qs)) return 1;
   return split?3:2;
 }
-function syncHowLines(){
+function syncHowLines(_retry){
   document.querySelectorAll('.m-how').forEach(box=>{
-    if(!box.offsetWidth) return;                     // not laid out -> every rect is 0, measuring is a lie
+    /* Not laid out yet -> every rect is 0 and measuring would be a lie. Do NOT just bail: that is
+       exactly how this silently did nothing when it ran before go('detail'). Try again next frame. */
+    if(!box.offsetWidth){
+      if(!_retry) requestAnimationFrame(()=>syncHowLines(true));
+      return;
+    }
     box.classList.remove('t2','t3');                 // measure NATURAL tiers, not the ones we forced last time
     const lines=[...box.querySelectorAll('.m-line')];
     const tier=Math.max.apply(null, lines.map(_howTier));
@@ -5530,7 +5535,6 @@ function openDetailObj(c, from, keepEdit){
   // In module mode each module carries its own heading, so the page-level "Fang" label would say it twice.
   { const rl=document.getElementById('d-rows-label'); if(rl) rl.style.display=_TILES?'none':''; }
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+(_TILES?specHTML:`<div class="dspecs">${specHTML}</div>`)+banner;
-  syncHowLines();
   if(editing){ _resizeAllEfm(); if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(_resizeAllEfm); } }
   const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty','dnote-box');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
@@ -5551,6 +5555,9 @@ function openDetailObj(c, from, keepEdit){
   renderWeather(c); // handles API weather, text-only, and water-temp-only (shows/hides the section itself)
   if(!c.weather && c.lat!=null) enrichWeather(c);
   go('detail');
+  /* MUST run after go('detail'), not after the innerHTML above: until the screen is shown the block is
+     display:none, every rect is 0, and syncHowLines() bails out with nothing ever calling it again. */
+  syncHowLines();
   if(keepEdit){ const _sc=document.querySelector('#s-detail .scroll'); if(_sc){ _sc.scrollTop=_keepScroll; requestAnimationFrame(function(){ _sc.scrollTop=_keepScroll; }); } }
   if(editing){ initDetailEditMap(c); }
   else if(c.lat!=null){ ensureDetailMap(c.lat,c.lon); }
