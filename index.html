@@ -561,6 +561,12 @@
   .rec-word{display:inline-block; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:0.6rem; color:#8a6a17; background:rgba(212,175,55,.18); border:1px solid #D4AF37; border-radius:999px; padding:1px 7px; flex:0 0 auto;}
   .medal-banner.medal-g{background:#C79A1E;} .medal-banner.medal-s{background:#8f959d;} .medal-banner.medal-b{background:#a76c34;}
   .dspecs{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; grid-auto-flow:dense;}
+  /* #9 experiment (?tiles=1): rows bundled into modules by meaning. The last row inside a module
+     drops its hairline — otherwise the line and the module's own edge sit on top of each other. */
+  .dmodul{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:2px 12px 8px; margin:0 0 8px;}
+  .dmodul .dmh{font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.05em; font-size:.72rem;
+    color:var(--muted); padding:10px 0 2px;}
+  .dmodul .dspecs .spec:last-child{border-bottom:none;}
   .spec{display:flex; align-items:flex-start; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); min-width:0;}
   .spec.wide{grid-column:1 / -1;}
   .spec > svg{width:20px; height:20px; margin-top:2px; flex:0 0 auto; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
@@ -1843,9 +1849,9 @@ const I18N = {
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
-Object.assign(I18N.de, {editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
-Object.assign(I18N.en, {editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
-Object.assign(I18N.nl, {editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
+Object.assign(I18N.de, {gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
+Object.assign(I18N.en, {gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
+Object.assign(I18N.nl, {gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
 Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
@@ -5024,6 +5030,14 @@ function commitEfmInput(inp){
   if(nv===ov || (nv==null&&ov==null)) return;
   saveDetailField(c, cfg.col, cfg.field, nv, {pb:cfg.pb});
 }
+/* #9 experiment switch. ?tiles=1 turns JC's grouped-modules variant on for THIS device only and
+   remembers it (the PWA loses the query string on the next navigation); ?tiles=0 turns it off.
+   Nobody else sees it, and removing the experiment later is deleting one const and one branch. */
+const _TILES = (function(){ try{
+  const u=new URLSearchParams(location.search);
+  if(u.has('tiles')) localStorage.setItem('bf_tiles', u.get('tiles')==='0' ? '' : '1');
+  return !!localStorage.getItem('bf_tiles');
+}catch(e){ return false; } })();
 function efmNext(inp){ const all=[].slice.call(document.querySelectorAll('#d-rows .efm-in')); const i=all.indexOf(inp); if(i>=0 && i+1<all.length){ all[i+1].focus(); } else { inp.blur(); } }
 let _efmCtx=null;
 function sizeEfm(inp){
@@ -5298,7 +5312,7 @@ function openDetailObj(c, from, keepEdit){
         if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
   }
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,reel:1,boat:1,released:1,date:1};
-  const specHTML=rows.map(r=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
+  const _specOne=(r)=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
     const canEdit=_editable && (key==='angler' ? (c._db&&c._ctxId) : EDITABLE_FIELDS[key]);
     if(editing && canEdit && key==='date'){
       return `<div class="spec efm wide">${dSpecIcon('date')}<span class="kv"><span class="k">${r[1]}</span><input class="efm-in efm-date" type="datetime-local" value="${escAttr(isoToLocalInput(c.date))}" max="${nowLocal()}" onchange="commitEfmDate(this)"></span></div>`;
@@ -5310,7 +5324,30 @@ function openDetailObj(c, from, keepEdit){
     if(editing && canEdit){ // choice / water / angler → tap opens sheet/picker
       return `<div class="spec efm${wide?' wide':''}" onclick="startFieldEdit(this,'${key}')">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="efm-pickrow"><span class="v efm-pick${empty?' efm-empty':''}">${esc(''+r[2])}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div>`;
     }
-    return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; }).join('');
+    return `<div class="spec${wide?' wide':''}">${dSpecIcon(key)}<span class="kv"><span class="k">${r[1]}</span><span class="v">${esc(''+r[2])}</span></span></div>`; };
+  /* #9 experiment (?tiles=1): the same rows, only bundled by meaning into modules — JC's T3.
+     Deliberately a switch, not a rewrite: the rows are untouched, so this can be judged on real
+     data and thrown away in one line. Off by default, so no beta user sees an experiment. */
+  const _TILE_GROUPS=[
+    ['gTilesCatch', ['date','released','method']],
+    ['gTilesGear',  ['bait','rod','reel']],
+    ['gTilesCond',  ['boat','trolling','water']],
+    ['gTilesMisc',  ['loggedBy','angler']]
+  ];
+  let specHTML;
+  if(_TILES){
+    const used=new Set();
+    specHTML=_TILE_GROUPS.map(([lab,keys])=>{
+      const mine=rows.filter(r=>keys.indexOf(r[0])>=0);
+      mine.forEach(r=>used.add(r[0]));
+      if(!mine.length) return '';
+      return `<div class="dmodul"><div class="dmh">${esc(t(lab))}</div><div class="dspecs">${mine.map(_specOne).join('')}</div></div>`;
+    }).join('');
+    const rest=rows.filter(r=>!used.has(r[0]));         // never silently drop a field the groups don't know
+    if(rest.length) specHTML+=`<div class="dmodul"><div class="dspecs">${rest.map(_specOne).join('')}</div></div>`;
+  } else {
+    specHTML=rows.map(_specOne).join('');
+  }
   let pbBanner='';   // personal PB now shown as an ochre crown next to the species (see d-crown), no banner
   let medBanner='';
   const _pr=podiumRank(c);
@@ -5325,7 +5362,7 @@ function openDetailObj(c, from, keepEdit){
   const canGroup = c._db && (state.myContexts||[]).length>0;
   const groupRow = (editing && canGroup) ? `<div class="dgroup-edit"><div class="sectionlabel">${esc(t('logToArea'))}</div><div class="spec efm dgroup-pick" onclick="openDetailAreaSheet()"><svg viewBox="0 0 24 24"><path d="M9 7a3 3 0 1 0 0 6a3 3 0 0 0 0 -6M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg><span class="kv"><span class="efm-pickrow"><span class="v efm-pick">${esc(detailAreaSummary(c))}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div></div>` : '';
   { const gt=document.getElementById('d-group-top'); if(gt){ gt.innerHTML=groupRow; gt.style.display=groupRow?'block':'none'; } }
-  document.getElementById('d-rows').innerHTML=pbBanner+medBanner+`<div class="dspecs">${specHTML}</div>`+banner;
+  document.getElementById('d-rows').innerHTML=pbBanner+medBanner+(_TILES?specHTML:`<div class="dspecs">${specHTML}</div>`)+banner;
   if(editing){ _resizeAllEfm(); if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(_resizeAllEfm); } }
   const nw=document.getElementById('d-notes-wrap'); const dn=document.getElementById('d-notes'); dn.onclick=null; dn.classList.remove('ef-notes','empty');
   if(editing){ nw.style.display='block'; dn.textContent=''; const ta=document.createElement('textarea'); ta.className='ef-textarea'; ta.value=c.notes||''; ta.placeholder=t('notesPh'); ta.rows=3;
