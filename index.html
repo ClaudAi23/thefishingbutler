@@ -482,9 +482,11 @@
     cursor:pointer; opacity:.65; transition:opacity .15s;}
   .detail-strip img.active{opacity:1; outline:2px solid var(--teal); outline-offset:-2px;}
 
-  .hero{height:240px; background:var(--teal); color:#fff; position:relative;
+  /* overflow:hidden is what makes the zoom possible: transform:scale() on the img grows it past the
+     frame, and without clipping it would spill over the byline below. */
+  .hero{height:240px; background:var(--teal); color:#fff; position:relative; overflow:hidden;
     display:flex; align-items:center; justify-content:center; font-size:3.5rem;}
-  .hero img{width:100%; height:100%; object-fit:cover;}
+  .hero img{width:100%; height:100%; object-fit:cover; touch-action:none;}
   /* No-photo hero: same design, solid colour, low height */
   .hero.nopic{height:132px; background:var(--teal-dark);}
   /* Hero overlay: species + size chips + crown on the cover photo (click-through so the photo tap opens the zoomable lightbox) */
@@ -2883,7 +2885,7 @@ function dbRowToCatch(row, photoUrls, thumbUrls){
     location: row.location||'', lat: row.lat!=null? Number(row.lat):null, lon: row.lon!=null? Number(row.lon):null,
     date: row.caught_at, notes: row.notes||'', moon: row.moon||null, weather: row.weather||null,
     angler: (state.me&&state.me.name)||'', userId: row.owner_id,
-    loggedBy: row.logged_by||null, loggedByName:null, confirmed: row.confirmed!==false, _db:true, _ctxId: row.context_id||null, _ctxIds: row.context_ids||null, coverPos: row.cover_pos||null,
+    loggedBy: row.logged_by||null, loggedByName:null, confirmed: row.confirmed!==false, _db:true, _ctxId: row.context_id||null, _ctxIds: row.context_ids||null, coverPos: row.cover_pos||null, coverZoom: row.cover_zoom||null,
     pbLen: row.pb_length===true, pbWt: row.pb_weight===true, pbOptout: row.pb_optout===true
   , photos: photoUrls||[], photo: (photoUrls&&photoUrls[0])||null, thumbs: (thumbUrls&&thumbUrls.length)?thumbUrls:(photoUrls||[]) };
 }
@@ -3529,7 +3531,7 @@ function renderList(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${coverPosOf(c.coverPos)}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -3588,7 +3590,7 @@ function renderRecordsShelf(items){
   const cards=uniq.map(c=>{
     const val = metric==='weight' ? (c.weight!=null?fmtWeight(c.weight):'—') : (c.length!=null?fmtLen(c.length):'—');
     const cov=coverThumbOf(c);
-    const thumb = cov ? `<span class="rec-thumb" style="background-image:url('${cov}'); background-position:${c.coverPos||'50% 50%'};"></span>` : `<span class="rec-thumb rec-thumb-ph">${FISH_IC}</span>`;
+    const thumb = cov ? `<span class="rec-thumb" style="background-image:url('${cov}'); background-position:${coverPosOf(c.coverPos)};"></span>` : `<span class="rec-thumb rec-thumb-ph">${FISH_IC}</span>`;
     return `<button type="button" class="rec-card" onclick="openStatsRecord('${c.id}')"><span class="rec-crown">${CROWN_IC}</span>${thumb}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`;
   }).join('');
   box.innerHTML=`<div class="rec-head">${CROWN_IC}<span>${esc(t('recordsShelfTitle'))}</span></div><div class="rec-strip">${cards}</div>`;
@@ -3641,7 +3643,7 @@ function renderStats(){
   }
   sorted.forEach(c=>{
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${c.coverPos||'50% 50%'}">` : `<span class="thumb">${FISH_IC}</span>`;
+    const _cov=coverThumbOf(c); const thumb = _cov ? `<img class="thumb" src="${_cov}" alt="" loading="lazy" decoding="async" style="object-position:${coverPosOf(c.coverPos)}">` : `<span class="thumb">${FISH_IC}</span>`;
     b.innerHTML=`${isPb(c)?'<span class="pb-crown">'+CROWN_IC+'</span>':''}${thumb}
       <span style="flex:1; min-width:0;">
         <span class="top"><span style="display:flex; align-items:center; gap:7px; min-width:0;"><span class="sp">${trSpecies(c.species)}</span>${podiumRank(c)?medalBadge(podiumRank(c)):''}${podiumRank(c)===1?'<span class="rec-word">'+esc(ctxRecWord())+'</span>':''}${c._pending?'<span class="pending-pill">'+esc(t('pendingChip'))+'</span>':''}</span><span class="val">${primaryStr(c)}</span></span>
@@ -4643,13 +4645,35 @@ function setHeroPhoto(el, i){
   Array.from(strip.children).forEach(c=>c.classList.remove('active')); el.classList.add('active');
 }
 let _lb={photos:[],idx:0,scale:1,tx:0,ty:0};
-function saveCoverPos(c, pos){
-  c.coverPos=pos;
-  try{ const i=(state.catches||[]).findIndex(x=>x.id===c.id); if(i>=0) state.catches[i].coverPos=pos; }catch(e){}
+/* SECURITY: cover_pos / cover_zoom come straight out of the database and land inside a style=""
+   attribute in four places. cover_pos is a plain TEXT column, a member can write their own row through
+   the API, and a club list loads EVERY member's catches (loadCtxCatches selects by context, not owner).
+   Interpolating the stored text raw therefore let one member's string break out of the attribute on
+   everyone else's screen. Never pass the stored value through: parse it to numbers and rebuild it.
+   Same for the zoom — a hostile or broken value must not reach transform:scale(). */
+const COVER_ZMIN=1, COVER_ZMAX=4;
+function coverPosOf(v){
+  const m=/^\s*(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%\s*$/.exec(String(v==null?'':v));
+  if(!m) return '50% 50%';
+  const cl=n=>Math.max(0, Math.min(100, n));
+  return cl(parseFloat(m[1]))+'% '+cl(parseFloat(m[2]))+'%';
+}
+function coverZoomOf(v){
+  const z=parseFloat(v);
+  if(!isFinite(z)) return 1;
+  return Math.round(Math.max(COVER_ZMIN, Math.min(COVER_ZMAX, z))*100)/100;
+}
+function saveCoverPos(c, pos, zoom){
+  pos=coverPosOf(pos); zoom=coverZoomOf(zoom==null?c.coverZoom:zoom);
+  c.coverPos=pos; c.coverZoom=zoom;
+  try{ const i=(state.catches||[]).findIndex(x=>x.id===c.id); if(i>=0){ state.catches[i].coverPos=pos; state.catches[i].coverZoom=zoom; } }catch(e){}
   haptic(8);
-  if(c._db && getSB()){ getSB().from('catches').update({cover_pos:pos}).eq('id', c.id).then(()=>{}, ()=>{}); }
+  if(c._db && getSB()){ getSB().from('catches').update({cover_pos:pos, cover_zoom:zoom}).eq('id', c.id).then(()=>{}, ()=>{}); }
   else { try{ saveCatches(); }catch(e){} }
-  toast(t('savedToast'));
+  /* No toast (JC): the picture visibly moved under the thumb and haptic() already fired — a message
+     700px below the hero confirming what you just did with your own hand explains your own wrist.
+     It also fired on EVERY drag-end, so three nudges meant three toasts. Other saves keep theirs,
+     because there nothing visible happens. */
 }
 function bindHeroRepos(c){
   const img=document.getElementById('d-hero-img'); if(!img) return;
@@ -4658,12 +4682,28 @@ function bindHeroRepos(c){
   if(!isMine){ img.style.cursor='zoom-in'; img.onclick=openLb; return; }
   img.style.cursor='grab'; img.title=t('repositionHint');
   let sx=0,sy=0,startX=50,startY=50,drag=false,moved=false;
+  let zoom=coverZoomOf(c.coverZoom), pinch=false, pinchD0=0, pinchZ0=1;
   const parse=()=>{ const m=(img.style.objectPosition||'50% 50%').split(/\s+/); return [parseFloat(m[0])||50, parseFloat(m[1])||50]; };
+  /* object-position picks WHICH part of a cover-scaled image shows — it cannot zoom, because "cover"
+     is already the smallest scale that fills the frame. The zoom is a real scale on top, anchored to
+     the same focal point (transform-origin = object-position), so zooming keeps what you pointed at. */
+  const apply=(x,y)=>{ const p=x+'% '+y+'%'; img.style.objectPosition=p; img.style.transformOrigin=p; img.style.transform='scale('+zoom+')'; };
+  const commit=()=>{ const q=parse(); saveCoverPos(c, q[0]+'% '+q[1]+'%', zoom); };
+  const dist=t=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
   const down=e=>{ const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; const q=parse(); startX=q[0]; startY=q[1]; drag=true; moved=false; img.style.cursor='grabbing'; };
-  const move=e=>{ if(!drag) return; const p=e.touches?e.touches[0]:e; const dx=p.clientX-sx, dy=p.clientY-sy; if(Math.abs(dx)>4||Math.abs(dy)>4) moved=true; if(!moved) return; const nx=Math.max(0,Math.min(100,startX-(dx/(img.clientWidth||1))*100)); const ny=Math.max(0,Math.min(100,startY-(dy/(img.clientHeight||1))*100)); img.style.objectPosition=nx+'% '+ny+'%'; if(e.cancelable)e.preventDefault(); };
-  const up=()=>{ if(!drag) return; drag=false; img.style.cursor='grab'; if(!moved){ openLb(); } else { saveCoverPos(c, img.style.objectPosition); } };
-  img.ontouchstart=down; img.ontouchmove=move; img.ontouchend=up;
+  const move=e=>{ if(!drag) return; const p=e.touches?e.touches[0]:e; const dx=p.clientX-sx, dy=p.clientY-sy;
+    if(Math.abs(dx)>4||Math.abs(dy)>4) moved=true; if(!moved) return;
+    // Divide by the zoom: at 2x a finger travels twice as far across the screen as across the image.
+    const nx=Math.max(0,Math.min(100,startX-(dx/((img.clientWidth||1)*zoom))*100));
+    const ny=Math.max(0,Math.min(100,startY-(dy/((img.clientHeight||1)*zoom))*100));
+    apply(nx,ny); if(e.cancelable)e.preventDefault(); };
+  const up=()=>{ if(!drag) return; drag=false; img.style.cursor='grab'; if(!moved){ openLb(); } else { commit(); } };
+  img.ontouchstart=e=>{ if(e.touches.length===2){ pinch=true; drag=false; pinchD0=dist(e.touches)||1; pinchZ0=zoom; if(e.cancelable)e.preventDefault(); return; } down(e); };
+  img.ontouchmove=e=>{ if(pinch && e.touches.length===2){ zoom=coverZoomOf(pinchZ0*(dist(e.touches)/pinchD0)); const q=parse(); apply(q[0],q[1]); if(e.cancelable)e.preventDefault(); return; } move(e); };
+  img.ontouchend=e=>{ if(pinch){ if(e.touches.length===0){ pinch=false; commit(); } return; } up(); };
   img.onmousedown=down; img.onmousemove=move; img.onmouseup=up; img.onmouseleave=()=>{ if(drag) up(); };
+  img.onwheel=e=>{ e.preventDefault(); zoom=coverZoomOf(zoom*(e.deltaY<0?1.08:1/1.08)); const q=parse(); apply(q[0],q[1]);
+    clearTimeout(img._zt); img._zt=setTimeout(commit,400); };   // one save per gesture, not per tick
 }
 function openLightbox(photos, idx){
   if(!photos||!photos.length) return;
@@ -5387,7 +5427,10 @@ function openDetailObj(c, from, keepEdit){
     hero.style.display='flex';
     if(ps.length){
       hero.className='hero';
-      hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${c.coverPos||'50% 50%'};">`+_facts;
+      /* transform-origin is tied to object-position so zooming pulls TOWARDS the chosen focal point
+         instead of towards the middle — otherwise picking a spot and then zooming would lose it. */
+      { const _cp=coverPosOf(c.coverPos), _cz=coverZoomOf(c.coverZoom);
+        hero.innerHTML=`<img id="d-hero-img" src="${esc(ps[0])}" alt="" style="object-position:${_cp}; transform-origin:${_cp}; transform:scale(${_cz});">`+_facts; }
       bindHeroRepos(c);
     } else {
       hero.className='hero nopic';
