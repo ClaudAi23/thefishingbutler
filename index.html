@@ -1330,7 +1330,7 @@
            tab and is not always there. An installed PWA always launches at "/" with no query string,
            so ?debug=1 can never reach it; the switch has to be inside the app.
            Remove this block, dlog()/dbgToggle()/dbgCopy() and the .dbg-* CSS once verified. -->
-      <button type="button" class="btn secondary sm" style="width:100%; margin-bottom:14px;" onclick="dbgToggle()">Test-Log an/aus</button>
+      <button type="button" class="btn secondary sm" style="width:100%; margin-bottom:14px;" onclick="dbgToggle()">Test-Log: AUS — zum Einschalten tippen</button>
       <div class="accgroup open" id="acc-profil">
         <button type="button" class="acchead" onclick="toggleAcc('profil')"><span data-i18n="profile">Profil</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
@@ -4699,27 +4699,48 @@ let _lb={photos:[],idx:0,scale:1,tx:0,ty:0};
    Lives on screen because iOS has no console to hand. Kept out of the way: it only renders when it is
    switched on, and it never throws into the calling code. */
 let _dbgOn=false, _dbgLines=[];
-function dbgToggle(){ _dbgOn=!_dbgOn; try{ localStorage.setItem('bf_dbg', _dbgOn?'1':''); }catch(e){}
-  if(!_dbgOn){ const p=document.getElementById('dbg-panel'); if(p) p.remove(); _dbgLines=[]; }
-  else { dlog('Log an — Version ' + (document.querySelector('meta[name="build"]')||{content:'?'}).content); }
-  try{ toast(_dbgOn?'Test-Log an':'Test-Log aus'); }catch(e){}
+/* The panel appears as soon as logging is ON — not on the first dlog(). Otherwise the log runs
+   invisibly after a reload, you press the button to "switch it on", and actually switch it OFF.
+   Toggling off no longer throws the lines away either: the whole point is to reload, collect, copy. */
+function dbgPanel(){
+  if(!_dbgOn) return null;
+  let p=document.getElementById('dbg-panel');
+  if(!p && document.body){
+    p=document.createElement('div'); p.id='dbg-panel'; p.className='dbg-panel';
+    p.innerHTML='<div class="dbg-bar"><b>Test-Log läuft</b>'
+      +'<button type="button" onclick="dbgCopy()">Kopieren</button>'
+      +'<button type="button" onclick="dbgClear()">Leeren</button>'
+      +'<button type="button" onclick="dbgToggle()">Aus</button></div><pre id="dbg-out"></pre>';
+    document.body.appendChild(p);
+  }
+  return p;
 }
+function dbgLabel(){ try{ const b=[...document.querySelectorAll('#tab-personal button')].find(x=>/Test-Log/.test(x.textContent));
+  if(b) b.textContent='Test-Log: '+(_dbgOn?'AN — zum Ausschalten tippen':'AUS — zum Einschalten tippen'); }catch(e){} }
+function dbgRender(){ const p=dbgPanel(); if(!p) return; const o=document.getElementById('dbg-out');
+  o.textContent=_dbgLines.length?_dbgLines.join('\n'):'(noch nichts — App neu laden und den Fang öffnen)'; o.scrollTop=o.scrollHeight; }
+function dbgToggle(){
+  _dbgOn=!_dbgOn; try{ localStorage.setItem('bf_dbg', _dbgOn?'1':''); }catch(e){}
+  if(!_dbgOn){ const p=document.getElementById('dbg-panel'); if(p) p.remove(); }   // lines survive on purpose
+  else { dlog('— Log an —'); }
+  dbgLabel();
+  try{ toast(_dbgOn?'Test-Log an':'Test-Log aus (Zeilen bleiben)'); }catch(e){}
+}
+function dbgClear(){ _dbgLines=[]; dbgRender(); }
 function dlog(msg, obj){
   if(!_dbgOn) return;
   try{
     const t=new Date().toLocaleTimeString();
     _dbgLines.push(t+'  '+msg+(obj!==undefined?('  '+JSON.stringify(obj)):''));
-    if(_dbgLines.length>60) _dbgLines.shift();
-    let p=document.getElementById('dbg-panel');
-    if(!p){ p=document.createElement('div'); p.id='dbg-panel'; p.className='dbg-panel';
-      p.innerHTML='<div class="dbg-bar"><b>Test-Log</b><button type="button" onclick="dbgCopy()">Kopieren</button><button type="button" onclick="dbgToggle()">Zu</button></div><pre id="dbg-out"></pre>';
-      document.body.appendChild(p); }
-    const o=document.getElementById('dbg-out'); o.textContent=_dbgLines.join('\n'); o.scrollTop=o.scrollHeight;
+    if(_dbgLines.length>80) _dbgLines.shift();
+    dbgRender();
   }catch(e){}
 }
 function dbgCopy(){ const s=_dbgLines.join('\n');
-  try{ if(navigator.clipboard) navigator.clipboard.writeText(s); else { const a=document.createElement('textarea'); a.value=s; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } toast('Log kopiert'); }catch(e){} }
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(s); else { const a=document.createElement('textarea'); a.value=s; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } toast('Log kopiert ('+_dbgLines.length+' Zeilen)'); }catch(e){} }
 try{ if(localStorage.getItem('bf_dbg')==='1'){ _dbgOn=true; } }catch(e){}
+/* Show the panel right after boot when the flag survived a reload — that is exactly the case JC hit. */
+window.addEventListener('DOMContentLoaded', ()=>{ if(_dbgOn){ dlog('— Log läuft nach Neustart —'); dbgLabel(); } });
 const COVER_ZMIN=1, COVER_ZMAX=4;
 function coverPosOf(v){
   const m=/^\s*(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%\s*$/.exec(String(v==null?'':v));
@@ -6110,6 +6131,7 @@ function openSettings(){
 function closeSettings(){ go(state.settingsReturn || 'club'); }
 function setSettingsTab(tab){
   state.settingsTab=tab;
+  try{ dbgLabel(); }catch(e){}   // TEMPORARY: the switch must show its state whenever the tab is opened
   document.querySelectorAll('#settings-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.st===tab));
   document.getElementById('tab-personal').style.display = tab==='personal' ? '' : 'none';
   document.getElementById('tab-area').style.display = tab==='area' ? '' : 'none';
