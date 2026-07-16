@@ -376,6 +376,16 @@
   .wtr.tr-up{color:var(--teal);}
   .wtr.tr-down{color:var(--teal);}
   .wtr.tr-flat{color:var(--muted);}
+  /* JC: a short centred rule as the break before the weather — a pause, not a container. The byline
+     already carries a FULL-width border, so the two widths are a real step: full = end of the head,
+     short = pause between sections. As a ::before it needs no markup and disappears with the section
+     when there is no weather. */
+  #d-weather-wrap::before{content:""; display:block; width:75%; height:1px; margin:0 auto 20px;
+    background:var(--border-2);}
+  /* Footer: note left, source right, one line. Only fits because the note lost its parenthetical —
+     with "(lineare Tendenz, Tageswerte)" it needed 455px of 358 and would have wrapped under the source. */
+  .wfoot{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:12px 4px 0;}
+  .wfoot .wtrend-note, .wfoot .wsrc{margin:0; min-width:0;}
   .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
   .wspark-cap{font-size:0.6875rem; color:var(--muted); text-align:center; margin-top:4px;}
   /* The source line is the sibling of the trend note, not a footer: same size, same left edge,
@@ -509,10 +519,9 @@
   /* JC: method and bait ALWAYS own their line — they are headlines, not items that may share.
      flex-basis:100% does that, so the pair is always on the line below and only the pair is subject
      to the tier rule. */
-  .m-line .head, .m-line .bait{flex-basis:100%;}
-  .m-line .head{font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase;
-    letter-spacing:.03em; font-size:1.35rem; line-height:1.1; color:var(--text);}
-  .m-line .bait{font-weight:600; font-size:1.0625rem; line-height:1.3;}
+  /* JC: method and bait are the SAME size — two labelled values of equal rank. The method used to be
+     big Condensed caps because it WAS the section heading; the field label is the heading now. */
+  .m-line .head, .m-line .bait{flex-basis:100%; font-weight:600; font-size:1.0625rem; line-height:1.3; color:var(--text);}
   /* The pair is its own flex container so it wraps as a UNIT (see _howBlock). Default flex-shrink is
      what makes tier 3 work — do not set flex-shrink:0 here, or a long pair would overflow instead of
      splitting onto two lines. */
@@ -523,8 +532,13 @@
      keep the same shape. */
   .m-how.t3 .q{flex-basis:100%;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
-  .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
-  .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
+  /* W1 (JC): no boxes. What is left is the pattern the rest of the page already uses — small caps
+     label, value under it. The 8px gap was air between BOXES; without a border two rows merge at 8px,
+     so it goes to 16px, the same step that separates Methode from Köder.
+     Icons stay: six entries of "number + unit" are told apart by the symbol far faster than by reading
+     six labels. On the method the icon did no work, which is why it has none — same rule, not two. */
+  .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 12px;}
+  .wx-card{min-width:0;}
   .wx-card.wide{grid-column:1 / -1;}
   .wx-card .k{display:flex; align-items:center; gap:5px; font-size:0.5875rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
   .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
@@ -586,11 +600,9 @@
   /* #9 (JC): the note gets the same surface as every other read-only field. Read mode only —
      in edit mode it already holds a textarea with its own border, and a box around that is the
      box-in-a-box we keep removing. */
-  /* The note sits directly under the weather now, so it has to read as its sibling: same size and
-     the same left text edge as a card value. .wx-card is padding 8px 10px, so this matches it —
-     1px of padding difference is invisible until the two are stacked, and then it isn't. */
-  #d-notes.dnote-box{background:var(--surface); border:1px solid var(--border); border-radius:10px;
-    padding:8px 10px; font-size:0.9375rem; line-height:1.45; white-space:pre-wrap; text-align:left;}
+  /* The note is the weather cards' sibling and has to stay one: they lost their box (W1), so it loses
+     its box. Keeping it would leave the note as the only framed text on the page. */
+  #d-notes.dnote-box{padding:0 4px; font-size:0.9375rem; line-height:1.45; white-space:pre-wrap; text-align:left;}
   .ef-textarea{width:100%; min-height:80px; font-family:inherit; font-size:0.95rem; color:var(--text); background:var(--surface); border:1.5px solid var(--accent); border-radius:9px; padding:9px 10px; outline:none; box-shadow:0 0 0 3px rgba(224,165,63,.15); resize:vertical;}
   /* "Deine Rekorde" shelf (Stats) */
   .rec-head{display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:0.78rem; color:var(--muted); margin:0 0 10px;}
@@ -1912,13 +1924,13 @@ const I18N = {
 Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Wie gefangen", gTilesBait:"Köder & Gerät", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
 Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"How it was caught", gTilesBait:"Lure & gear", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
 Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Hoe gevangen", gTilesBait:"Aas & uitrusting", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
-Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
+Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage.", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
-Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", trendNote:"Arrows: change over the last {n} days (linear tendency, daily values).", sparkCap:"Daily mean temperature, last {n} days",
+Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air temperature", wWind:"Wind", wPressure:"Pressure", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", trendNote:"Arrows: change over the last {n} days.", sparkCap:"Daily mean temperature, last {n} days",
   m_new:"New moon", m_wc:"Waxing crescent", m_fq:"First quarter", m_wg:"Waxing gibbous", m_full:"Full moon", m_ng:"Waning gibbous", m_lq:"Last quarter", m_nc:"Waning crescent",
   wc_clear:"Clear", wc_partly:"Partly cloudy", wc_cloudy:"Cloudy", wc_fog:"Fog", wc_drizzle:"Drizzle", wc_rain:"Rain", wc_snow:"Snow", wc_thunder:"Thunderstorm"});
-Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Luchttemperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", trendNote:"Pijlen: verandering over de laatste {n} dagen (lineaire tendens, dagwaarden).", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
+Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Luchttemperatuur", wWind:"Wind", wPressure:"Luchtdruk", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", trendNote:"Pijlen: verandering over de laatste {n} dagen.", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
@@ -3876,8 +3888,10 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="wx-grid">'+cells.join('')+'</div>';
-  if(days>=2 && (wxOn('wxTemp')||wxOn('wxWind')||wxOn('wxPress'))) html+=`<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>`;
-  html+=`<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div>`;
+  // JC: note left, source right, on one line. The note keeps its own left edge when there is no note.
+  const _tn = (days>=2 && (wxOn('wxTemp')||wxOn('wxWind')||wxOn('wxPress')))
+    ? `<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>` : '<div></div>';
+  html+=`<div class="wfoot">${_tn}<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div></div>`;
   box.innerHTML=html;
 }
 function autoLocate(){
