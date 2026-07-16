@@ -1325,6 +1325,12 @@
         <button type="button" data-st="area" onclick="setSettingsTab('area')" data-i18n="tabArea">Verein/Gruppe</button>
       </div>
       <div id="tab-personal">
+      <!-- TEMPORARY (16 Jul): crop test log. Sits in the PERSONAL tab because it must always be
+           reachable — the first attempt hid it in the Gefahrenzone, which lives in the Verein/Gruppe
+           tab and is not always there. An installed PWA always launches at "/" with no query string,
+           so ?debug=1 can never reach it; the switch has to be inside the app.
+           Remove this block, dlog()/dbgToggle()/dbgCopy() and the .dbg-* CSS once verified. -->
+      <button type="button" class="btn secondary sm" style="width:100%; margin-bottom:14px;" onclick="dbgToggle()">Test-Log an/aus</button>
       <div class="accgroup open" id="acc-profil">
         <button type="button" class="acchead" onclick="toggleAcc('profil')"><span data-i18n="profile">Profil</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
@@ -1494,10 +1500,6 @@
         <div class="accbody">
           <button type="button" id="del-ctx-btn" class="btn secondary sm" style="width:100%; color:var(--danger); border-color:var(--danger); font-weight:600; display:none;" onclick="deleteContext()">Verein/Gruppe löschen</button>
           <p class="hint" id="del-ctx-hint" style="display:none; margin-top:8px;" data-i18n="deleteContextHint">Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.</p>
-          <!-- TEMPORARY (16 Jul): crop test log. An installed PWA always launches at "/" with no query
-               string, so ?debug=1 can never reach it — the switch has to live inside the app. Remove
-               this block, dlog() and the .dbg-* CSS once the round trip is confirmed on the device. -->
-          <button type="button" class="btn secondary sm" style="width:100%; margin-top:10px;" onclick="dbgToggle()">Test-Log an/aus</button>
         </div>
       </div>
       </div><!-- /tab-area -->
