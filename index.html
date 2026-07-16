@@ -588,13 +588,6 @@
   .wx-card .k{display:flex; align-items:center; gap:5px; font-size:0.5875rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
   .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .wx-card .v{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; font-weight:600; font-size:0.9375rem; margin-top:3px; color:var(--text);}
-  /* (6) The moon lives in the value row now, at 20px. It needs BOTH: stroke for the outline circle and
-     currentColor for the lit part — so it takes the value's --text and the phase actually reads.
-     align-self:center because an <svg> has no baseline: on a baseline row the browser would align it
-     by its bottom edge and drop it below the words. */
-  .wx-card .v.moon-v{align-items:center; gap:7px;}
-  .moon-ic{width:20px; height:20px; flex:0 0 auto; align-self:center;
-    fill:none; stroke:currentColor; stroke-width:1.5;}
   .wx-card .tr{font-size:0.7rem; font-weight:600; white-space:nowrap;}
   .wx-card .tr.up{color:var(--teal-bright);}
   .wx-card .tr.down{color:var(--accent);}
@@ -4026,18 +4019,16 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
      was the smallest thing on the page at 13px, squeezed in beside its label like the decorative ones.
      It moves into the VALUE row at 20px: the drawing says the phase, the word confirms it.
      Its own label key: t('moon') still reads "Mondphase" in the share text, where no heading helps. */
+  /* Back to the original arrangement (JC): the phase-accurate disc sits in the LABEL — the icon that
+     changes with the date belongs where every other card carries its icon — and the phase name is the
+     big white value, like every other reading on this page.
+     I had moved the disc into the value at 20px (review item 6, "the one icon carrying real
+     information is the smallest thing here") and set the name as a trend chip. JC looked at it live
+     and prefers this. The "+"/"−" on the quarters comes back with it: at label size the two quarters
+     are the same drawing mirrored, so the sign is the only thing telling them apart. */
   if(wxOn('wxMoon')){
-    /* Two moons, two jobs (JC): the label keeps a static crescent like every other label here — it marks
-       the CATEGORY, same as the thermometer on "Luft". The value carries the phase-accurate disc, which
-       is the DATA. A crescent reads as "moon" and cannot be mistaken for a phase reading.
-       The phase NAME is set like the other trend chips (JC): on every other card the big value is the
-       reading and the chip is the direction — here the disc is the reading and the name is the
-       direction. It even colours honestly: waxing grows (up), waning shrinks (down), full and new sit
-       still (flat).
-       The old bare "+"/"−" on the quarters is gone with it: "erstes Viertel" already says which one,
-       so the sign was saying the same thing twice. */
-    const dir = {m_wc:'up', m_fq:'up', m_wg:'up', m_ng:'down', m_lq:'down', m_nc:'down'}[moonKey] || 'flat';
-    cells.push(`<div class="wx-card"><span class="k">${wxIcon('moon')}${esc(t('wMoon'))}</span><span class="v moon-v">${moonIcon(moonKey)}<span class="tr ${dir}">${esc(t(moonKey))}</span></span></div>`);
+    const qd = moonKey==='m_fq' ? {txt:'+', dir:'up'} : (moonKey==='m_lq' ? {txt:'−', dir:'down'} : null);
+    cells.push(card(moonIcon(moonKey), t('wMoon'), esc(t(moonKey)), false, qd));
   }
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
