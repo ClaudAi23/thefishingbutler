@@ -385,9 +385,12 @@
   /* Footer: note left, source right, one line. Only fits because the note lost its parenthetical —
      with "(lineare Tendenz, Tageswerte)" it needed 455px of 358 and would have wrapped under the source. */
   .wfoot{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:12px 4px 0;}
-  /* .wsrc must carry the link's own size: as a plain wrapper it inherited 16px/24px, so its line box
-     was 24px tall while the note's was 16.5px — baseline alignment then put the two 2px apart. */
-  .wfoot .wtrend-note, .wfoot .wsrc{margin:0; min-width:0; font-size:0.625rem; line-height:1.5;}
+  /* Three ranks, three sizes: action 13px (.map-open), explanation 11px, credit 10px. The note is
+     content, not fine print — the credit is.
+     Both need an explicit size: as a plain wrapper .wsrc inherited 16px/24px, so its line box was 24px
+     tall while the note's was 16.5px, and baseline alignment then put the two 2px apart. */
+  .wfoot .wtrend-note{margin:0; min-width:0; font-size:0.6875rem; line-height:1.5;}
+  .wfoot .wsrc{margin:0; min-width:0; font-size:0.625rem; line-height:1.5;}
   /* Map footer: action left, credit right. margin-left:auto on the credit (not space-between) so the
      credit STAYS right when the button is hidden — it is in edit mode. */
   .mfoot{display:flex; align-items:baseline; gap:12px; margin:6px 0 0;}
@@ -533,9 +536,11 @@
   /* JC: method and bait ALWAYS own their line — they are headlines, not items that may share.
      flex-basis:100% does that, so the pair is always on the line below and only the pair is subject
      to the tier rule. */
-  /* JC: method and bait are the SAME size — two labelled values of equal rank. The method used to be
-     big Condensed caps because it WAS the section heading; the field label is the heading now. */
-  .m-line .head, .m-line .bait{flex-basis:100%; font-weight:600; font-size:1.0625rem; line-height:1.3; color:var(--text);}
+  /* U1 (JC): every labelled value on this page is the same size. Method, bait, conditions, water are
+     all the same thing — a label and its value — so they look the same. Rank is carried by ORDER (how
+     you caught it first, weather after), not by type size. 17px vs the weather's 15px was worse than
+     either extreme: two pixels read as a mistake, not as a hierarchy. */
+  .m-line .head, .m-line .bait{flex-basis:100%; font-weight:600; font-size:0.9375rem; line-height:1.3; color:var(--text);}
   /* The pair is its own flex container so it wraps as a UNIT (see _howBlock). Default flex-shrink is
      what makes tier 3 work — do not set flex-shrink:0 here, or a long pair would overflow instead of
      splitting onto two lines. */
@@ -554,7 +559,8 @@
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 12px;}
   .wx-card{min-width:0;}
   .wx-card.wide{grid-column:1 / -1;}
-  .wx-card .k{display:flex; align-items:center; gap:5px; font-size:0.5875rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  /* font-weight:600 to match .m-how .flabel — same role, and it used to inherit 400. */
+  .wx-card .k{display:flex; align-items:center; gap:5px; font-size:0.5875rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
   .wx-card .k svg{width:13px; height:13px; flex:0 0 auto; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .wx-card .v{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; font-weight:600; font-size:0.9375rem; margin-top:3px; color:var(--text);}
   .wx-card .tr{font-size:0.7rem; font-weight:600; white-space:nowrap;}
