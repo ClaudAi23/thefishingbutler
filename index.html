@@ -495,15 +495,14 @@
   .d-byline .av img{width:100%; height:100%; object-fit:cover;}
   .d-byline .nm{grid-column:2; grid-row:1; font-weight:600; font-size:0.9rem; color:var(--text);
     min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  /* M2: the method as ONE card. Same surface/border/radius as a weather card, but the value carries
-     the section (1.15rem, no field label — "METHODE" over "ANGELMETHODE" said the word twice), and the
-     attributes hang inside it as chips. */
-  .m-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 12px; display:block;}
-  .m-card .v{display:block; font-weight:600; font-size:1.15rem; line-height:1.2;}
-  .m-card .cs{display:flex; gap:6px; flex-wrap:wrap; margin-top:9px;}
-  .m-card .cs span{display:inline-flex; align-items:center; gap:5px; font-size:.75rem; font-weight:600; color:var(--text);
-    background:rgba(255,255,255,.06); border:1px solid var(--border-2); border-radius:999px; padding:3px 9px;}
-  .m-card .cs svg{width:12px; height:12px; stroke:var(--muted); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
+  /* M3: the method is a STATEMENT, not a card — no box, no field label ("METHODE" over "ANGELMETHODE"
+     said the word twice). It is the headline of the gear tiles below it, so it is set like a heading.
+     baseline alignment keeps the qualifiers sitting on the method's baseline, not floating mid-cap. */
+  .m-line{display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 9px; margin:0 4px 10px;}
+  .m-line .head{font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase;
+    letter-spacing:.03em; font-size:1.35rem; line-height:1.1; color:var(--text);}
+  .m-line .q{display:inline-flex; align-items:center; gap:5px; font-size:.85rem; color:var(--muted); white-space:nowrap;}
+  .m-line .q svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
   .wx-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; min-width:0;}
@@ -1891,9 +1890,9 @@ const I18N = {
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
-Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
-Object.assign(I18N.en, {gTilesMethod:"Method", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
-Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
+Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Wie gefangen", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
+Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"How it was caught", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
+Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Hoe gevangen", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
 Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", trendNote:"Pfeile: Veränderung über die letzten {n} Tage (lineare Tendenz, Tageswerte).", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
@@ -5412,25 +5411,30 @@ function openDetailObj(c, from, keepEdit){
   /* Every group answers exactly one question: how · with what · (weather: under which conditions)
      · where. "Fang" said nothing on a catch page — the whole page is the catch — and "Bedingungen"
      held boat, which is not a condition but part of how you fished. */
+  /* M3 (JC): method and gear are ONE section. They answer the same question — the method is "how",
+     the gear is "with what" — so the method becomes the headline of its own equipment. This also
+     removes the lone-tile case structurally: "Spinnfischen" can no longer be a single card under a
+     heading, because it IS the heading. */
   const _TILE_GROUPS=[
-    ['gTilesMethod', ['method','boat','trolling']],
-    ['gTilesGear',   ['bait','rod','reel']],
-    ['gTilesMisc',   ['loggedBy','angler']]
-
+    ['gTilesHow',  ['method','boat','trolling','bait','rod','reel']],
+    ['gTilesMisc', ['loggedBy','angler']]
   ];
-  /* M2 (JC): the method is not a measurement, so it does not get the weather's grammar of equal tiles.
-     Boat and trolling speed are ATTRIBUTES of the method, not siblings — so they become chips inside
-     the method's own card. One card instead of up to three, and the unit stops appearing twice: the
-     chip drops the label ("Schleppgeschw. (km/h)") and keeps only the value ("6,5 km/h").
-     Read mode only — edit mode keeps the open .spec rows, or every field would need its own editor here.
-     If a catch somehow has boat/trolling but no method, fall back to the plain grid rather than
-     inventing a card with no headline. */
-  const _methodCard=(mine)=>{
+  const _HOW_GEAR=['bait','rod','reel'];
+  /* Boat and trolling speed are ATTRIBUTES of the method, not siblings, so they hang off the headline
+     instead of standing next to it. They carry ICONS rather than prepositions: my mockup read "vom
+     Kajak", but the boat is free text and German gender on an arbitrary name is unknowable — "vom
+     Kajak" is right, "vom Anna" is not. The icon says what "vom" would have said, in every language.
+     The unit also stops appearing twice: the label ("Schleppgeschw. (km/h)") is gone, the value keeps it.
+     Read mode only — edit mode keeps the open .spec rows, or these fields would lose their editors.
+     No method → return null and let the plain grid render, rather than invent a headline. */
+  const _howBlock=(mine)=>{
     const head=mine.find(r=>r[0]==='method');
     if(!head) return null;
-    const chips=mine.filter(r=>r[0]!=='method')
-      .map(r=>`<span>${dSpecIcon(r[0])}${esc(''+r[2])}</span>`).join('');
-    return `<div class="m-card"><span class="v">${esc(''+head[2])}</span>${chips?`<span class="cs">${chips}</span>`:''}</div>`;
+    const quals=mine.filter(r=>r[0]==='boat'||r[0]==='trolling')
+      .map(r=>`<span class="q">${dSpecIcon(r[0])}${esc(''+r[2])}</span>`).join('');
+    const gear=mine.filter(r=>_HOW_GEAR.indexOf(r[0])>=0);
+    return `<div class="m-line"><span class="head">${esc(''+head[2])}</span>${quals}</div>`
+         + (gear.length?`<div class="wx-grid m-gear">${gear.map(_specOne).join('')}</div>`:'');
   };
   let specHTML;
   if(_TILES){
@@ -5440,7 +5444,7 @@ function openDetailObj(c, from, keepEdit){
       mine.forEach(r=>used.add(r[0]));
       if(!mine.length) return '';
       let inner;
-      if(lab==='gTilesMethod' && !editing) inner=_methodCard(mine);
+      if(lab==='gTilesHow' && !editing) inner=_howBlock(mine);
       if(inner==null) inner = editing ? `<div class="dspecs">${mine.map(_specOne).join('')}</div>`
                                       : `<div class="wx-grid">${mine.map(_specOne).join('')}</div>`;
       return `<div class="sectionlabel dmh-out">${esc(t(lab))}</div>${inner}`;
