@@ -652,34 +652,44 @@
 /* The lantern (esca). Position measured off mascot.png: 91,3% x / 22,5% y of the image. */
 .lk-esca{position:absolute; left:91.3%; top:22.5%; width:1.1em; height:1.1em; transform:translate(-50%,-50%); z-index:2; pointer-events:none;
   background:radial-gradient(circle, rgba(255,255,250,.95) 0%, rgba(255,236,180,.55) 26%, rgba(242,170,37,.22) 50%, rgba(242,170,37,0) 72%);}
-/* The light. Five stacked ellipses widening downward: the cone shape comes from the STAGGER, not
-   from a clip — so there is no box edge anywhere to be cut off and blurred back into softness.
+/* The light. Five soft ellipses widening downward: the cone shape comes from the STAGGER, not from
+   a clip — so there is no box edge anywhere to be cut off and blurred back into softness.
    (Every earlier attempt had one: a background is hard-clipped at the box edge; blur only fuzzes it.)
-   No hard beam: the esca is bioluminescent, a lamp would be the wrong animal. Height is set in JS. */
+   No hard beam: the esca is bioluminescent, a lamp would be the wrong animal. Height is set in JS.
+   They are five ELEMENTS, not five gradients on one box, so each rung can light up on its own —
+   that's what lets the light visibly travel down from the lantern to the puffer. The blur sits on
+   the parent: once instead of five times. */
 .lk-sh{position:absolute; left:91.3%; top:22.5%; z-index:0; pointer-events:none; transform:translateX(-50%);
-  width:2.6em; filter:blur(7px);
-  background:
-    radial-gradient(ellipse 13% 8%  at 50% 6%,  rgba(255,242,205,.46),  transparent 74%),
-    radial-gradient(ellipse 22% 10% at 50% 26%, rgba(255,242,205,.345), transparent 76%),
-    radial-gradient(ellipse 33% 12% at 50% 50%, rgba(255,242,205,.253), transparent 78%),
-    radial-gradient(ellipse 45% 13% at 50% 74%, rgba(255,242,205,.184), transparent 80%),
-    radial-gradient(ellipse 56% 14% at 50% 94%, rgba(255,242,205,.127), transparent 82%);}
+  width:2.6em; filter:blur(7px);}
+.lk-sh i{position:absolute; inset:0; display:block;}
+.lk-sh i:nth-child(1){background:radial-gradient(ellipse 13% 8%  at 50% 6%,  rgba(255,242,205,.46),  transparent 74%);}
+.lk-sh i:nth-child(2){background:radial-gradient(ellipse 22% 10% at 50% 26%, rgba(255,242,205,.345), transparent 76%);}
+.lk-sh i:nth-child(3){background:radial-gradient(ellipse 33% 12% at 50% 50%, rgba(255,242,205,.253), transparent 78%);}
+.lk-sh i:nth-child(4){background:radial-gradient(ellipse 45% 13% at 50% 74%, rgba(255,242,205,.184), transparent 80%);}
+.lk-sh i:nth-child(5){background:radial-gradient(ellipse 56% 14% at 50% 94%, rgba(255,242,205,.127), transparent 82%);}
 /* The lit puffer. Puffer orange #EB9E18, not the wordmark gold — per UPDATE-02 this is the "light" hue. */
 .lk-pool{position:absolute; width:3.2em; height:1.5em; border-radius:50%; z-index:0; pointer-events:none;
   transform:translate(-50%,-50%); filter:blur(5px);
   background:radial-gradient(ellipse, rgba(235,158,24,.55), rgba(235,158,24,.18) 45%, rgba(235,158,24,0) 72%);}
 /* Launch choreography, in the order the mark tells its story: the wordmark stands as "butler fish"
    with a gap → the anglerfish swims in from the left, DARK → it stops → the lantern comes on →
-   the puffer appears with beam and pool and drops into the gap as the "·".
-   Total ~2,3s, which is why LOADER_MIN_MS is 3000. The brief's ≤900ms was written for a fade-in;
-   this is a scene, and the splash is where a brand is allowed to take a breath. */
+   its light travels DOWN, one rung of the cone at a time → the puffer appears in the light that
+   arrived and drops into the gap as the "·". That is what an anglerfish does, told in 3,3s.
+   The brief's ≤900ms was written for a fade-in; this is a scene, and the splash is where a brand
+   is allowed to take a breath. LOADER_MIN_MS carries the hold at the end. */
 .lockup.anim .lockup-word{animation:lkWord .4s ease-out both;}
 .lockup.anim .lockup-fish{animation:lkSwim 1.4s linear .25s both;}
 .lockup.anim .lockup-fish > img{animation:lkFade .35s ease-out .25s both;}
-.lockup.anim .lk-esca{animation:lkEsca .34s cubic-bezier(.2,.8,.2,1) 1.7s both;}
-.lockup.anim .lk-sh{animation:lkFade .4s ease-out 2s both;}
-.lockup.anim .lw-dot{animation:lkDot .44s cubic-bezier(.2,.8,.2,1) 2s both;}
-.lockup.anim .lk-pool{animation:lkFade .4s ease-out 2.07s both;}
+.lockup.anim .lk-esca{animation:lkEsca .38s cubic-bezier(.2,.8,.2,1) 1.75s both;}
+/* 120ms per rung = 600ms for the light to reach the puffer: long enough to see it fall, short
+   enough not to drag. Faster reads as a switch, slower as a drip. */
+.lockup.anim .lk-sh i:nth-child(1){animation:lkFade .3s ease-out 2.15s both;}
+.lockup.anim .lk-sh i:nth-child(2){animation:lkFade .3s ease-out 2.27s both;}
+.lockup.anim .lk-sh i:nth-child(3){animation:lkFade .3s ease-out 2.39s both;}
+.lockup.anim .lk-sh i:nth-child(4){animation:lkFade .3s ease-out 2.51s both;}
+.lockup.anim .lk-sh i:nth-child(5){animation:lkFade .3s ease-out 2.63s both;}
+.lockup.anim .lw-dot{animation:lkDot .46s cubic-bezier(.2,.8,.2,1) 2.8s both;}
+.lockup.anim .lk-pool{animation:lkFade .42s ease-out 2.86s both;}
 @keyframes lkFade{from{opacity:0;} to{opacity:1;}}
 @keyframes lkWord{from{opacity:0;} to{opacity:1;}}
 @keyframes lkEsca{0%{opacity:0; transform:translate(-50%,-50%) scale(.5);} 60%{opacity:1; transform:translate(-50%,-50%) scale(1.25);} 100%{opacity:1; transform:translate(-50%,-50%) scale(1);}}
@@ -743,7 +753,7 @@
     98.0%{transform:translateX(calc(var(--lk-shift,0px) + -0.0000em)) translateY(0.0076em) rotate(-0.518deg);}
     100.0%{transform:translateX(calc(var(--lk-shift,0px) + 0.0000em)) translateY(0.0000em) rotate(0.000deg);}
   }
-@media(prefers-reduced-motion:reduce){ .lockup.anim .lockup-word, .lockup.anim .lockup-fish, .lockup.anim .lockup-fish > img, .lockup.anim .lk-esca, .lockup.anim .lk-sh, .lockup.anim .lk-pool, .lockup.anim .lw-dot{animation:none;} }
+@media(prefers-reduced-motion:reduce){ .lockup.anim .lockup-word, .lockup.anim .lockup-fish, .lockup.anim .lockup-fish > img, .lockup.anim .lk-esca, .lockup.anim .lk-sh i, .lockup.anim .lk-pool, .lockup.anim .lw-dot{animation:none;} }
   .mascot-free::before{content:""; position:absolute; inset:-8%; z-index:0; pointer-events:none; border-radius:50%; background:radial-gradient(circle at 50% 46%, rgba(92,206,226,.30), rgba(92,206,226,.08) 46%, transparent 66%);}
   .mascot-free img{position:relative; z-index:1; max-width:99%; max-height:99%; width:auto; height:auto; display:block; filter:drop-shadow(0 0 13px rgba(95,205,225,.5)) drop-shadow(0 8px 18px rgba(0,0,0,.42));}
   .mascot-free.mf-sm::before{inset:-9%; background:radial-gradient(circle at 50% 46%, rgba(96,210,230,.34), rgba(96,210,230,.11) 45%, transparent 67%);}
@@ -804,7 +814,7 @@
 </head>
 <body>
 <div id="app-loader"><div class="lockup anim" style="font-size:min(4.4rem, 17vw);">
-  <div class="lockup-fish"><div class="lk-sh"></div><div class="lk-esca"></div><img src="/mascot.png" alt=""></div>
+  <div class="lockup-fish"><div class="lk-sh"><i></i><i></i><i></i><i></i><i></i></div><div class="lk-esca"></div><img src="/mascot.png" alt=""></div>
   <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
 </div></div>
 <div id="app">
@@ -835,7 +845,7 @@
     <div class="scroll pad">
       <div style="height:44px"></div>
       <h1 id="login-logo" class="lockup anim" style="font-size:2.1rem; margin:0 auto;">
-        <div class="lockup-fish"><div class="lk-sh"></div><div class="lk-esca"></div><img src="/mascot.png" alt=""></div>
+        <div class="lockup-fish"><div class="lk-sh"><i></i><i></i><i></i><i></i><i></i></div><div class="lk-esca"></div><img src="/mascot.png" alt=""></div>
         <div class="lockup-word"><span class="lw-butler">butler</span><img class="lw-dot" src="/puffer.png?v=3" alt="·"><span class="lw-fish">fish</span></div>
       </h1>
       <p style="text-align:center; margin:9px 0 0;"><span class="beta-pill">Beta</span></p>
@@ -2041,7 +2051,7 @@ function go(name, isBack){
 let _loaderShownAt = (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now();
 /* The launch choreography alone runs ~900ms, so 1500 left barely half a second to actually look
    at the mark. 2200 gives it ~1,3s to land without making the start feel sluggish. */
-const LOADER_MIN_MS = 3000;
+const LOADER_MIN_MS = 4600;
 function _now(){ return (typeof performance!=='undefined' && performance.now) ? performance.now() : Date.now(); }
 function showLoader(){ const el=document.getElementById('app-loader'); if(el){ el.classList.remove('hide'); _loaderShownAt=_now(); } }
 function hideLoader(){ const el=document.getElementById('app-loader'); if(!el) return; const elapsed=_now()-_loaderShownAt; if(elapsed>=LOADER_MIN_MS){ el.classList.add('hide'); } else { setTimeout(function(){ el.classList.add('hide'); }, LOADER_MIN_MS-elapsed); } }
