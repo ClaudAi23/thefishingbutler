@@ -502,6 +502,10 @@
   /* The gap BETWEEN the two blocks must beat the gap INSIDE one (the 4px row-gap above), or the four
      rows read as one flat list instead of two statements. 6px did not: it was one pixel of difference. */
   .m-line + .m-line{margin-top:14px;}
+  /* JC: method and bait ALWAYS own their line — they are headlines, not items that may share.
+     flex-basis:100% does that, so the pair is always on the line below and only the pair is subject
+     to the tier rule. */
+  .m-line .head, .m-line .bait{flex-basis:100%;}
   .m-line .head{font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase;
     letter-spacing:.03em; font-size:1.35rem; line-height:1.1; color:var(--text);}
   .m-line .bait{font-weight:600; font-size:1.0625rem; line-height:1.3;}
@@ -511,9 +515,8 @@
   .m-line .qs{display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 9px; min-width:0;}
   .m-line .q{display:inline-flex; align-items:center; gap:5px; font-size:.85rem; color:var(--muted); white-space:nowrap;}
   .m-line .q svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto;}
-  /* Shared tier, set by syncHowLines(): flex-basis:100% forces a wrap even where there would be room,
-     so the line that needs the break decides for both. */
-  .m-how.t2 .qs, .m-how.t3 .qs{flex-basis:100%;}
+  /* Shared tier, set by syncHowLines(): if either pair has to split, both split, so the two blocks
+     keep the same shape. */
   .m-how.t3 .q{flex-basis:100%;}
   /* Weather cards (2-up) with coloured trend chips; moon is a mono icon, no emoji */
   .wx-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
@@ -5041,17 +5044,14 @@ function dSpecIcon(tok){ const p=D_SPEC_IC[tok]||D_SPEC_IC.method; return `<svg 
      Same-line therefore means "vertical ranges overlap".
    · a hidden detail screen gives every rect 0, which silently reports tier 1 for everything. So bail
      out unless the block is actually laid out, and let a later call (fonts/resize) do the work. */
-function _howTier(l){
-  const head=l.querySelector('.head')||l.querySelector('.bait');
-  const qs=l.querySelector('.qs');
-  if(!qs) return 1;                                  // nothing to wrap
-  const q=qs.querySelectorAll('.q');
-  const ov=(a,b)=>{ const A=a.getBoundingClientRect(), B=b.getBoundingClientRect();
-    return Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top) > 2; };
-  const split = q.length>=2 && !ov(q[0],q[1]);
-  if(!head) return split?3:1;                        // pair alone on the line
-  if(ov(head,qs)) return 1;
-  return split?3:2;
+/* The headline always owns its line (CSS), so the only question left is whether the PAIR fits on one
+   line or has to split. Same-line = vertical ranges overlap; comparing top edges is useless on a
+   baseline row with mixed font sizes — the tops are never equal. */
+function _howSplits(l){
+  const qs=l.querySelector('.qs'); if(!qs) return false;
+  const q=qs.querySelectorAll('.q'); if(q.length<2) return false;
+  const A=q[0].getBoundingClientRect(), B=q[1].getBoundingClientRect();
+  return Math.min(A.bottom,B.bottom)-Math.max(A.top,B.top) <= 2;
 }
 function syncHowLines(_retry){
   document.querySelectorAll('.m-how').forEach(box=>{
@@ -5061,10 +5061,8 @@ function syncHowLines(_retry){
       if(!_retry) requestAnimationFrame(()=>syncHowLines(true));
       return;
     }
-    box.classList.remove('t2','t3');                 // measure NATURAL tiers, not the ones we forced last time
-    const lines=[...box.querySelectorAll('.m-line')];
-    const tier=Math.max.apply(null, lines.map(_howTier));
-    if(tier>1) box.classList.add('t'+tier);
+    box.classList.remove('t3');                      // measure the NATURAL state, not the one we forced last time
+    if([...box.querySelectorAll('.m-line')].some(_howSplits)) box.classList.add('t3');
   });
 }
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(syncHowLines);
