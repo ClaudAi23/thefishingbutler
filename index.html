@@ -388,9 +388,16 @@
   /* .wsrc must carry the link's own size: as a plain wrapper it inherited 16px/24px, so its line box
      was 24px tall while the note's was 16.5px — baseline alignment then put the two 2px apart. */
   .wfoot .wtrend-note, .wfoot .wsrc{margin:0; min-width:0; font-size:0.625rem; line-height:1.5;}
-  /* Map credit: same size, same colour, same right edge as the weather source — the two sit on one axis.
-     Right-aligned also keeps the traditional OSM corner. */
-  .msrc{margin-top:4px; padding:0 4px; text-align:right; font-size:0.625rem; line-height:1.5;}
+  /* Map footer: action left, credit right. margin-left:auto on the credit (not space-between) so the
+     credit STAYS right when the button is hidden — it is in edit mode. */
+  .mfoot{display:flex; align-items:baseline; gap:12px; margin:6px 0 0;}
+  .map-open{display:inline-flex; align-items:center; gap:5px; padding:0; border:none; background:none;
+    font-family:inherit; font-size:0.8125rem; font-weight:600; color:var(--teal-bright); cursor:pointer;}
+  .map-open svg{width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round;
+    stroke-linejoin:round; flex:0 0 auto;}
+  /* Map credit: same size, same colour, same right edge as the weather source — the two sit on one axis. */
+  .mfoot .msrc{margin-left:auto;}
+  .msrc{padding:0 4px; text-align:right; font-size:0.625rem; line-height:1.5;}
   .msrc a{color:var(--muted); font-size:0.625rem; text-decoration:none;}
   .msrc a:hover{text-decoration:underline;}
   .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
@@ -1250,12 +1257,17 @@
           <div class="sectionlabel" id="d-map-label" data-i18n="gTilesLoc">Ort</div>
           <div class="map-wrap">
             <div id="d-map" class="map map-detail"></div>
-            <button type="button" class="map-fab" id="d-map-openfab" onclick="openInMaps()" data-i18n-title="openInMaps" title="In Karten öffnen" aria-label="In Karten öffnen"><svg viewBox="0 0 24 24"><path d="M12 18.5l7.265 2.463c.196 .077 .42 .032 .57 -.116a.548 .548 0 0 0 .134 -.572l-7.969 -17.275l-7.97 17.275c-.07 .2 -.017 .424 .135 .572c.15 .148 .374 .193 .57 .116l7.265 -2.463"/></svg></button>
-            <!-- Attribution as its own line UNDER the map instead of Leaflet's tile overlay. OSMF allows
-                 "adjacent to the map", so this is licence-clean — and it must live INSIDE .map-wrap,
-                 which is hidden for a catch that has a water name but no pin. Outside it we would print
-                 a credit for a map that is not there. -->
-            <div class="msrc"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></div>
+            <!-- Action left, source right — the same shape the weather footer has (note left, source
+                 right), on the same right-hand axis. The old icon-only button could not work on touch:
+                 its only label was a `title`, and a hover tooltip never appears on a phone. The arrow
+                 also changed meaning — a triangle says "navigate there", an arrow leaving a box says
+                 "opens elsewhere", which is what this does.
+                 Must live INSIDE .map-wrap: that is hidden for a catch with a water name but no pin,
+                 and outside it we would print a credit (and an action) for a map that is not there. -->
+            <div class="mfoot">
+              <button type="button" class="map-open" id="d-map-openfab" onclick="openInMaps()"><svg viewBox="0 0 24 24"><path d="M12 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/><path d="M11 13l9-9"/><path d="M15 4h5v5"/></svg><span data-i18n="openInMaps">In Karten öffnen</span></button>
+              <div class="msrc"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></div>
+            </div>
           </div>
           <div id="d-loc"></div>
           <div id="d-map-edit-bar" style="display:none; margin-top:8px; align-items:center; gap:10px; justify-content:space-between;">
