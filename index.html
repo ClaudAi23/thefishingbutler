@@ -1173,8 +1173,14 @@
         <div class="sectionlabel" id="d-rows-label" data-i18n="fltCatch" style="margin-top:2px;">Fang</div>
         <div id="d-rows"></div>
         
+        
+        <div id="d-weather-wrap" style="display:none; margin-top:22px;">
+          <div class="sectionlabel" data-i18n="weather">Wetter</div>
+          <div id="d-weather"></div>
+        </div>
         <div id="d-map-wrap" style="display:none; margin-top:22px;">
-          <div class="sectionlabel" id="d-map-label" style="display:none;" data-i18n="dWater">Ort</div>
+          <div class="sectionlabel" id="d-map-label" data-i18n="gTilesLoc">Ort</div>
+          <div id="d-loc"></div>
           <div class="map-wrap">
             <div id="d-map" class="map map-detail"></div>
             <button type="button" class="map-fab" id="d-map-openfab" onclick="openInMaps()" data-i18n-title="openInMaps" title="In Karten öffnen" aria-label="In Karten öffnen"><svg viewBox="0 0 24 24"><path d="M12 18.5l7.265 2.463c.196 .077 .42 .032 .57 -.116a.548 .548 0 0 0 .134 -.572l-7.969 -17.275l-7.97 17.275c-.07 .2 -.017 .424 .135 .572c.15 .148 .374 .193 .57 .116l7.265 -2.463"/></svg></button>
@@ -1183,10 +1189,6 @@
             <span class="hint" id="d-map-hint" style="margin:0;" data-i18n="tapMap">Tippe auf die Karte, um den Ort zu setzen.</span>
             <button type="button" class="btn secondary sm" style="width:auto; white-space:nowrap;" onclick="detailUseMyLocation()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px; margin-right:5px;"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg><span data-i18n="myLocation">Mein Standort</span></button>
           </div>
-        </div>
-        <div id="d-weather-wrap" style="display:none; margin-top:22px;">
-          <div class="sectionlabel" data-i18n="weather">Wetter</div>
-          <div id="d-weather"></div>
         </div>
         <div id="d-notes-wrap" style="margin-top:18px; display:none;">
           <div class="sectionlabel" data-i18n="notes">Notizen</div>
@@ -5263,7 +5265,7 @@ function openDetailObj(c, from, keepEdit){
   const _isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
   const _editable = (state.detailFrom==='list' || state.detailFrom==='stats') && _isMine && !c._welcome;
   const editing = _detailEdit && _editable;
-  const rows=[];
+  let rows=[];
   if(editing){
     // EDIT MODE: full field set (all editable inline)
     rows.push(['date',t('dDate'),fmtDateLong(c.date),true]);
@@ -5353,8 +5355,7 @@ function openDetailObj(c, from, keepEdit){
     ['gTilesCatch', ['date','released','method']],
     ['gTilesGear',  ['bait','rod','reel']],
     ['gTilesCond',  ['boat','trolling']],
-    ['gTilesMisc',  ['loggedBy','angler']],
-    ['gTilesLoc',   ['water']]        // "Ort" last: its heading also covers the map right below it
+    ['gTilesMisc',  ['loggedBy','angler']]
 
   ];
   let specHTML;
@@ -5388,6 +5389,17 @@ function openDetailObj(c, from, keepEdit){
   const canGroup = c._db && (state.myContexts||[]).length>0;
   const groupRow = (editing && canGroup) ? `<div class="dgroup-edit"><div class="sectionlabel">${esc(t('logToArea'))}</div><div class="spec efm dgroup-pick" onclick="openDetailAreaSheet()"><svg viewBox="0 0 24 24"><path d="M9 7a3 3 0 1 0 0 6a3 3 0 0 0 0 -6M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg><span class="kv"><span class="efm-pickrow"><span class="v efm-pick">${esc(detailAreaSummary(c))}</span><svg class="efm-chev" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6l-6 6"/></svg></span></span></div></div>` : '';
   { const gt=document.getElementById('d-group-top'); if(gt){ gt.innerHTML=groupRow; gt.style.display=groupRow?'block':'none'; } }
+  /* "Ort" is its own section BELOW the weather: heading, the water card, then the map. The water row
+     therefore leaves #d-rows and is rendered into #d-loc. Note the section can no longer hang on
+     c.lat alone — a catch with a water name but no pin would silently lose the field. */
+  { const locEl=document.getElementById('d-loc');
+    if(locEl){ const locRows=rows.filter(r=>r[0]==='water');
+      locEl.innerHTML = locRows.length
+        ? (editing ? `<div class="dspecs">${locRows.map(_specOne).join('')}</div>`
+                   : `<div class="wx-grid">${locRows.map(_specOne).join('')}</div>`)
+        : '';
+      rows = rows.filter(r=>r[0]!=='water');
+    } }
   // In module mode each module carries its own heading, so the page-level "Fang" label would say it twice.
   { const rl=document.getElementById('d-rows-label'); if(rl) rl.style.display=_TILES?'none':''; }
   document.getElementById('d-rows').innerHTML=pbBanner+medBanner+(_TILES?specHTML:`<div class="dspecs">${specHTML}</div>`)+banner;
@@ -5402,8 +5414,12 @@ function openDetailObj(c, from, keepEdit){
   { const _sb=document.getElementById('share-btn'); if(_sb){ const _shareOk=((navigator.maxTouchPoints||0)>0 && !!navigator.share); _sb.style.display = (!_detailEdit && _shareOk) ? '' : 'none'; } }
   const mw=document.getElementById('d-map-wrap');
   const mEditBar=document.getElementById('d-map-edit-bar'), mFab=document.getElementById('d-map-openfab'), mLabel=document.getElementById('d-map-label');
-  if(editing){ mw.style.display='block'; if(mEditBar) mEditBar.style.display='flex'; if(mFab) mFab.style.display='none'; if(mLabel) mLabel.style.display='block'; }
-  else { mw.style.display = c.lat!=null ? 'block' : 'none'; if(mEditBar) mEditBar.style.display='none'; if(mFab) mFab.style.display=''; if(mLabel) mLabel.style.display='none'; }
+  if(editing){ mw.style.display='block'; { const mapBox=mw.querySelector('.map-wrap'); if(mapBox) mapBox.style.display=''; }
+    if(mEditBar) mEditBar.style.display='flex'; if(mFab) mFab.style.display='none'; if(mLabel) mLabel.style.display='block'; }
+  else { const hasLoc = c.lat!=null || !!(c.location||'').trim();
+    mw.style.display = hasLoc ? 'block' : 'none';                 // water name without a pin still shows
+    { const mapBox=mw.querySelector('.map-wrap'); if(mapBox) mapBox.style.display = c.lat!=null ? '' : 'none'; }
+    if(mEditBar) mEditBar.style.display='none'; if(mFab) mFab.style.display=''; if(mLabel) mLabel.style.display=hasLoc?'':'none'; }
   renderWeather(c); // handles API weather, text-only, and water-temp-only (shows/hides the section itself)
   if(!c.weather && c.lat!=null) enrichWeather(c);
   go('detail');
