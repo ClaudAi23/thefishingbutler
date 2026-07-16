@@ -391,8 +391,8 @@
      already carries a FULL-width border, so the two widths are a real step: full = end of the head,
      short = pause between sections. As a ::before it needs no markup and disappears with the section
      when there is no weather. */
-  #d-weather-wrap::before, #d-map-wrap::before, #d-notes-wrap::before{content:""; display:block;
-    width:75%; height:1px; margin:0 auto 20px; background:var(--border-2);}
+  #d-weather-wrap::before, #d-water-wrap::before, #d-map-wrap::before, #d-notes-wrap::before{content:"";
+    display:block; width:75%; height:1px; margin:0 auto 20px; background:var(--border-2);}
   /* Footer: note left, source right, one line. Only fits because the note lost its parenthetical —
      with "(lineare Tendenz, Tageswerte)" it needed 455px of 358 and would have wrapped under the source. */
   .wfoot{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:12px 4px 0;}
@@ -1288,6 +1288,14 @@
           <div class="sectionlabel" data-i18n="weather">Wetter</div>
           <div id="d-weather"></div>
         </div>
+        <!-- "Am Wasser" (JC): what the angler SAW, between what was fetched (Wetter) and where (Ort).
+             Not called "Gewässer" — that is already the name of the water field, and a heading repeating
+             its own field's name is the METHODE/ANGELMETHODE mistake we removed. Water and air stay one
+             line apart, because comparing them is the whole point. -->
+        <div id="d-water-wrap" style="display:none; margin-top:22px;">
+          <div class="sectionlabel" data-i18n="sAtWater">Am Wasser</div>
+          <div id="d-water"></div>
+        </div>
         <div id="d-map-wrap" style="display:none; margin-top:22px;">
           <div class="sectionlabel" id="d-map-label" data-i18n="gTilesLoc">Ort</div>
           <div class="map-wrap">
@@ -1988,9 +1996,9 @@ const I18N = {
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
-Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Wie gefangen", gTilesBait:"Köder & Gerät", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
-Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"How it was caught", gTilesBait:"Lure & gear", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
-Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Hoe gevangen", gTilesBait:"Aas & uitrusting", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
+Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Wie gefangen", gTilesBait:"Köder & Gerät", sAtWater:"Am Wasser", sWaterTemp:"Temperatur", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
+Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"How it was caught", gTilesBait:"Lure & gear", sAtWater:"At the water", sWaterTemp:"Temperature", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
+Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Hoe gevangen", gTilesBait:"Aas & uitrusting", sAtWater:"Aan het water", sWaterTemp:"Temperatuur", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
 Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Lufttemperatur", wWind:"Wind", wPressure:"Luftdruck", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", wSourceFields:"Luft, Wind, Druck", trendNote:"Pfeile: Veränderung in den {n} Tagen vor dem Fang.", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
@@ -3958,13 +3966,12 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const _num=(n,d)=> n==null?'—':String(Number(n).toFixed(d)).replace('.',_sep);
   // Weather card: icon + label on top, value below, optional coloured trend chip.
   const card=(icon,label,value,wide,tr)=>`<div class="wx-card${wide?' wide':''}"><span class="k">${(icon&&icon.charAt(0)==='<')?icon:wxIcon(icon)}${esc(label)}</span><span class="v">${value}${tr?`<span class="tr ${tr.dir}">${esc(tr.txt)}</span>`:''}</span></div>`;
-  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('cloud',t('wCond'),esc(weather.text),true)}${watertemp!=null?card('droplet',t('wWaterTemp'),_num(watertemp,1)+' °C',false):''}</div>`; return; }
-  if(!weather || !weather.cur){
-    // No API weather, but a logged water temperature should still appear in this section.
-    if(watertemp!=null){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('droplet',t('wWaterTemp'),_num(watertemp,1)+' °C',false)}</div>`; }
-    else if(showEl) showEl.style.display='none';
-    return;
-  }
+  /* (9/C, JC): the water temperature has left this section — it lives under "Am Wasser" now. It never
+     came from Open-Meteo, JC types it, and standing here it forced the credit line to apologise
+     ("Luft, Wind, Druck: Open-Meteo"). With it gone, everything left really is Open-Meteo, so the
+     credit is plain again. Weather = fetched · Am Wasser = seen · Ort = where. */
+  if(weather && weather.text && !weather.cur){ if(showEl) showEl.style.display='block'; if(box) box.innerHTML=`<div class="wx-grid">${card('cloud',t('wCond'),esc(weather.text),true)}</div>`; return; }
+  if(!weather || !weather.cur){ if(showEl) showEl.style.display='none'; return; }
   const cur=weather.cur, daily=weather.daily||[];
   const sep=_sep;
   const num=_num;
@@ -3999,7 +4006,6 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   const api=(c,ch)=>{ cells.push(c); vonApi++; if(ch) mitPfeil++; };
   if(wxOn('wxCond') && condKey) api(card('cloud',t('wCond'), esc(t(condKey)), true));
   if(wxOn('wxTemp') && cur.temp!=null) api(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip), tChip);
-  if(watertemp!=null) cells.push(card('droplet',t('wWaterTemp'), num(watertemp,1)+' °C', false));   // typed, NOT from Open-Meteo
   if(wxOn('wxWind') && cur.wind!=null) api(card('wind',t('wWind'), num(cur.wind,0)+' km/h', false, wChip), wChip);
   if(wxOn('wxPress') && cur.pressure!=null) api(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip), pChip);
   // Phase-accurate icon + the phase name — no trend chip: the name already carries waxing/waning.
@@ -4011,13 +4017,13 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
   if(!cells.length){ if(showEl) showEl.style.display='none'; return; }
   if(showEl) showEl.style.display='block';
   let html='<div class="wx-grid">'+cells.join('')+'</div>';
-  /* The footer must describe what is on screen, not what is switched on. Two silent lies were in here:
-     the note explained arrows whenever the fields were ENABLED (even with no arrow rendered), and the
-     Open-Meteo credit appeared even when the only card was the water temperature — which JC types
-     himself. Now the note needs a real arrow, and the credit needs a real Open-Meteo card. And it
-     names WHAT it covers (9/W1): the water temp stands next to the air, but it is not their data. */
+  /* The footer describes what is on SCREEN, not what is switched on. Two silent lies used to live here:
+     the note explained arrows whenever the fields were merely ENABLED, and the credit appeared even
+     with no Open-Meteo card at all.
+     The credit is plain "Quelle: Open-Meteo" again (JC): everything in this section now really is
+     theirs, because the water temperature moved out. */
   const _tn = mitPfeil>0 ? `<div class="wtrend-note">${t('trendNote').replace('{n}',days)}</div>` : '<div></div>';
-  const _src = vonApi>0 ? `<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSourceFields')}: Open-Meteo</a></div>` : '';
+  const _src = vonApi>0 ? `<div class="wsrc"><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">${t('wSource')}: Open-Meteo</a></div>` : '';
   html += (_tn!=='<div></div>' || _src) ? `<div class="wfoot">${_tn}${_src}</div>` : '';
   box.innerHTML=html;
 }
@@ -5354,7 +5360,9 @@ window.addEventListener('resize', syncHowLines);
 const INLINE_EF={
   length:{field:'length', col:'length_cm', mode:'numeric', unit:'cm', parse:v=>{ const n=parseInt((''+v).replace(/[^0-9\-]/g,''),10); return isNaN(n)?null:n; }, fmt:v=>fmtLen(v), pb:true},
   weight:{field:'weight', col:'weight_kg', mode:'decimal', unit:'kg', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>fmtWeight(v), pb:true},
-  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>String(v).replace('.',',')+' km/h'}
+  trolling:{field:'trolling', col:'trolling_speed', mode:'decimal', unit:'km/h', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>String(v).replace('.',',')+' km/h'},
+  // Without this entry the field would render but could never be changed — the "—" row would be dead.
+  watertemp:{field:'watertemp', col:'water_temp_c', mode:'decimal', unit:'°C', parse:v=>{ const n=parseFloat((''+v).replace(',','.').replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:dec2(n); }, fmt:v=>fmtTemp(v)}
 };
 function startInlineEdit(rowEl, key){
   const cfg=INLINE_EF[key], c=state.current; if(!cfg||!c) return;
@@ -5637,7 +5645,8 @@ function openDetailObj(c, from, keepEdit){
     const sc=document.querySelector('#s-detail .scroll'); if(sc){ if(!keepEdit) sc.scrollTop=0; sc.onscroll=_detailScroll; setTimeout(_detailScroll,0); } }
   // Spec-sheet rows: [iconToken, label, value, forceWide] — empty fields are omitted entirely.
   // Order: Datum + Angler lead · Länge|Gewicht, Entnahme|Methode, Boot|Tempo paired · Rute+Köder together (wide) · Gewässer · Eingetragen von.
-  // Wide = long/text fields; half = short/numeric. Wassertemperatur now lives in the weather section.
+  // Wide = long/text fields; half = short/numeric. Wassertemperatur renders into its own "Am Wasser"
+  // section (like the water name renders into #d-loc) — it is observed, not fetched.
   const _isMine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
   const _editable = (state.detailFrom==='list' || state.detailFrom==='stats') && _isMine && !c._welcome;
   const editing = _detailEdit && _editable;
@@ -5655,6 +5664,7 @@ function openDetailObj(c, from, keepEdit){
     if(c.rod) rows.push(['rod',t('rod'), c.rod,true]);
     if(c.reel) rows.push(['reel',t('reel'), c.reel,true]);
     if(c.bait) rows.push(['bait',t('bait'), c.bait,true]);
+    if(c.watertemp!=null) rows.push(['watertemp',t('sWaterTemp'), fmtTemp(c.watertemp),false]);
     if((c.location||'').trim()) rows.push(['water',t('dWater'),c.location,true]);
     if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName,true]);
   } else {
@@ -5676,6 +5686,9 @@ function openDetailObj(c, from, keepEdit){
       const tv=showTr?(String(c.trolling).replace('.',',')+' km/h'):null; const both=!!c.boat&&showTr; const half=both&&shrt(c.boat)&&shrt(tv);
       if(c.boat) rows.push(['boat',t('boat'), c.boat, !half]);
       if(showTr) rows.push(['trolling',t('trolling'), tv, !half]); }
+    // Label is just "Temperatur": the heading already says water. Own key — wWaterTemp still says
+    // "Wassertemp." in the form and the share sheet, where there is no heading to lean on.
+    if(c.watertemp!=null) rows.push(['watertemp',t('sWaterTemp'), fmtTemp(c.watertemp), false]);   // → #d-water
     if((c.location||'').trim()) rows.push(['water',t('dWater'), c.location, true]);
     if(c._db && c.loggedByName) rows.push(['loggedBy',t('loggedByRow'), c.loggedByName, true]);
   }
@@ -5701,12 +5714,12 @@ function openDetailObj(c, from, keepEdit){
   // Only in edit mode: surface enabled-but-empty fields as add-rows.
   if(editing){
     const present=new Set(rows.map(r=>r[0]));
-    [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['reel',t('reel'),'reel',true],['bait',t('bait'),'bait',true],['water',t('dWater'),'location',true]]
+    [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['reel',t('reel'),'reel',true],['bait',t('bait'),'bait',true],['watertemp',t('sWaterTemp'),'watertemp',false],['water',t('dWater'),'location',true]]
       .forEach(a=>{ try{
         if(a[0]==='trolling' && !isTrollingMethod(c.method)) return;   // trolling speed only under the trolling method
         if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
   }
-  const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,reel:1,boat:1,released:1,date:1};
+  const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,reel:1,boat:1,released:1,date:1,watertemp:1};
   const _specOne=(r)=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
     const canEdit=_editable && (key==='angler' ? (c._db&&c._ctxId) : EDITABLE_FIELDS[key]);
     if(editing && canEdit && key==='date'){
@@ -5742,6 +5755,19 @@ function openDetailObj(c, from, keepEdit){
                    : `<div class="wx-grid">${locRows.map(_specOne).join('')}</div>`)
         : '';
       rows = rows.filter(r=>r[0]!=='water');
+    } }
+  /* "Am Wasser" (JC): same construction as the water name above — the row leaves #d-rows and renders
+     into its own section, and it must ALSO be filtered out of `rows`, or it lands in the leftovers
+     bucket and gets drawn twice. That already happened once with the water name.
+     The wrap hides when there is nothing, so heading and separator go with it — the rule from (8). */
+  { const wEl=document.getElementById('d-water'), wWrap=document.getElementById('d-water-wrap');
+    if(wEl && wWrap){ const wRows=rows.filter(r=>r[0]==='watertemp');
+      wEl.innerHTML = wRows.length
+        ? (editing ? `<div class="dspecs">${wRows.map(_specOne).join('')}</div>`
+                   : `<div class="wx-grid">${wRows.map(_specOne).join('')}</div>`)
+        : '';
+      wWrap.style.display = wRows.length ? 'block' : 'none';
+      rows = rows.filter(r=>r[0]!=='watertemp');
     } }
   /* Every group answers exactly one question: how · with what · (weather: under which conditions)
      · where. "Fang" said nothing on a catch page — the whole page is the catch — and "Bedingungen"
