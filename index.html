@@ -418,7 +418,18 @@
      `height` ebenso: `.map-stats{height:240px}` steht in einer eigenen Regel. */
   .map.is-fs{position:fixed !important; inset:0; width:100vw !important; height:100vh !important;
     max-height:none; border-radius:0; border:none; margin:0; z-index:400;}
-  .map.is-fs .map-fs-btn{top:calc(10px + env(safe-area-inset-top)); right:12px;}
+  /* Im Vollbild reicht die Karte bis unter Statusleiste, Notch und die runden Ecken. Ohne
+     `env(safe-area-inset-*)` verschwinden die Knöpfe dort — hochkant unter der Uhr, quer hinter dem
+     Notch (JC, 17. Juli: „the buttons disappear in vertical view and get cut off horizontally").
+     Gilt für BEIDE: den Vollbild-Knopf rechts und Leaflets Zoom links. */
+  .map.is-fs .map-fs-btn{
+    top:calc(10px + env(safe-area-inset-top));
+    right:calc(12px + env(safe-area-inset-right));
+  }
+  .map.is-fs .leaflet-top{ padding-top:env(safe-area-inset-top); }
+  .map.is-fs .leaflet-left{ padding-left:env(safe-area-inset-left); }
+  .map.is-fs .leaflet-bottom{ padding-bottom:env(safe-area-inset-bottom); }
+  .map.is-fs .leaflet-right{ padding-right:env(safe-area-inset-right); }
   .map-detail{height:170px;}
   .map-wrap{position:relative;}
   .map-fab{position:absolute; right:10px; top:10px; z-index:1000; width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:11px; border:1px solid var(--border-2); background:var(--surface); color:var(--teal); cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.28);}
@@ -2135,7 +2146,7 @@ const I18N = {
    die App ist aber dreisprachig, und ein englischer Brocken mitten im deutschen Screen wäre ein Bruch.
    Deshalb übersetzt statt wörtlich übernommen. Wenn JC den Begriff als feststehende Marke in ALLEN
    Sprachen will, ist es eine Zeile. */
-whereYouFish:"Fangorte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"Vollbild verlassen", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.", speciesCount:"Arten", thisYear:"Dieses Jahr", ctxFilter:"Verein / Gruppe",
+whereYouFish:"Orte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"Vollbild verlassen", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.", speciesCount:"Arten", thisYear:"Dieses Jahr", ctxFilter:"Verein / Gruppe",
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit ButlerFish", shareNoMeasure:"ohne Maße"
   },
   en:{
@@ -2148,7 +2159,7 @@ whereYouFish:"Fangorte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"
     details:"Catch details", dAngler:"Angler", dWater:"Water", dLength:"Length", dWeight:"Weight", dDate:"Date", noMeasures:"No measurements", ttShare:"Share",
     settings:"Settings", display:"Display", appearance:"Theme", themeLight:"Light", themeDark:"Dark", themeSystem:"System", themeHint:"\"System\" follows your device's light/dark setting.", measureLabel:"Default measure in list & stats", mLength:"Length", mWeight:"Weight", measureHint:"Sets which measure shows in the catch list, how the biggest catch is determined, and which catch holds your personal best (crown).", language:"Language", clubLogoAdmin:"Logo", currentLogo:"Current logo", uploadLogo:"Upload logo", logoHint:"Only admins can change the logo. It applies to all members.", myImage:"My picture", initialsDefault:"Default: your initials", uploadImage:"Upload picture",
     filter:"Filter", narrow:"Narrow down catches", ttReset:"Reset", period:"Period", year:"Year", month:"Month", from:"From", to:"To", periodHint:"Either year/month <em>or</em> from–to — they're mutually exclusive.", properties:"Properties", fltCatch:"Catch", fltSize:"Measurements", locationContains:"Location / water contains", locationPh:"e.g. Club pond", lengthFrom:"Length from (cm)", lengthTo:"Length to (cm)", weightFrom:"Weight from (kg)", weightTo:"Weight to (kg)", minPh:"min", maxPh:"max", applyFilter:"Apply", reset:"Reset", all:"All",
-    myStats:"My catches", statsSub:"All catches combined", tabOverview:"Overview", tabCatchList:"Catches", whereYouFish:"Catch location(s)", mapFullscreen:"Expand map", mapExitFullscreen:"Exit full screen", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.", speciesCount:"Species", thisYear:"This year", ctxFilter:"Club / group",
+    myStats:"My catches", statsSub:"All catches combined", tabOverview:"Overview", tabCatchList:"Catches", whereYouFish:"Spots", mapFullscreen:"Expand map", mapExitFullscreen:"Exit full screen", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.", speciesCount:"Species", thisYear:"This year", ctxFilter:"Club / group",
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with ButlerFish", shareNoMeasure:"no measurements"
   },
   nl:{
@@ -2161,7 +2172,7 @@ whereYouFish:"Fangorte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"
     details:"Vangstdetails", dAngler:"Visser", dWater:"Water", dLength:"Lengte", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Geen maten", ttShare:"Delen",
     settings:"Instellingen", display:"Weergave", appearance:"Thema", themeLight:"Licht", themeDark:"Donker", themeSystem:"Systeem", themeHint:"\"Systeem\" volgt de licht/donker-instelling van je apparaat.", measureLabel:"Standaardmaat in lijst & statistiek", mLength:"Lengte", mWeight:"Gewicht", measureHint:"Bepaalt welke maat in de vangstlijst staat, hoe de grootste vangst wordt bepaald en welke vangst je persoonlijk record (kroon) heeft.", language:"Taal", clubLogoAdmin:"Logo", currentLogo:"Huidig logo", uploadLogo:"Logo uploaden", logoHint:"Alleen beheerders kunnen het logo wijzigen. Het geldt voor alle leden.", myImage:"Mijn foto", initialsDefault:"Standaard: je initialen", uploadImage:"Foto uploaden",
     filter:"Filter", narrow:"Vangsten filteren", ttReset:"Resetten", period:"Periode", year:"Jaar", month:"Maand", from:"Van", to:"Tot", periodHint:"Of jaar/maand <em>of</em> van–tot — ze sluiten elkaar uit.", properties:"Eigenschappen", fltCatch:"Vangst", fltSize:"Maten", locationContains:"Plek / water bevat", locationPh:"bijv. Verenigingsvijver", lengthFrom:"Lengte van (cm)", lengthTo:"Lengte tot (cm)", weightFrom:"Gewicht van (kg)", weightTo:"Gewicht tot (kg)", minPh:"min", maxPh:"max", applyFilter:"Toepassen", reset:"Resetten", all:"Alle",
-    myStats:"Mijn vangsten", statsSub:"Alle vangsten samen", tabOverview:"Overzicht", tabCatchList:"Vangsten", whereYouFish:"Vangstlocaties", mapFullscreen:"Kaart vergroten", mapExitFullscreen:"Volledig scherm sluiten", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.", speciesCount:"Soorten", thisYear:"Dit jaar", ctxFilter:"Vereniging / groep",
+    myStats:"Mijn vangsten", statsSub:"Alle vangsten samen", tabOverview:"Overzicht", tabCatchList:"Vangsten", whereYouFish:"Plekken", mapFullscreen:"Kaart vergroten", mapExitFullscreen:"Volledig scherm sluiten", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.", speciesCount:"Soorten", thisYear:"Dit jaar", ctxFilter:"Vereniging / groep",
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
@@ -2457,6 +2468,14 @@ let _fwdStack = [];   // Screens, die wir beim Zurückwischen verlassen haben �
    Zeitfenster: Zwei Versuche, das über Zeitfenster zu lösen, sind am 17. Juli gescheitert (die Abstände
    auf iOS waren größer als das Fenster). */
 function go(name, isBack, viaGesture, noArm){
+  /* Ein Screen-Wechsel darf NIE eine offene Vollbild-Karte zurücklassen (JC, 17. Juli: „if you hit the
+     back button, the card doesnt close, but you go back to home instead. that then also causes the map
+     still to be open when you hit any group, club or personal page").
+     Mein erster Wächter saß nur im `popstate`-Handler — der fängt die WISCHGESTE, aber kein
+     In-App-Zurück (`leaveArea`, `detailBack`, `closeSettings`) und keinen sonstigen Wechsel. Die Klasse
+     `is-fs` blieb am Element kleben, und beim nächsten Screen lag die Karte wieder über allem.
+     Hier greift es für jeden Weg, weil JEDE Navigation durch `go()` läuft. */
+  try{ if(_mapFs) mapFsToggle(_mapFs, false); }catch(e){}
   /* Beim VERLASSEN festhalten, wo der Nutzer stand — sonst gibt es beim Zurückkommen nichts
      wiederherzustellen. Muss vor dem Screen-Wechsel passieren: Danach ist der alte Screen
      `display:none` und sein `scrollTop` liest sich als 0. */
@@ -4484,6 +4503,8 @@ const _mapRef={ stats:{m:null, mk:[]}, list:{m:null, mk:[]} };
    Ein `history.pushState`-Wächter, damit die Zurück-Geste das Vollbild schließt statt den Screen zu
    verlassen — dieselbe Mechanik wie beim Rest der App (`_armBack`), nur mit eigenem Marker. */
 let _mapFs=null;
+/* Wo die Karte im Normalzustand hängt — um sie danach exakt dorthin zurückzustellen. */
+let _mapHome=null;
 function mapFsIcon(open){
   return open
     ? '<svg viewBox="0 0 24 24"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>'      // zusammenfalten
@@ -4502,10 +4523,37 @@ function mapFsToggle(kind, force){
   const wrap=document.getElementById(kind+'-map'); if(!wrap) return;
   const R=_mapRef[kind];
   const open = (force!=null) ? force : !wrap.classList.contains('is-fs');
+  /* ---- Warum die Karte ans <body> wandert (17. Juli) ------------------------------------------
+     JCs Bild vom Gerät: Im Vollbild blieb die KOPFZEILE stehen und die Karte begann erst darunter —
+     `position:fixed` bezog sich also nicht aufs Fenster, sondern auf einen Vorfahren. Im Querformat
+     ging es, hochkant nicht.
+     Ursache ist ein Vorfahr, der einen *containing block* für `fixed` bildet (auf iOS klassisch der
+     Scroll-Container mit `-webkit-overflow-scrolling:touch`). Am Schreibtisch (Blink) tritt das nicht
+     auf — ich kann von hier aus nicht ermitteln, WELCHER es ist, und Raten hat heute schon zweimal
+     danebengelegen.
+     Deshalb nehme ich der Frage den Boden: Im Vollbild hängt die Karte direkt am `<body>`. Dort gibt
+     es keinen Vorfahren mehr, der etwas einfangen könnte — unabhängig davon, welcher es war.
+     Leaflet überlebt den Umzug: Die Instanz hängt am ELEMENT, nicht an dessen Platz im Baum. Nur
+     messen muss es danach neu (`invalidateSize` unten).
+     `_mapHome` merkt sich Elternknoten UND Nachbarn — `appendChild` allein würde die Karte beim
+     Schließen ans Ende des Elternknotens hängen, also unter die Fangliste statt über sie. */
+  if(open && !_mapHome){
+    _mapHome={ parent: wrap.parentNode, next: wrap.nextSibling };
+    document.body.appendChild(wrap);
+  }
   wrap.classList.toggle('is-fs', open);
+  if(!open && _mapHome){
+    try{ _mapHome.parent.insertBefore(wrap, _mapHome.next); }catch(e){ try{ _mapHome.parent.appendChild(wrap); }catch(_e){} }
+    _mapHome=null;
+  }
   const b=wrap.querySelector('.map-fs-btn');
   if(b){ b.innerHTML=mapFsIcon(open); b.setAttribute('aria-label', t(open?'mapExitFullscreen':'mapFullscreen')); b.title=b.getAttribute('aria-label'); }
   _mapFs = open ? kind : null;
+  /* Der FAB („Fang eintragen") gehört zum Screen, nicht zur Karte — im Vollbild hat er nichts verloren
+     und säße mitten im Bild (JC, 17. Juli). Über `visibility`, NICHT über `display`: Das `display`
+     dieses Knopfes gehört `go()`, das es je nach Screen setzt. Zwei Stellen, die dieselbe Eigenschaft
+     schreiben, überschreiben sich irgendwann gegenseitig. */
+  { const _fb=document.getElementById('mainfab'); if(_fb) _fb.style.visibility = open ? 'hidden' : ''; }
   /* Der Verlaufs-Wächter: Ohne ihn verließe die Zurück-Geste im Vollbild den ganzen Screen — man käme
      aus der Karte in die Gruppenliste statt zurück zur Übersicht. */
   if(open){ try{ const _n=_histIdx+1; history.pushState({_fb:1, _i:_n, _mapfs:1}, ''); _histIdx=_n; _fwdStack.length=0; }catch(e){} }
