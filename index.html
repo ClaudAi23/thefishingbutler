@@ -130,6 +130,13 @@
   .screen{display:none; flex:1; flex-direction:column; min-height:0;}
   .screen.active{display:flex; animation:scrIn .24s cubic-bezier(.22,.61,.36,1);}
   .screen.active.is-back{animation:scrBack .24s cubic-bezier(.22,.61,.36,1);}
+  /* Kam das Zurück von der WISCHGESTE, hat iOS den Übergang schon gemacht — dann halten wir still
+     (JC, 17. Juli: „fuer eine ms etwas dunkles"). Beleg aus JCs Aufnahme: Ein Frame stürzt ab
+     (YAVG 37.6 → 32.6), dann ~10 Frames Erholung ≈ die 240 ms unten. Der Screen war da längst fertig
+     eingeschoben; unsere Animation dimmte ihn NACHTRÄGLICH auf .35 und hellte ihn wieder auf.
+     Zwei Übergänge auf demselben Bild — der zweite ist der Blitz.
+     Nur für die Geste: Der Zurück-KNOPF hat keinen nativen Übergang, dort bleibt die Animation. */
+  .screen.active.is-back.no-anim{animation:none;}
   @keyframes scrIn{from{opacity:.35; transform:translateX(16px);} to{opacity:1; transform:none;}}
   @keyframes scrBack{from{opacity:.35; transform:translateX(-16px);} to{opacity:1; transform:none;}}
   :focus-visible{outline:2px solid var(--teal-bright); outline-offset:2px; border-radius:6px;}
@@ -2295,8 +2302,13 @@ function soloAvatarHTML(){ return state.soloAvatar ? `<img src="${state.soloAvat
 let _navStack=[], _curScreen='club';
 const _ROOT_SCREENS=['login','club'];   // arriving at a root screen clears the in-app back history
 const _scrollPos={};
-function go(name, isBack){
-  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, stack:(_navStack||[]).slice(), len:history.length,
+/* `viaGesture` reicht NUR der popstate-Handler durch (über appBack) — er ist der einzige Weg, auf dem
+   die native Wischgeste bei uns ankommt. Die drei Zurück-Knöpfe (leaveArea, formBack, detailBack) rufen
+   `go(…, true)` ohne das Flag und behalten ihre Animation. Bewusst ein durchgereichtes Flag und KEIN
+   Zeitfenster: Zwei Versuche, das über Zeitfenster zu lösen, sind am 17. Juli gescheitert (die Abstände
+   auf iOS waren größer als das Fenster). */
+function go(name, isBack, viaGesture){
+  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, geste:!!viaGesture, stack:(_navStack||[]).slice(), len:history.length,
         wer: (new Error()).stack ? String((new Error()).stack).split('\n')[2].trim().slice(0,90) : '?' }); }catch(e){}
   /* Beim VERLASSEN festhalten, wo der Nutzer stand — sonst gibt es beim Zurückkommen nichts
      wiederherzustellen. Muss vor dem Screen-Wechsel passieren: Danach ist der alte Screen
@@ -2324,8 +2336,9 @@ function go(name, isBack){
   _curScreen=name;
   { const _fb=document.getElementById('mainfab'); if(_fb) _fb.style.display=(name==='club'||name==='stats'||name==='list')?'':'none'; }
   try{ updateFab(); }catch(e){}
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','is-back'));
-  { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack); }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','is-back','no-anim'));
+  { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack);
+    _sc.classList.toggle('no-anim', !!(isBack && viaGesture)); }
   if(name==='login'){ try{ changeLoginEmail(); const _lc=document.getElementById('login-code'); if(_lc) _lc.value=''; }catch(e){} }
   // The login lockup lives on a hidden screen, so it has no box to measure until now — place it
   // once it's actually laid out, otherwise the lantern never finds the puffer.
@@ -2425,7 +2438,7 @@ window.addEventListener('pagehide', _navlogFlush);
    kommt — die Regel selbst ist unstrittig: Ein Wisch soll eine Ebene zurückgehen, nicht zwei.
    350 ms sind kürzer als jeder bewusste zweite Wisch und länger als jedes Doppel-Feuern einer Geste. */
 let _lastBack=0;
-function appBack(){
+function appBack(viaGesture){
   const _now=Date.now();
   try{ nlog('appBack', { screen:_curScreen, stack:(_navStack||[]).slice(), edit:_detailEdit,
         seit_letztem: _now-_lastBack, gesperrt: (_now-_lastBack < 350),
@@ -2442,7 +2455,7 @@ function appBack(){
   const cbo=document.querySelector('#combo-list.open, #method-list.open');
   if(cbo){ cbo.classList.remove('open'); return; }
   // 2.5) leaving the catch form with unsaved edits → confirm discard first
-  if(_curScreen==='form' && formIsDirty()){ (async function(){ if(await confirmDiscard()){ state.formSnap=null; appBack(); } })(); return; }
+  if(_curScreen==='form' && formIsDirty()){ (async function(){ if(await confirmDiscard()){ state.formSnap=null; appBack(viaGesture); } })(); return; }
   // 3) login code step → back to the email step
   if(_curScreen==='login' && state && state.pendingEmail){ changeLoginEmail(); return; }
   /* 3.5) Fang im Edit-Modus → erst den Edit-Modus schließen, nicht den Fang verlassen (JC, 17. Juli).
@@ -2451,7 +2464,7 @@ function appBack(){
      eine Ebene auf. */
   if(_curScreen==='detail' && _detailEdit){ toggleDetailEdit(); return; }
   // 4) one screen back if we have in-app history
-  if(_navStack.length){ go(_navStack.pop(), true); return; }
+  if(_navStack.length){ go(_navStack.pop(), true, viaGesture); return; }
   // 5) at a root screen with nothing to go back to → stay open (swallow the gesture)
 }
 /* Der Wisch-zurück-Wächter (JC, 14. Juli: „weißer Ladescreen", 17. Juli: „auf iOS lädt er neu, auf
@@ -2468,7 +2481,9 @@ function appBack(){
 function _armBack(){ try{ history.pushState({_fb:1}, ''); }catch(e){} }
 window.addEventListener('popstate', function(){
   try{ nlog('popstate', { screen:_curScreen, state:history.state, len:history.length, stack:(_navStack||[]).slice() }); }catch(e){}
-  appBack();
+  /* `true` = die native Geste war es. Nur von hier kommt sie — deshalb animieren wir gleich nicht
+     nach (siehe `.no-anim` oben im CSS). */
+  appBack(true);
   /* Nachgelegt wird nur noch AM ANFANG (17. Juli). Vorher stand hier `_armBack()` vor jedem
      `appBack()` — mit einem Eintrag je Screen würde das die Tiefe sofort wieder auffüllen, und iOS
      zeigte beim nächsten Wisch erneut den Schnappschuss der falschen Ebene.
