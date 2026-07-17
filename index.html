@@ -2379,6 +2379,11 @@ function appBack(){
   if(_curScreen==='form' && formIsDirty()){ (async function(){ if(await confirmDiscard()){ state.formSnap=null; appBack(); } })(); return; }
   // 3) login code step → back to the email step
   if(_curScreen==='login' && state && state.pendingEmail){ changeLoginEmail(); return; }
+  /* 3.5) Fang im Edit-Modus → erst den Edit-Modus schließen, nicht den Fang verlassen (JC, 17. Juli).
+     appBack() kannte `_detailEdit` gar nicht — der Wisch sprang am Edit-Modus vorbei direkt in die
+     Gruppe. Dieselbe Ebenen-Regel wie oben bei Modal, Lightbox und Onboarding: eine Geste macht genau
+     eine Ebene auf. */
+  if(_curScreen==='detail' && _detailEdit){ toggleDetailEdit(); return; }
   // 4) one screen back if we have in-app history
   if(_navStack.length){ go(_navStack.pop(), true); return; }
   // 5) at a root screen with nothing to go back to → stay open (swallow the gesture)
@@ -2448,15 +2453,16 @@ window.addEventListener('pageshow', function(e){ if(e.persisted) _armBackIfNeede
        // Der gleich folgende synthetische click gehört zu DIESEM Wisch, nicht zu dem, was jetzt
        // zufällig unter dem Finger liegt. 600 ms decken auch die träge iOS-Synthese ab.
        _swipeUntil = Date.now() + 600;
-       /* REIHENFOLGE (17. Juli, JC: „geht zurück auf home, erwartet: zur Gruppe"):
-          `touchend` feuert VOR dem `popstate` der nativen Geste. Meine erste Absicherung fragte
-          „kam gerade ein popstate?" — zu diesem Zeitpunkt naturgemäß nein, also griff sie nie und
-          beide machten einen Rückschritt: zwei Ebenen statt einer.
-          Jetzt andersherum: kurz warten und nur handeln, wenn die native Geste es NICHT getan hat.
-          Damit bleibt dieser Handler das Notnetz für Fälle ohne native Zurück-Geste, ohne dort
-          zu doppeln, wo sie greift. */
-       var seen=_lastPop;
-       setTimeout(function(){ if(_lastPop===seen){ try{ appBack(); }catch(_e){} } }, 250);
+       /* Dieser Handler navigiert NICHT mehr (17. Juli). Er stammt aus der Zeit, als der History-
+          Wächter auf iOS wirkungslos war (WebKit zählt nur Einträge aus einer Nutzergeste) — da war er
+          das Einzige, was einen Wisch überhaupt in der App hielt. Seit der Wächter greift, erledigt die
+          native Geste den Rückschritt selbst über `popstate`, und dieser Handler doppelte nur.
+          JCs Befund war der Beweis: „aus einer Gruppe geht es sauber zurück, aus einem Fang lande ich
+          erst auf Home" — aus der Gruppe fällt der doppelte Schritt nicht auf, weil Home ohnehin das
+          Ziel ist. Zwei Versuche, das über Zeitfenster zu entschärfen, sind gescheitert (erst die
+          Reihenfolge falsch gedacht, dann waren die Abstände auf iOS größer als das Fenster).
+          Zuständig bleibt genau EINER: `popstate`. Was dieser Handler weiterhin tut, ist den
+          synthetischen Klick zu markieren — den erzeugt der Browser unabhängig davon. */
      } },{passive:true});
  })();
  // Swipe a bottom-sheet down to dismiss it (works on all .modal-ov sheets).
@@ -5563,19 +5569,19 @@ function taEnter(){ const q=(document.getElementById('ta-search').value||'').tri
 // ---------- detail ----------
 function openDetail(id){ const c=state.catches.find(x=>x.id===id); if(c) openDetailObj(c,'list'); }
 function detailBack(){
+  /* Im Edit-Modus beendet „Zurück" den EDIT-MODUS — es verlässt nicht den Fang (JC, 17. Juli: „the
+     return button is broken, as it also falsely pushes you back to the group, rather than the catch in
+     non edit mode").
+     Vorher stand hier `_detailEdit=false; paint(); go(to);` — beendete den Edit-Modus UND verließ den
+     Fang, in einem Schritt. Ein Zurück soll eine Ebene aufmachen, nicht zwei.
+     `toggleDetailEdit()` kann das längst richtig: speichern, aus der DB nachladen, den Fang sauber im
+     Lesemodus zeigen. Es wurde hier nur nie gerufen. */
+  if(_detailEdit){ toggleDetailEdit(); return; }
   const to=state.detailFrom||'list';
   /* The thumbnails are rendered HTML, not bound to state. Re-cropping the hero updated the catch
      object but left the list DOM exactly as it was, so going back showed the old crop until the app
      was reloaded. Re-render the screen we are returning to. */
   const paint=()=>{ try{ if(to==='list') renderList(); else if(to==='stats') renderStats(); }catch(e){} };
-  if(_detailEdit){
-    _detailEdit=false;
-    // Paint and navigate at once so leaving stays instant, then paint AGAIN when the save lands:
-    // persistDetailPhotos is async and was never awaited, so the first paint still shows the old order.
-    paint(); go(to);
-    persistDetailPhotos().then(paint, paint);
-    return;
-  }
   paint(); go(to);
 }
 function _detailScroll(){
