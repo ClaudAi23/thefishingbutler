@@ -135,8 +135,11 @@
      (YAVG 37.6 → 32.6), dann ~10 Frames Erholung ≈ die 240 ms unten. Der Screen war da längst fertig
      eingeschoben; unsere Animation dimmte ihn NACHTRÄGLICH auf .35 und hellte ihn wieder auf.
      Zwei Übergänge auf demselben Bild — der zweite ist der Blitz.
-     Nur für die Geste: Der Zurück-KNOPF hat keinen nativen Übergang, dort bleibt die Animation. */
-  .screen.active.is-back.no-anim{animation:none;}
+     Nur für die Geste: Der Zurück-KNOPF hat keinen nativen Übergang, dort bleibt die Animation.
+     Gilt seit dem Vorwärts-Bau für BEIDE Richtungen — deshalb der Selektor ohne `.is-back`. Der steht
+     bewusst NACH `.screen.active.is-back`: Beide wiegen gleich schwer (drei Klassen), also gewinnt der
+     spätere. Der zweite Selektor deckt den is-back-Fall zusätzlich ausdrücklich ab. */
+  .screen.active.no-anim, .screen.active.is-back.no-anim{animation:none;}
   @keyframes scrIn{from{opacity:.35; transform:translateX(16px);} to{opacity:1; transform:none;}}
   @keyframes scrBack{from{opacity:.35; transform:translateX(-16px);} to{opacity:1; transform:none;}}
   :focus-visible{outline:2px solid var(--teal-bright); outline-offset:2px; border-radius:6px;}
@@ -2302,13 +2305,17 @@ function soloAvatarHTML(){ return state.soloAvatar ? `<img src="${state.soloAvat
 let _navStack=[], _curScreen='club';
 const _ROOT_SCREENS=['login','club'];   // arriving at a root screen clears the in-app back history
 const _scrollPos={};
+/* Verlaufs-Nummer und Vorwärts-Stapel. Stehen hier oben, weil `go()` sie liest — die Erklärung, wozu
+   sie da sind, steht unten bei `_armBack`/`_goForward`. */
+let _histIdx = 0;
+let _fwdStack = [];   // Screens, die wir beim Zurückwischen verlassen haben — für den Weg vorwärts
 /* `viaGesture` reicht NUR der popstate-Handler durch (über appBack) — er ist der einzige Weg, auf dem
    die native Wischgeste bei uns ankommt. Die drei Zurück-Knöpfe (leaveArea, formBack, detailBack) rufen
    `go(…, true)` ohne das Flag und behalten ihre Animation. Bewusst ein durchgereichtes Flag und KEIN
    Zeitfenster: Zwei Versuche, das über Zeitfenster zu lösen, sind am 17. Juli gescheitert (die Abstände
    auf iOS waren größer als das Fenster). */
-function go(name, isBack, viaGesture){
-  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, geste:!!viaGesture, stack:(_navStack||[]).slice(), len:history.length,
+function go(name, isBack, viaGesture, noArm){
+  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, geste:!!viaGesture, noArm:!!noArm, idx:_histIdx, fwd:(_fwdStack||[]).slice(), stack:(_navStack||[]).slice(), len:history.length,
         wer: (new Error()).stack ? String((new Error()).stack).split('\n')[2].trim().slice(0,90) : '?' }); }catch(e){}
   /* Beim VERLASSEN festhalten, wo der Nutzer stand — sonst gibt es beim Zurückkommen nichts
      wiederherzustellen. Muss vor dem Screen-Wechsel passieren: Danach ist der alte Screen
@@ -2328,8 +2335,11 @@ function go(name, isBack, viaGesture){
      WO man war, als der Wächter gelegt wurde.
      Jetzt bildet der Verlauf die App-Tiefe ab: Beim VERLASSEN eines Screens wird ein Eintrag gelegt,
      also friert iOS das Bild genau dieses Screens ein — und zeigt beim Zurückwischen ihn statt Home.
-     Nur beim Vorwärtsgehen (`!isBack`): Ein Rückschritt verbraucht bereits einen Eintrag. */
-  if(!isBack && _curScreen && name!==_curScreen){ try{ _armBack(); }catch(e){} }
+     Nur beim Vorwärtsgehen (`!isBack`): Ein Rückschritt verbraucht bereits einen Eintrag.
+     `noArm` = wir gehen zwar vorwärts, aber der Eintrag EXISTIERT schon: Der Vorwärtswisch hat den
+     Verlauf selbst bewegt, wir ziehen nur den Screen nach. Würden wir hier legen, käme ein Eintrag
+     zu viel und die Tiefe stimmte nicht mehr. */
+  if(!isBack && !noArm && _curScreen && name!==_curScreen){ try{ _armBack(); }catch(e){} }
   if(!isBack && _curScreen && name!==_curScreen){
     if(_ROOT_SCREENS.includes(name)) _navStack=[]; else _navStack.push(_curScreen);
   }
@@ -2338,7 +2348,9 @@ function go(name, isBack, viaGesture){
   try{ updateFab(); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','is-back','no-anim'));
   { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack);
-    _sc.classList.toggle('no-anim', !!(isBack && viaGesture)); }
+    /* Nicht mehr nur beim Zurück: Den Vorwärtswisch animiert iOS ebenso — auch dort wäre unsere
+       Einblendung der zweite Übergang auf demselben Bild. Maßgeblich ist die GESTE, nicht die Richtung. */
+    _sc.classList.toggle('no-anim', !!viaGesture); }
   if(name==='login'){ try{ changeLoginEmail(); const _lc=document.getElementById('login-code'); if(_lc) _lc.value=''; }catch(e){} }
   // The login lockup lives on a hidden screen, so it has no box to measure until now — place it
   // once it's actually laid out, otherwise the lantern never finds the puffer.
@@ -2464,7 +2476,11 @@ function appBack(viaGesture){
      eine Ebene auf. */
   if(_curScreen==='detail' && _detailEdit){ toggleDetailEdit(); return; }
   // 4) one screen back if we have in-app history
-  if(_navStack.length){ go(_navStack.pop(), true, viaGesture); return; }
+  /* Nur bei der GESTE auf den Vorwärts-Stapel: Nur sie bewegt den Verlauf und lässt damit einen
+     Vorwärts-Eintrag zurück. Die Zurück-KNÖPFE navigieren rein in der App, ohne den Verlauf
+     anzufassen — dort entsteht kein Vorwärts-Ziel, und ein Eintrag hier wäre ein Screen, den die
+     Geste nie ansteuern kann. `_curScreen` vorher festhalten: `go()` überschreibt ihn. */
+  if(_navStack.length){ const _from=_curScreen; go(_navStack.pop(), true, viaGesture); if(viaGesture && _from) _fwdStack.push(_from); return; }
   // 5) at a root screen with nothing to go back to → stay open (swallow the gesture)
 }
 /* Der Wisch-zurück-Wächter (JC, 14. Juli: „weißer Ladescreen", 17. Juli: „auf iOS lädt er neu, auf
@@ -2478,9 +2494,53 @@ function appBack(viaGesture){
    ohne dass man es sieht, bis jemand wischt. Jetzt wird sofort scharfgestellt, wo der Handler hängt.
    (Auf dem Desktop war der Mechanismus nachweislich in Ordnung — gemessen: popstate feuert, kein
    Reload. Der Verdacht richtet sich deshalb genau auf das Nicht-Erreichen dieser Zeile.) */
-function _armBack(){ try{ history.pushState({_fb:1}, ''); }catch(e){} }
-window.addEventListener('popstate', function(){
-  try{ nlog('popstate', { screen:_curScreen, state:history.state, len:history.length, stack:(_navStack||[]).slice() }); }catch(e){}
+/* ---- Richtung erkennen (17. Juli) ---------------------------------------------------------------
+   JC: „home > group > detail, zurueckwischen -> Gruppe, vorwaerts wischen: du erwartest den Fang,
+   stattdessen geht es auf den Homescreen."
+   Die Ursache stand offen im Handler: `popstate` feuert bei JEDER Verlaufsbewegung — vorwärts wie
+   rückwärts. Wir haben die Richtung nie geprüft und stumpf `appBack()` gerufen. Ein Vorwärtswisch
+   schickte einen also RÜCKWÄRTS; aus der Gruppe ist das Home.
+   Warum der Vorwärtswisch überhaupt geht: Ein Rückschritt räumt den Vorwärts-Eintrag nicht weg, er
+   bleibt liegen und gibt der Geste ein Ziel.
+   Warum wir ihn NICHT wegräumen (geprüft und verworfen): Der einzige Hebel dafür wäre `pushState` —
+   das legt zugleich einen neuen Eintrag an. Unsere Einträge bilden aber die App-Tiefe ab (0 Home,
+   1 Gruppe, 2 Fang); genau daran hängt, dass iOS den richtigen Schnappschuss zeigt. Ein `pushState`
+   auf der Gruppe machte daraus 0 Home, 1 Gruppe, 2 Gruppe — und der nächste Zurückwisch zeigte wieder
+   den Schnappschuss der falschen Ebene. Das ist exakt der Fehler von heute früh; deshalb nicht blocken,
+   sondern richtig vorwärtsgehen.
+   Erkannt wird die Richtung an einer laufenden Nummer im State: größer = vorwärts, kleiner = zurück.
+   Bewusst am Index und NICHT an einem Zeitfenster — Zeitfenster sind hier heute schon zweimal
+   gescheitert. Einträge ohne Nummer (der Seitenaufruf selbst) zählen als 0 und damit als „zurück",
+   also wie bisher. */
+/* `_histIdx` und `_fwdStack` stehen oben bei `_scrollPos` — `go()` liest sie, und `go()` steht vor
+   dieser Stelle. Mit `let` hier unten wäre das eine Zeitbombe: Sobald irgendwann jemand `go()` früher
+   ruft als diese Zeile läuft, gibt es einen TDZ-Fehler, den vorher nichts anzeigt. */
+/* JEDES pushState wirft die Vorwärts-Einträge des Browsers weg — deshalb steht das Leeren des
+   Stapels HIER und nicht bei den Aufrufern. `_armBack` wird von drei Stellen gerufen (go, popstate
+   über `_armBackIfNeeded`, pageshow); an einer davon würde ich die Regel sonst irgendwann vergessen,
+   und dann zeigt der Stapel auf einen Eintrag, den es nicht mehr gibt. */
+function _armBack(){ try{ const _n=_histIdx+1; history.pushState({_fb:1, _i:_n}, ''); _histIdx=_n; _fwdStack.length=0; }catch(e){} }
+/* Vorwärtswisch: Der Verlauf hat sich schon bewegt, wir ziehen nur den Screen nach (`noArm`).
+   Ist der Stapel leer, wissen wir nicht, wohin — dann tut die Geste lieber gar nichts, statt zu raten.
+   (Das passiert z. B. nach einem Zurück per KNOPF: Der bewegt den Verlauf nicht, also entsteht auch
+   kein Vorwärts-Ziel.) */
+function _goForward(){
+  try{ nlog('goForward', { screen:_curScreen, fwd:(_fwdStack||[]).slice(), idx:_histIdx }); }catch(e){}
+  if(!_fwdStack.length) return;
+  const _nm=_fwdStack.pop();
+  if(!_nm || _nm===_curScreen) return;
+  go(_nm, false, true, true);
+}
+window.addEventListener('popstate', function(ev){
+  /* Richtung ZUERST bestimmen — vorher lief hier bedingungslos `appBack()`, und genau das schickte
+     den Vorwärtswisch rückwärts. */
+  const _st = (ev && ev.state) || history.state;
+  const _ni = (_st && typeof _st._i==='number') ? _st._i : 0;
+  const _vor = _ni > _histIdx;
+  try{ nlog('popstate', { screen:_curScreen, richtung:(_vor?'vorwaerts':'zurueck'), von_idx:_histIdx, nach_idx:_ni,
+        state:_st, len:history.length, fwd:(_fwdStack||[]).slice(), stack:(_navStack||[]).slice() }); }catch(e){}
+  _histIdx = _ni;
+  if(_vor){ _goForward(); return; }
   /* `true` = die native Geste war es. Nur von hier kommt sie — deshalb animieren wir gleich nicht
      nach (siehe `.no-anim` oben im CSS). */
   appBack(true);
