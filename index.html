@@ -2295,8 +2295,22 @@ function soloAvatarHTML(){ return state.soloAvatar ? `<img src="${state.soloAvat
 let _navStack=[], _curScreen='club';
 const _ROOT_SCREENS=['login','club'];   // arriving at a root screen clears the in-app back history
 function go(name, isBack){
-  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, stack:(_navStack||[]).slice(),
+  try{ nlog('go', { von:_curScreen, nach:name, isBack:!!isBack, stack:(_navStack||[]).slice(), len:history.length,
         wer: (new Error()).stack ? String((new Error()).stack).split('\n')[2].trim().slice(0,90) : '?' }); }catch(e){}
+  /* ---- Ein Verlaufseintrag JE SCREEN (17. Juli — die eigentliche Ursache) -------------------------
+     Das Log hat die App entlastet und den Browser überführt: Unsere Navigation macht genau EINEN
+     korrekten Rückschritt (`go: detail → list`, 4 ms nach dem Wisch) — und JC sieht trotzdem Home.
+     Was er sieht, ist also nicht unser Screen, sondern **iOS' eigenes Bild**.
+     Der verräterische Wert im Log: `len: 2`. Der Verlauf hatte nur ZWEI Einträge — den Seitenaufruf
+     und den einen Wächter — egal wie tief man in der App war. WebKit zeigt beim Zurückwischen einen
+     **Schnappschuss des vorherigen Eintrags**, und der wurde festgehalten, als der Wächter entstand:
+     bei der ersten Berührung, auf dem Homescreen. Deshalb schob iOS den alten Home-Schnappschuss
+     herein, bevor unser JS die Gruppe rendern konnte. Und deshalb war es „flaky" — es hing daran,
+     WO man war, als der Wächter gelegt wurde.
+     Jetzt bildet der Verlauf die App-Tiefe ab: Beim VERLASSEN eines Screens wird ein Eintrag gelegt,
+     also friert iOS das Bild genau dieses Screens ein — und zeigt beim Zurückwischen ihn statt Home.
+     Nur beim Vorwärtsgehen (`!isBack`): Ein Rückschritt verbraucht bereits einen Eintrag. */
+  if(!isBack && _curScreen && name!==_curScreen){ try{ _armBack(); }catch(e){} }
   if(!isBack && _curScreen && name!==_curScreen){
     if(_ROOT_SCREENS.includes(name)) _navStack=[]; else _navStack.push(_curScreen);
   }
@@ -2436,7 +2450,16 @@ function appBack(){
    (Auf dem Desktop war der Mechanismus nachweislich in Ordnung — gemessen: popstate feuert, kein
    Reload. Der Verdacht richtet sich deshalb genau auf das Nicht-Erreichen dieser Zeile.) */
 function _armBack(){ try{ history.pushState({_fb:1}, ''); }catch(e){} }
-window.addEventListener('popstate', function(){ try{ nlog('popstate', { screen:_curScreen, state:history.state, len:history.length }); }catch(e){} _armBack(); appBack(); });
+window.addEventListener('popstate', function(){
+  try{ nlog('popstate', { screen:_curScreen, state:history.state, len:history.length, stack:(_navStack||[]).slice() }); }catch(e){}
+  appBack();
+  /* Nachgelegt wird nur noch AM ANFANG (17. Juli). Vorher stand hier `_armBack()` vor jedem
+     `appBack()` — mit einem Eintrag je Screen würde das die Tiefe sofort wieder auffüllen, und iOS
+     zeigte beim nächsten Wisch erneut den Schnappschuss der falschen Ebene.
+     Jetzt: Ist die App-Historie leer, sind wir ganz am Anfang — dort einen Eintrag legen, damit der
+     nächste Wisch die App nicht verlässt (JC: „von home sollte ich nicht zurück gehen können"). */
+  try{ if(!_navStack.length) _armBack(); }catch(e){}
+});
 /* ---- Warum der Wächter an einer NUTZERGESTE hängt und nicht am Laden (17. Juli) -------------------
    WebKit hat eine Regel, die Blink und Gecko nicht haben: Ein `history.pushState` zählt nur dann als
    echter History-Eintrag, wenn er aus einer **Nutzergeste** entsteht. Ein pushState beim Seitenaufbau
