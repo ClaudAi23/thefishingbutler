@@ -2335,7 +2335,19 @@ function formIsDirty(){ return _curScreen==='form' && state.formSnap!=null && fo
 function confirmDiscard(){ return confirmDialog(t('discardTitle'), t('discardMsg'), t('discardBtn'), true); }
 async function formBack(){ if(formIsDirty() && !(await confirmDiscard())) return; state.formSnap=null; if(typeof _navStack!=='undefined' && _navStack.length){ go(_navStack.pop(), true); } else { go('list'); } }
 // Called for every hardware/gesture "back" (Android back button, edge-swipe). Navigates WITHIN the app; never closes it.
+/* EINE GESTE = EIN RÜCKSCHRITT (17. Juli, JC: „first I get back to the home screen to then getting
+   back to the group overview").
+   Warum hier und nicht bei den Aufrufern: An `appBack()` hängen inzwischen drei — der `popstate` der
+   nativen Geste, das `edgeBack`-Notnetz und die Zurück-Knöpfe. Ich habe zweimal versucht, das Doppeln
+   beim Aufrufer abzufangen, und lag beide Male daneben (erst die Reihenfolge falsch gedacht, dann auf
+   dem Desktop gemessen, was nur auf iOS auftritt). Diese Sperre gilt für ALLE Wege, egal wer zuerst
+   kommt — die Regel selbst ist unstrittig: Ein Wisch soll eine Ebene zurückgehen, nicht zwei.
+   350 ms sind kürzer als jeder bewusste zweite Wisch und länger als jedes Doppel-Feuern einer Geste. */
+let _lastBack=0;
 function appBack(){
+  const _now=Date.now();
+  if(_now-_lastBack < 350) return;
+  _lastBack=_now;
   const _ob=document.getElementById('onboarding-ov');
   if(_ob && _ob.style.display && _ob.style.display!=='none'){ if(_obStep>0){ obBack(); } else { obFinish(false); } return; }
   { const _lbx=document.getElementById('lightbox'); if(_lbx && _lbx.style.display && _lbx.style.display!=='none'){ closeLightbox(); return; } }
