@@ -2508,6 +2508,32 @@ window.addEventListener('pageshow', function(e){ if(e.persisted) _armBackIfNeede
         screen:_curScreen }); }catch(_e){}
    if(geschluckt){ _swipeUntil = 0; e.stopPropagation(); e.preventDefault(); }
  }, true);
+ /* ---- Auf HOME die Wisch-Geste ganz unterdrücken (JC, 17. Juli) -----------------------------------
+    Auf Home gibt es nichts, wohin zurück. Bisher lief die Geste trotzdem: Sie verbrauchte den Wächter,
+    `appBack` schluckte sie, wir legten einen neuen — man landete wieder auf Home. Funktioniert, sieht
+    aber nach einem Fehlversuch aus.
+    Den Wächter dort einfach wegzulassen wäre schlimmer: Ohne ihn ginge der Wisch zur Seite DAVOR, also
+    aus der App heraus.
+    Safari startet die Geste nicht, wenn man `touchmove` an der Kante non-passive abfängt und
+    `preventDefault()` ruft. Eng gefasst, damit es nirgends sonst beißt:
+    · nur wenn Home der aktive Screen ist,
+    · nur an der linken Kante,
+    · nur wenn die Bewegung WAAGERECHT ist (|dx| > |dy|) — senkrechtes Scrollen am linken Rand bleibt
+      unangetastet, und ein Tippen ohne Bewegung erreicht dieses `touchmove` nie. */
+ (function blockEdgeOnHome(){
+   var bx=0, by=0, kante=false;
+   document.addEventListener('touchstart',function(e){
+     if(e.touches.length!==1){ kante=false; return; }
+     var t=e.touches[0]; bx=t.clientX; by=t.clientY;
+     kante = (bx<=24) && (_curScreen==='club');
+   },{passive:true});
+   document.addEventListener('touchmove',function(e){
+     if(!kante || e.touches.length!==1) return;
+     var t=e.touches[0], dx=t.clientX-bx, dy=t.clientY-by;
+     // Waagerecht nach rechts = die Zurück-Geste. Senkrecht = Scrollen, das lassen wir in Ruhe.
+     if(dx>6 && Math.abs(dx)>Math.abs(dy)) e.preventDefault();
+   },{passive:false});
+ })();
  (function edgeBack(){
    var sx=0,sy=0,edge=false,t0=0;
    document.addEventListener('touchstart',function(e){ if(e.touches.length!==1){edge=false;return;} var t=e.touches[0]; sx=t.clientX; sy=t.clientY; t0=Date.now(); edge=sx<=24; },{passive:true});
