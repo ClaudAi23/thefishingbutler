@@ -429,22 +429,8 @@
   /* Map credit: same size, same colour, same right edge as the weather source — the two sit on one axis. */
   .mfoot .msrc{margin-left:auto;}
   .msrc{padding:0 4px; text-align:right; font-size:0.625rem; line-height:1.5;}
-  /* TEMPORARY crop test log — remove with dlog(). */
-  /* Distinct on purpose: rgba(2,27,40,.97) was the page background almost exactly, so the panel was
-     invisible against it. A log you have to hunt for is worthless. */
-  .dbg-panel{position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#0a3a4e;
-    border-top:2px solid var(--accent); max-height:42vh; display:flex; flex-direction:column;
-    box-shadow:0 -6px 20px rgba(0,0,0,.5); padding-bottom:env(safe-area-inset-bottom);}
-  .dbg-bar{display:flex; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--border);}
-  .dbg-bar b{flex:1; font-size:.75rem; color:var(--teal-bright);}
-  .dbg-bar button{font-family:inherit; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:7px;
-    border:1px solid var(--border-2); background:var(--surface); color:var(--text);}
-  .dbg-panel pre{margin:0; padding:8px 10px; overflow:auto; font-size:11px; line-height:1.5;
-    color:var(--text); white-space:pre-wrap; word-break:break-all;}   /* 9px was not readable on a phone */
   .msrc a{color:var(--muted); font-size:0.625rem; text-decoration:none;}
   .msrc a:hover{text-decoration:underline;}
-  .wtrend-note{font-size:0.6875rem; color:var(--muted); margin:10px 0 2px;}
-  .wspark-cap{font-size:0.6875rem; color:var(--muted); text-align:center; margin-top:4px;}
   /* The source line is the sibling of the trend note, not a footer: same size, same left edge,
      directly beneath it. It was 0.75rem and right-aligned — two small differences that made the
      two lines look like they came from different places. margin-top 8 -> 2 closes the gap. */
@@ -612,6 +598,9 @@
   .wind-arrow{width:14px; height:14px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2;
     stroke-linecap:round; stroke-linejoin:round;}
   .wx-card .sub{font-size:0.7rem; font-weight:600; color:var(--muted); white-space:nowrap;}
+  /* Pfeil und Himmelsrichtung sind EIN Gedanke — deshalb eine Zeile, mit dem Pfeil am Text statt neben
+     dem Wert. Der Pfeil erbt die gedämpfte Farbe über currentColor. */
+  .wx-card .sub.wind-dir{display:inline-flex; align-items:center; gap:3px;}
   .wx-card .tr{font-size:0.7rem; font-weight:600; white-space:nowrap;}
   .wx-card .tr.up{color:var(--teal-bright);}
   .wx-card .tr.down{color:var(--accent);}
@@ -1369,12 +1358,6 @@
         <button type="button" data-st="area" onclick="setSettingsTab('area')" data-i18n="tabArea">Verein/Gruppe</button>
       </div>
       <div id="tab-personal">
-      <!-- TEMPORARY (16 Jul): crop test log. Sits in the PERSONAL tab because it must always be
-           reachable — the first attempt hid it in the Gefahrenzone, which lives in the Verein/Gruppe
-           tab and is not always there. An installed PWA always launches at "/" with no query string,
-           so ?debug=1 can never reach it; the switch has to be inside the app.
-           Remove this block, dlog()/dbgToggle()/dbgCopy() and the .dbg-* CSS once verified. -->
-      <button type="button" class="btn secondary sm" style="width:100%; margin-bottom:14px;" onclick="dbgToggle()">Test-Log: AUS — zum Einschalten tippen</button>
       <div class="accgroup open" id="acc-profil">
         <button type="button" class="acchead" onclick="toggleAcc('profil')"><span data-i18n="profile">Profil</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
@@ -1422,13 +1405,9 @@
         </div>
       </div>
 
-      <div class="accgroup" id="acc-fields">
-        <button type="button" class="acchead" onclick="toggleAcc('fields')"><span data-i18n="fieldsTitle">Fang-Eingabe</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
-        <div class="accbody">
-          <p class="hint" style="margin-top:0;" data-i18n="fieldPrefHint">Wähle, welche Felder beim Eintragen erscheinen. Gilt überall. Ein Verein/eine Gruppe kann zusätzliche Felder anzeigen oder zur Pflicht machen.</p>
-          <div id="field-pref-list"></div>
-        </div>
-      </div>
+      <!-- Die persönliche „Fang-Eingabe"-Sektion ist am 17. Juli entfallen (JC): Es werden überall alle
+           Felder angezeigt, und nur noch der Verein kann eine Eingabe erzwingen. Damit hatte die
+           persönliche Ebene nichts mehr zu entscheiden. -->
 
       <div class="accgroup" id="acc-share">
         <button type="button" class="acchead" onclick="toggleAcc('share')"><span data-i18n="shareTitle">Teilen-Vorlage</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -1625,7 +1604,7 @@
   <!-- ============ REQUESTS INBOX (2e, app-admin) ============ -->
   <div id="reqs-modal" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('reqs-modal')">
     <div class="modal-box">
-      <h2 style="font-size:1.1875rem; margin:0 0 8px;" data-i18n="reqInboxTitle">Beitritts-Anfragen</h2>
+      <h2 style="font-size:1.1875rem; margin:0 0 8px;" data-i18n="reqInboxTitle">Gründungs-Anfragen</h2>
       <div id="reqs-list" style="max-height:56vh; overflow:auto;"></div>
       <div style="margin-top:14px;">
         <button type="button" class="btn secondary" onclick="closeModal('reqs-modal')" data-i18n="close">Schließen</button>
@@ -1986,7 +1965,7 @@ const MONTHS = {
 };
 const I18N = {
   de:{
-    appName:"ButlerFish", tagline:"Fangen · Protokollieren · Organisieren", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Initialen", initialsOnly:"Nur Initialen", logoInitialsHint:"Ohne Bild werden die Initialen (max. 3 Zeichen) gezeigt. Tippe aufs Bild für eine andere Farbe.", logoLight:"Heller Text", logoDark:"Dunkler Text", editImage:"Bild anpassen", editImageHint:"Ziehen zum Verschieben, Regler zum Zoomen.", cropApply:"Übernehmen", removeImage:"Bild entfernen", converting:"Konvertiere Foto …", logToAreaHint:"Mehrere Vereine/Gruppen möglich.", areaSearch:"Suchen…", areaDone:"Fertig", repositionHint:"Ziehen, um den Bildausschnitt anzupassen", addArea:"Verein oder Gruppe", joinAnyHint:"Ein Code funktioniert für Verein und Gruppe.", createClub:"Verein erstellen", createGroup:"Gruppe erstellen", requestClub:"Verein anfragen", requestGroup:"Gruppe anfragen", logoFallbackNote:"Ohne Bild werden die Initialen angezeigt.", weatherManualPh:"z. B. sonnig, 18 °C, leichter Wind", weatherManualHint:"Automatisch geladen, wenn ein Standort gesetzt ist – manuell überschreibbar.", weatherPh:"z. B. Bewölkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch vorausgefüllt, wenn ein Standort gesetzt ist – frei editierbar.", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
+    appName:"ButlerFish", tagline:"Fangen · Protokollieren · Organisieren", tapToChange:"Zum Ändern tippen", newCatches:"Neue Fänge", grpBasis:"Basis", grpCatch:"Der Fang", grpPhotos:"Fotos", grpWater:"Gewässer & Standort", grpConditions:"Bedingungen", grpGear:"Technik & Ausrüstung", grpNotes:"Notizen", logoInitials:"Initialen", initialsOnly:"Nur Initialen", logoInitialsHint:"Ohne Bild werden die Initialen (max. 3 Zeichen) gezeigt. Tippe aufs Bild für eine andere Farbe.", logoLight:"Heller Text", logoDark:"Dunkler Text", editImage:"Bild anpassen", editImageHint:"Ziehen zum Verschieben, Regler zum Zoomen.", cropApply:"Übernehmen", removeImage:"Bild entfernen", converting:"Konvertiere Foto …", logToAreaHint:"Mehrere Vereine/Gruppen möglich.", areaSearch:"Suchen…", areaDone:"Fertig", repositionHint:"Ziehen, um den Bildausschnitt anzupassen", cropSaveFail:"Bildausschnitt konnte nicht gespeichert werden", addArea:"Verein oder Gruppe", joinAnyHint:"Ein Code funktioniert für Verein und Gruppe.", createClub:"Verein erstellen", createGroup:"Gruppe erstellen", requestClub:"Verein anfragen", requestGroup:"Gruppe anfragen", logoFallbackNote:"Ohne Bild werden die Initialen angezeigt.", weatherManualPh:"z. B. sonnig, 18 °C, leichter Wind", weatherManualHint:"Automatisch geladen, wenn ein Standort gesetzt ist – manuell überschreibbar.", weatherPh:"z. B. Bewölkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch vorausgefüllt, wenn ein Standort gesetzt ist – frei editierbar.", notInClub:"Dein Verein ist nicht dabei? Bitte wende dich an deinen Vereinsadmin.",
     personal:"Persönlich", clubs:"Vereine", groups:"Gruppen", statsTile:"Meine Fänge", statsTileSub:"Alle Fänge zusammen", soloTile:"Solo", soloTileSub:"Eigenes Logbuch, privat",
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
@@ -1999,7 +1978,7 @@ const I18N = {
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit ButlerFish", shareNoMeasure:"ohne Maße"
   },
   en:{
-    appName:"ButlerFish", tagline:"Catch · Log · Organize", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials", initialsOnly:"Initials only", logoInitialsHint:"Shown when no image is set (max. 3 characters). Tap the image for a different colour.", logoLight:"Light text", logoDark:"Dark text", editImage:"Adjust image", editImageHint:"Drag to move, slider to zoom.", cropApply:"Apply", removeImage:"Remove image", converting:"Converting photo …", logToAreaHint:"You can pick multiple clubs/groups.", areaSearch:"Search…", areaDone:"Done", repositionHint:"Drag to reframe the cover", addArea:"Club or group", joinAnyHint:"A code works for both clubs and groups.", createClub:"Create club", createGroup:"Create group", requestClub:"Request club", requestGroup:"Request group", logoFallbackNote:"Without an image, the initials are shown.", weatherManualPh:"e.g. sunny, 18 °C, light wind", weatherManualHint:"Auto-filled when a location is set – you can override it.", weatherPh:"e.g. Cloudy · 18 °C · 12 km/h", weatherAutoHint:"Auto-filled when a location is set – fully editable.", notInClub:"Club not listed? Contact your club admin.",
+    appName:"ButlerFish", tagline:"Catch · Log · Organize", tapToChange:"Tap to change", newCatches:"New catches", grpBasis:"Basics", grpCatch:"The catch", grpPhotos:"Photos", grpWater:"Water & location", grpConditions:"Conditions", grpGear:"Technique & gear", grpNotes:"Notes", logoInitials:"Initials", initialsOnly:"Initials only", logoInitialsHint:"Shown when no image is set (max. 3 characters). Tap the image for a different colour.", logoLight:"Light text", logoDark:"Dark text", editImage:"Adjust image", editImageHint:"Drag to move, slider to zoom.", cropApply:"Apply", removeImage:"Remove image", converting:"Converting photo …", logToAreaHint:"You can pick multiple clubs/groups.", areaSearch:"Search…", areaDone:"Done", repositionHint:"Drag to reframe the cover", cropSaveFail:"Couldn't save the crop", addArea:"Club or group", joinAnyHint:"A code works for both clubs and groups.", createClub:"Create club", createGroup:"Create group", requestClub:"Request club", requestGroup:"Request group", logoFallbackNote:"Without an image, the initials are shown.", weatherManualPh:"e.g. sunny, 18 °C, light wind", weatherManualHint:"Auto-filled when a location is set – you can override it.", weatherPh:"e.g. Cloudy · 18 °C · 12 km/h", weatherAutoHint:"Auto-filled when a location is set – fully editable.", notInClub:"Club not listed? Contact your club admin.",
     personal:"Personal", clubs:"Clubs", groups:"Groups", statsTile:"My catches", statsTileSub:"All catches, everywhere", soloTile:"Solo", soloTileSub:"Your own private log",
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
@@ -2012,7 +1991,7 @@ const I18N = {
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with ButlerFish", shareNoMeasure:"no measurements"
   },
   nl:{
-    appName:"ButlerFish", tagline:"Vangen · Loggen · Organiseren", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen", initialsOnly:"Alleen initialen", logoInitialsHint:"Wordt getoond zonder afbeelding (max. 3 tekens). Tik op de afbeelding voor een andere kleur.", logoLight:"Lichte tekst", logoDark:"Donkere tekst", editImage:"Afbeelding aanpassen", editImageHint:"Sleep om te verplaatsen, schuif om te zoomen.", cropApply:"Toepassen", removeImage:"Afbeelding verwijderen", converting:"Foto converteren …", logToAreaHint:"Meerdere verenigingen/groepen mogelijk.", areaSearch:"Zoeken…", areaDone:"Klaar", repositionHint:"Sleep om de uitsnede aan te passen", addArea:"Vereniging of groep", joinAnyHint:"Een code werkt voor beide.", createClub:"Vereniging aanmaken", createGroup:"Groep aanmaken", requestClub:"Vereniging aanvragen", requestGroup:"Groep aanvragen", logoFallbackNote:"Zonder afbeelding worden de initialen getoond.", weatherManualPh:"bijv. zonnig, 18 °C, lichte wind", weatherManualHint:"Automatisch geladen als er een locatie is – handmatig te overschrijven.", weatherPh:"bijv. Bewolkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch ingevuld als er een locatie is – vrij bewerkbaar.", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
+    appName:"ButlerFish", tagline:"Vangen · Loggen · Organiseren", tapToChange:"Tik om te wijzigen", newCatches:"Nieuwe vangsten", grpBasis:"Basis", grpCatch:"De vangst", grpPhotos:"Foto's", grpWater:"Water & locatie", grpConditions:"Omstandigheden", grpGear:"Techniek & uitrusting", grpNotes:"Notities", logoInitials:"Initialen", initialsOnly:"Alleen initialen", logoInitialsHint:"Wordt getoond zonder afbeelding (max. 3 tekens). Tik op de afbeelding voor een andere kleur.", logoLight:"Lichte tekst", logoDark:"Donkere tekst", editImage:"Afbeelding aanpassen", editImageHint:"Sleep om te verplaatsen, schuif om te zoomen.", cropApply:"Toepassen", removeImage:"Afbeelding verwijderen", converting:"Foto converteren …", logToAreaHint:"Meerdere verenigingen/groepen mogelijk.", areaSearch:"Zoeken…", areaDone:"Klaar", repositionHint:"Sleep om de uitsnede aan te passen", cropSaveFail:"Uitsnede kon niet worden opgeslagen", addArea:"Vereniging of groep", joinAnyHint:"Een code werkt voor beide.", createClub:"Vereniging aanmaken", createGroup:"Groep aanmaken", requestClub:"Vereniging aanvragen", requestGroup:"Groep aanvragen", logoFallbackNote:"Zonder afbeelding worden de initialen getoond.", weatherManualPh:"bijv. zonnig, 18 °C, lichte wind", weatherManualHint:"Automatisch geladen als er een locatie is – handmatig te overschrijven.", weatherPh:"bijv. Bewolkt · 18 °C · 12 km/h", weatherAutoHint:"Automatisch ingevuld als er een locatie is – vrij bewerkbaar.", notInClub:"Vereniging er niet bij? Neem contact op met je verenigingsbeheerder.",
     personal:"Persoonlijk", clubs:"Verenigingen", groups:"Groepen", statsTile:"Mijn vangsten", statsTileSub:"Alle vangsten, overal", soloTile:"Solo", soloTileSub:"Eigen logboek, privé",
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
@@ -2028,66 +2007,66 @@ const I18N = {
 Object.assign(I18N.de, {gTilesMethod:"Methode", gTilesHow:"Technik", gTilesBait:"Köder & Gerät", sAtWater:"Am Wasser", sWaterTemp:"Temperatur", gTilesLoc:"Ort", gTilesCatch:"Fang", gTilesGear:"Ausrüstung", gTilesCond:"Bedingungen", gTilesMisc:"Sonstiges", editCatch:"Fang bearbeiten", editSub:"Änderungen", ttEdit:"Bearbeiten", del:"Löschen", delConfirm:"Diesen Fang wirklich löschen?", sortLabel:"Sortieren", sortNewest:"Neueste", sortOldest:"Älteste", sortLongest:"Längste", sortHeaviest:"Schwerste", sortSpecies:"Fischart", switchArea:"Verein/Gruppe wechseln", toStart:"Zum Start", profile:"Profil", signOut:"Abmelden", loginIntro:"Melde dich einmal an. Danach wählst du frei zwischen Solo, Gruppen und Vereinen.", name:"Name", nameHint:"Wird bei deinen Fängen und als Initialen genutzt."});
 Object.assign(I18N.en, {gTilesMethod:"Method", gTilesHow:"Technique", gTilesBait:"Lure & gear", sAtWater:"At the water", sWaterTemp:"Temperature", gTilesLoc:"Location", gTilesCatch:"Catch", gTilesGear:"Gear", gTilesCond:"Conditions", gTilesMisc:"Other", editCatch:"Edit catch", editSub:"Changes", ttEdit:"Edit", del:"Delete", delConfirm:"Delete this catch?", sortLabel:"Sort", sortNewest:"Newest", sortOldest:"Oldest", sortLongest:"Longest", sortHeaviest:"Heaviest", sortSpecies:"Species", switchArea:"Switch club/group", toStart:"To start", profile:"Profile", signOut:"Sign out", loginIntro:"Sign in once. Then freely pick Solo, groups and clubs.", name:"Name", nameHint:"Used on your catches and for your initials."});
 Object.assign(I18N.nl, {gTilesMethod:"Methode", gTilesHow:"Techniek", gTilesBait:"Aas & uitrusting", sAtWater:"Aan het water", sWaterTemp:"Temperatuur", gTilesLoc:"Locatie", gTilesCatch:"Vangst", gTilesGear:"Uitrusting", gTilesCond:"Omstandigheden", gTilesMisc:"Overig", editCatch:"Vangst bewerken", editSub:"Wijzigingen", ttEdit:"Bewerken", del:"Verwijderen", delConfirm:"Deze vangst verwijderen?", sortLabel:"Sorteren", sortNewest:"Nieuwste", sortOldest:"Oudste", sortLongest:"Langste", sortHeaviest:"Zwaarste", sortSpecies:"Vissoort", switchArea:"Vereniging/groep wisselen", toStart:"Naar start", profile:"Profiel", signOut:"Uitloggen", loginIntro:"Log één keer in. Daarna kies je vrij tussen Solo, groepen en verenigingen.", name:"Naam", nameHint:"Wordt gebruikt bij je vangsten en als initialen."});
-Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Luft", wWind:"Wind", wPressure:"Druck", wMoon:"Mond", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", trend3:"3-Tage-Trend", trend7:"7-Tage-Trend", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", wSourceFields:"Luft, Wind, Druck", windFrom:"aus {d}", compass8:"N,NO,O,SO,S,SW,W,NW", trendNote:"Pfeile: Veränderung in den {n} Tagen vor dem Fang.",
+Object.assign(I18N.de, {mapPin:"Standort auf Karte", myLocation:"Mein Standort", tapMap:"Tippe auf die Karte, um den Fangort zu setzen.", openInMaps:"In Karten öffnen", weather:"Wetter", moon:"Mondphase", wTemp:"Luft", wWind:"Wind", wPressure:"Druck", wMoon:"Mond", wCond:"Bedingungen", wWaterTemp:"Wassertemp.", wLoading:"Wetter wird geladen …", noCoords:"Kein Kartenstandort gesetzt.", moonWax:"zunehmend", moonWane:"abnehmend", wSource:"Quelle", compass8:"N,NO,O,SO,S,SW,W,NW",
   wxInfoTitle:"Was bedeuten die Werte?",
   wxInfoBody:"Alle Werte gelten für <b>deinen Fangort zur Fangzeit</b>, nicht für heute.<br><br>"
-    +"<b>Luft</b> — Temperatur im Moment des Fangs. Der Pfeil vergleicht mit <b>derselben Stunde am Vortag</b>.<br><br>"
-    +"<b>Wind</b> — die Richtung, aus der er kam. Der Pfeil zeigt, <b>wohin</b> er wehte. Daneben die Stärke.<br><br>"
-    +"<b>Druck</b> — Luftdruck im Moment des Fangs. Der Pfeil zeigt die Änderung über die <b>letzten 3 Stunden</b> — so wird die Drucktendenz üblicherweise angegeben, und fallender Druck ist das, worauf Angler achten.<br><br>"
+    +"<b>Bedingungen</b> — der Himmel beim Fang: klar, bewölkt, Regen …<br><br>"
+    +"<b>Luft</b> — Temperatur beim Fang. Der Pfeil vergleicht mit <b>derselben Stunde am Vortag</b>.<br><br>"
+    +"<b>Wind</b> — die Stärke. Daneben die Richtung: „NO“ heißt, er kam <b>aus</b> Nordost — der Pfeil zeigt, <b>wohin</b> er wehte.<br><br>"
+    +"<b>Druck</b> — Luftdruck beim Fang. Der Pfeil zeigt die Änderung der <b>letzten 3 Stunden</b>.<br><br>"
     +"<b>Mond</b> — die Phase am Fangtag.<br><br>"
-    +"<b>±0</b> heißt: Die Änderung war zu klein, um sie zu melden.<br><br>"
-    +"Quelle: Open-Meteo. Die <b>Wassertemperatur</b> steht unter „Am Wasser“ — die trägst du selbst ein, sie kommt nicht von dort.", sparkCap:"Tagesmittel-Temperatur, letzte {n} Tage",
+    +"<b>±0</b> heißt: Die Änderung war zu klein, um sie zu melden.",
   m_new:"Neumond", m_wc:"zunehmende Sichel", m_fq:"erstes Viertel", m_wg:"zunehmender Mond", m_full:"Vollmond", m_ng:"abnehmender Mond", m_lq:"letztes Viertel", m_nc:"abnehmende Sichel",
   wc_clear:"klar", wc_partly:"leicht bewölkt", wc_cloudy:"bewölkt", wc_fog:"Nebel", wc_drizzle:"Niesel", wc_rain:"Regen", wc_snow:"Schnee", wc_thunder:"Gewitter"});
-Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air", wWind:"Wind", wPressure:"Pressure", wMoon:"Moon", wCond:"Conditions", wWaterTemp:"Water temp.", trend3:"3-day trend", trend7:"7-day trend", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", wSourceFields:"Air, wind, pressure", windFrom:"from {d}", compass8:"N,NE,E,SE,S,SW,W,NW", trendNote:"Arrows: change over the {n} days before the catch.",
+Object.assign(I18N.en, {mapPin:"Location on map", myLocation:"My location", tapMap:"Tap the map to set the spot.", openInMaps:"Open in Maps", weather:"Weather", moon:"Moon phase", wTemp:"Air", wWind:"Wind", wPressure:"Pressure", wMoon:"Moon", wCond:"Conditions", wWaterTemp:"Water temp.", wLoading:"Loading weather …", noCoords:"No map location set.", moonWax:"waxing", moonWane:"waning", wSource:"Source", compass8:"N,NE,E,SE,S,SW,W,NW",
   wxInfoTitle:"What do these mean?",
   wxInfoBody:"Everything here is for <b>your spot at the time of the catch</b>, not for today.<br><br>"
-    +"<b>Air</b> — temperature at the moment of the catch. The arrow compares it to <b>the same hour yesterday</b>.<br><br>"
-    +"<b>Wind</b> — the direction it came from. The arrow points <b>where it was blowing to</b>. The speed sits beside it.<br><br>"
-    +"<b>Pressure</b> — at the moment of the catch. The arrow shows the change over the <b>last 3 hours</b> — the usual way a pressure tendency is given, and falling pressure is what anglers watch for.<br><br>"
+    +"<b>Conditions</b> — the sky at the catch: clear, cloudy, rain …<br><br>"
+    +"<b>Air</b> — temperature at the catch. The arrow compares it to <b>the same hour yesterday</b>.<br><br>"
+    +"<b>Wind</b> — the speed. Beside it the direction: “NE” means it came <b>from</b> the north-east — the arrow points <b>where it was blowing to</b>.<br><br>"
+    +"<b>Pressure</b> — at the moment of the catch. The arrow shows the change over the <b>last 3 hours</b>.<br><br>"
     +"<b>Moon</b> — the phase on the day of the catch.<br><br>"
-    +"<b>±0</b> means the change was too small to report.<br><br>"
-    +"Source: Open-Meteo. <b>Water temperature</b> lives under “At the water” — you enter that yourself, it does not come from them.", sparkCap:"Daily mean temperature, last {n} days",
+    +"<b>±0</b> means the change was too small to report.",
   m_new:"New moon", m_wc:"Waxing crescent", m_fq:"First quarter", m_wg:"Waxing gibbous", m_full:"Full moon", m_ng:"Waning gibbous", m_lq:"Last quarter", m_nc:"Waning crescent",
   wc_clear:"Clear", wc_partly:"Partly cloudy", wc_cloudy:"Cloudy", wc_fog:"Fog", wc_drizzle:"Drizzle", wc_rain:"Rain", wc_snow:"Snow", wc_thunder:"Thunderstorm"});
-Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Lucht", wWind:"Wind", wPressure:"Druk", wMoon:"Maan", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", trend3:"3-daagse trend", trend7:"7-daagse trend", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", wSourceFields:"Lucht, wind, druk", windFrom:"uit {d}", compass8:"N,NO,O,ZO,Z,ZW,W,NW", trendNote:"Pijlen: verandering in de {n} dagen vóór de vangst.",
+Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", tapMap:"Tik op de kaart om de plek te zetten.", openInMaps:"Openen in Kaarten", weather:"Weer", moon:"Maanfase", wTemp:"Lucht", wWind:"Wind", wPressure:"Druk", wMoon:"Maan", wCond:"Omstandigheden", wWaterTemp:"Watertemp.", wLoading:"Weer laden …", noCoords:"Geen kaartlocatie ingesteld.", moonWax:"wassend", moonWane:"afnemend", wSource:"Bron", compass8:"N,NO,O,ZO,Z,ZW,W,NW",
   wxInfoTitle:"Wat betekenen deze waarden?",
   wxInfoBody:"Alles hier geldt voor <b>jouw stek op het moment van de vangst</b>, niet voor vandaag.<br><br>"
-    +"<b>Lucht</b> — temperatuur op het moment van de vangst. De pijl vergelijkt met <b>hetzelfde uur gisteren</b>.<br><br>"
-    +"<b>Wind</b> — de richting waar hij vandaan kwam. De pijl wijst <b>waarheen</b> hij woei. Daarnaast de snelheid.<br><br>"
-    +"<b>Druk</b> — luchtdruk op het moment van de vangst. De pijl toont de verandering over de <b>laatste 3 uur</b> — zo wordt de luchtdruktendens gebruikelijk gegeven, en dalende druk is waar vissers op letten.<br><br>"
+    +"<b>Omstandigheden</b> — de lucht bij de vangst: helder, bewolkt, regen …<br><br>"
+    +"<b>Lucht</b> — temperatuur bij de vangst. De pijl vergelijkt met <b>hetzelfde uur gisteren</b>.<br><br>"
+    +"<b>Wind</b> — de snelheid. Daarnaast de richting: „NO” betekent dat hij <b>uit</b> het noordoosten kwam — de pijl wijst <b>waarheen</b> hij woei.<br><br>"
+    +"<b>Druk</b> — luchtdruk bij de vangst. De pijl toont de verandering over de <b>laatste 3 uur</b>.<br><br>"
     +"<b>Maan</b> — de fase op de dag van de vangst.<br><br>"
-    +"<b>±0</b> betekent: de verandering was te klein om te melden.<br><br>"
-    +"Bron: Open-Meteo. De <b>watertemperatuur</b> staat onder „Aan het water“ — die vul je zelf in, die komt daar niet vandaan.", sparkCap:"Daggemiddelde temperatuur, laatste {n} dagen",
+    +"<b>±0</b> betekent: de verandering was te klein om te melden.",
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
 Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
-Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"Boot", watertemp:"Wassertemperatur (°C)", watertempPh:"z. B. 18", trolling:"Schleppgeschw.", trollingPh:"z. B. 3,2", releasedLabel:"Entnahme", releasedNone:"—", releasedKept:"Entnommen", releasedReleased:"Zurückgesetzt", methodPh:"z. B. Spinnfischen", baitPh:"z. B. Gummifisch 12 cm", rodPh:"z. B. 2,70 m / 40 g", reel:"Rolle", reelPh:"z. B. 4000er Stationärrolle", boatPh:"z. B. Schlauchboot", fieldsTitle:"Fang-Felder", fieldsHint:"Lege fest, welche Felder beim Eintragen erscheinen und welche Pflicht sind.", fieldsHintAdmin:"Als Admin kannst du Felder zusätzlich für alle anzeigen oder zur Pflicht machen. Verbergen geht nicht – eigene Felder wählt jede/r selbst.", fieldsHintMember:"Diese Vorgaben legt der Admin fest (nur lesbar). Deine eigenen Felder wählst du in den persönlichen Einstellungen.", stRequired:"Pflicht", stOptional:"Immer anzeigen", stOff:"Nicht erzwingen", moreFields:"Weitere Felder", errRequired:"Bitte Pflichtfelder ausfüllen:", shareTitle:"Teilen", shareModeFields:"Felder", shareModeTemplate:"Eigene Vorlage", sharePreview:"Vorschau", shareLink:"Link zur App", shareHint:"Gilt für diesen Bereich (Solo / Gruppe / Verein).", sharePhHint:"Platzhalter: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Als CSV exportieren", exportPdf:"Als PDF exportieren (mit Fotos)", exportEmpty:"Keine Fänge zum Exportieren.", exportPdfErr:"PDF-Export konnte nicht geladen werden (Internet nötig)."});
+Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"Boot", watertemp:"Wassertemperatur (°C)", watertempPh:"z. B. 18", trolling:"Schleppgeschw.", trollingPh:"z. B. 3,2", releasedLabel:"Entnahme", releasedNone:"—", releasedKept:"Entnommen", releasedReleased:"Zurückgesetzt", methodPh:"z. B. Spinnfischen", baitPh:"z. B. Gummifisch 12 cm", rodPh:"z. B. 2,70 m / 40 g", reel:"Rolle", reelPh:"z. B. 4000er Stationärrolle", boatPh:"z. B. Schlauchboot", fieldsTitle:"Fang-Felder", fieldsHint:"Lege fest, welche Felder beim Eintragen Pflicht sind. Angezeigt werden immer alle.", fieldsHintAdmin:"Als Admin kannst du Felder zur Pflicht machen. Angezeigt werden immer alle – verbergen geht nicht.", fieldsHintMember:"Welche Felder Pflicht sind, legt der Admin fest (nur lesbar).", stRequired:"Pflicht", stNotRequired:"Nicht Pflicht", moreFields:"Weitere Felder", errRequired:"Bitte Pflichtfelder ausfüllen:", shareTitle:"Teilen", shareModeFields:"Felder", shareModeTemplate:"Eigene Vorlage", sharePreview:"Vorschau", shareLink:"Link zur App", shareHint:"Gilt für diesen Bereich (Solo / Gruppe / Verein).", sharePhHint:"Platzhalter: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Als CSV exportieren", exportPdf:"Als PDF exportieren (mit Fotos)", exportEmpty:"Keine Fänge zum Exportieren.", exportPdfErr:"PDF-Export konnte nicht geladen werden (Internet nötig)."});
 Object.assign(I18N.en, {demoHint:"Demo: fields are pre-filled — just tap Sign in.", photos:"Photos", cover:"Cover", setCover:"Set as cover", photoHint:"Up to 10 photos. With several, tap the star ☆ to choose the cover."});
-Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", watertemp:"Water temperature (°C)", watertempPh:"e.g. 18", trolling:"Trolling speed", trollingPh:"e.g. 3.2", releasedLabel:"Kept / released", releasedNone:"—", releasedKept:"Kept", releasedReleased:"Released", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", reel:"Reel", reelPh:"e.g. 4000 spinning reel", boatPh:"e.g. dinghy", fieldsTitle:"Log fields", fieldsHint:"Choose which fields appear when logging and which are required.", fieldsHintAdmin:"As admin you can additionally show fields for everyone or make them required. You can't hide fields — each person picks their own.", fieldsHintMember:"These are set by the admin (read-only). Pick your own fields in personal settings.", stRequired:"Required", stOptional:"Always show", stOff:"Don't force", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Sharing", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
+Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", watertemp:"Water temperature (°C)", watertempPh:"e.g. 18", trolling:"Trolling speed", trollingPh:"e.g. 3.2", releasedLabel:"Kept / Released", releasedNone:"—", releasedKept:"Kept", releasedReleased:"Released", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", reel:"Reel", reelPh:"e.g. 4000 spinning reel", boatPh:"e.g. dinghy", fieldsTitle:"Log fields", fieldsHint:"Choose which fields are required when logging. All fields are always shown.", fieldsHintAdmin:"As admin you can make fields required. Every field is always shown — hiding is not possible.", fieldsHintMember:"Which fields are required is set by the admin (read-only).", stRequired:"Required", stNotRequired:"Not required", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Sharing", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
 Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon op Inloggen.", photos:"Foto's", cover:"Omslag", setCover:"Als omslag", photoHint:"Tot 10 foto's. Tik bij meerdere op de ster ☆ om de omslag te kiezen."});
-Object.assign(I18N.nl, {method:"Methode", bait:"Aas", rod:"Hengel", boat:"Boot", watertemp:"Watertemperatuur (°C)", watertempPh:"bijv. 18", trolling:"Sleepsnelheid", trollingPh:"bijv. 3,2", releasedLabel:"Meenemen / terugzetten", releasedNone:"—", releasedKept:"Meegenomen", releasedReleased:"Teruggezet", methodPh:"bijv. Kunstaasvissen", baitPh:"bijv. shad 12 cm", rodPh:"bijv. 2,70 m / 40 g", reel:"Molen", reelPh:"bijv. 4000 werpmolen", boatPh:"bijv. rubberboot", fieldsTitle:"Vangst invoeren", fieldsHint:"Bepaal welke velden verschijnen bij het loggen en welke verplicht zijn.", fieldsHintAdmin:"Als beheerder kun je velden extra tonen voor iedereen of verplicht maken. Verbergen kan niet — ieder kiest zelf eigen velden.", fieldsHintMember:"Dit stelt de beheerder in (alleen lezen). Je eigen velden kies je in persoonlijke instellingen.", stRequired:"Verplicht", stOptional:"Altijd tonen", stOff:"Niet afdwingen", moreFields:"Meer velden", errRequired:"Vul de verplichte velden in:", shareTitle:"Delen", shareModeFields:"Velden", shareModeTemplate:"Eigen sjabloon", sharePreview:"Voorbeeld", shareLink:"App-link", shareHint:"Geldt voor dit gebied (Solo / groep / vereniging).", sharePhHint:"Tijdelijke aanduidingen: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Exporteren als CSV", exportPdf:"Exporteren als PDF (met foto's)", exportEmpty:"Geen vangsten om te exporteren.", exportPdfErr:"Kon PDF-export niet laden (internet vereist)."});
+Object.assign(I18N.nl, {method:"Methode", bait:"Aas", rod:"Hengel", boat:"Boot", watertemp:"Watertemperatuur (°C)", watertempPh:"bijv. 18", trolling:"Sleepsnelheid", trollingPh:"bijv. 3,2", releasedLabel:"Meenemen / Terugzetten", releasedNone:"—", releasedKept:"Meegenomen", releasedReleased:"Teruggezet", methodPh:"bijv. Kunstaasvissen", baitPh:"bijv. shad 12 cm", rodPh:"bijv. 2,70 m / 40 g", reel:"Molen", reelPh:"bijv. 4000 werpmolen", boatPh:"bijv. rubberboot", fieldsTitle:"Vangst invoeren", fieldsHint:"Bepaal welke velden verplicht zijn bij het loggen. Alle velden worden altijd getoond.", fieldsHintAdmin:"Als beheerder kun je velden verplicht maken. Alle velden worden altijd getoond — verbergen kan niet.", fieldsHintMember:"Welke velden verplicht zijn stelt de beheerder in (alleen lezen).", stRequired:"Verplicht", stNotRequired:"Niet verplicht", moreFields:"Meer velden", errRequired:"Vul de verplichte velden in:", shareTitle:"Delen", shareModeFields:"Velden", shareModeTemplate:"Eigen sjabloon", sharePreview:"Voorbeeld", shareLink:"App-link", shareHint:"Geldt voor dit gebied (Solo / groep / vereniging).", sharePhHint:"Tijdelijke aanduidingen: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Exporteren als CSV", exportPdf:"Exporteren als PDF (met foto's)", exportEmpty:"Geen vangsten om te exporteren.", exportPdfErr:"Kon PDF-export niet laden (internet vereist)."});
 Object.assign(I18N.de, {tabPersonal:"Persönlich", tabArea:"Verein/Gruppe", tabAreaClub:"Verein", tabAreaGroup:"Gruppe", emailLabel:"E-Mail", emailFixedHint:"E-Mail-Adresse – derzeit nicht änderbar.", categories:"Kategorien", allGroups:"Alle Gruppen", allClubs:"Alle Vereine", showCatchesFrom:"Fänge aus", showCatchesFromHint:"Mehrere möglich. Nichts ausgewählt = alle.", selectedN:"ausgewählt", areaCtxHint:"Einstellungen für: {ctx}", copyToAreas:"Auf andere Vereine/Gruppen übernehmen …", copySub:"in welche Vereine/Gruppen kopieren?", selectAll:"Alle auswählen", cancel:"Abbrechen", apply:"Übernehmen", copyDone:"Auf {n} Verein(e)/Gruppe(n) übernommen.", shareBereich:"Verein/Gruppe", shareFieldsHint:"Wähle, welche Infos geteilt werden — die Vorschau unten zeigt das Ergebnis.", shareTemplateHint:"Schreibe den Text selbst. Platzhalter werden beim Teilen durch echte Werte ersetzt.", sharePhTapHint:"Tippe einen Platzhalter an, um ihn einzufügen:", exifGps:"Ort aus Foto übernommen", exifDate:"Zeit aus Foto übernommen", exifBoth:"Ort & Zeit aus Foto übernommen", exifNone:"Kein Ort/keine Zeit im Foto gefunden", exifRedo:"Ort & Zeit aus diesem Foto übernehmen", obSkip:"Überspringen", obNext:"Weiter", obBack:"Zurück", obStart:"Los geht's", obFinish:"Fertig – los geht's!", obWelcomeTitle:"Willkommen an Bord", obWelcomeText:"Dein digitales Fang-Logbuch.", obProfileTitle:"Dein Profil", obProfileText:"Name und optional ein Bild – jederzeit in den Einstellungen änderbar.", ctxNamePh:"z. B. ASV Musterstadt", ctxLocPh:"z. B. Musterteich", obTeamHint:"Verein oder Gruppe jederzeit über ＋ auf dem Startbildschirm hinzufügen.", obV1t:"Im Handumdrehen erfasst", obV1d:"Art, Größe und Foto – Ort, Wetter und Mond ergänzen sich von selbst.", obV2t:"Solo oder gemeinsam", obV2d:"Privates Logbuch – oder geteilt mit Verein oder Freundesgruppe.", obV3t:"Deine Bestwerte", obV3d:"Rekorde, Trends und Statistiken über alle Fänge.", obInstallTitle:"Speichere den Butler auf deinem Handy", obInstallText:"Als App gespeichert öffnet sich der Butler im Vollbild und ist schneller griffbereit.", obReplay:"Einführung ansehen"});
 Object.assign(I18N.en, {tabPersonal:"Personal", tabArea:"Club/group", tabAreaClub:"Club", tabAreaGroup:"Group", emailLabel:"Email", emailFixedHint:"Email address – not changeable yet.", categories:"Categories", allGroups:"All groups", allClubs:"All clubs", showCatchesFrom:"Show catches from", showCatchesFromHint:"Pick several. None selected = all.", selectedN:"selected", areaCtxHint:"Settings for: {ctx}", copyToAreas:"Copy to other clubs/groups …", copySub:"copy into which clubs/groups?", selectAll:"Select all", cancel:"Cancel", apply:"Apply", copyDone:"Copied to {n} club(s)/group(s).", shareBereich:"Club/group", shareFieldsHint:"Choose which info gets shared — the preview below shows the result.", shareTemplateHint:"Write the text yourself. Placeholders are replaced with real values when sharing.", sharePhTapHint:"Tap a placeholder to insert it:", exifGps:"Location taken from photo", exifDate:"Time taken from photo", exifBoth:"Location & time taken from photo", exifNone:"No location/time found in photo", exifRedo:"Take location & time from this photo", obSkip:"Skip", obNext:"Next", obBack:"Back", obStart:"Let's go", obFinish:"Done — let's go!", obWelcomeTitle:"Welcome aboard", obWelcomeText:"Your digital catch log.", obProfileTitle:"Your profile", obProfileText:"A name and optional photo – changeable anytime in settings.", ctxNamePh:"e.g. Springfield Anglers", ctxLocPh:"e.g. Mill Pond", obTeamHint:"Add a club or group anytime with ＋ on the home screen.", obV1t:"Log in seconds", obV1d:"Species, size and a photo — location, weather and moon fill in for you.", obV2t:"Solo or together", obV2d:"A private log, or one you share with your club or a group of friends.", obV3t:"See your best", obV3d:"Records, trends and stats across every catch you land.", obInstallTitle:"Save the Butler to your phone", obInstallText:"Saved as an app, ButlerFish opens full-screen and is quicker to reach.", obReplay:"View intro"});
 Object.assign(I18N.nl, {tabPersonal:"Persoonlijk", tabArea:"Vereniging/groep", tabAreaClub:"Vereniging", tabAreaGroup:"Groep", emailLabel:"E-mail", emailFixedHint:"E-mailadres – nog niet te wijzigen.", categories:"Categorieën", allGroups:"Alle groepen", allClubs:"Alle verenigingen", showCatchesFrom:"Vangsten uit", showCatchesFromHint:"Meerdere mogelijk. Niets geselecteerd = alles.", selectedN:"geselecteerd", areaCtxHint:"Instellingen voor: {ctx}", copyToAreas:"Naar andere verenigingen/groepen kopiëren …", copySub:"naar welke verenigingen/groepen kopiëren?", selectAll:"Alles selecteren", cancel:"Annuleren", apply:"Toepassen", copyDone:"Naar {n} vereniging(en)/groep(en) gekopieerd.", shareBereich:"Vereniging/groep", shareFieldsHint:"Kies welke info wordt gedeeld — het voorbeeld hieronder toont het resultaat.", shareTemplateHint:"Schrijf de tekst zelf. Tijdelijke aanduidingen worden bij het delen vervangen door echte waarden.", sharePhTapHint:"Tik op een aanduiding om die in te voegen:", exifGps:"Locatie uit foto overgenomen", exifDate:"Tijd uit foto overgenomen", exifBoth:"Locatie & tijd uit foto overgenomen", exifNone:"Geen locatie/tijd in foto gevonden", exifRedo:"Locatie & tijd uit deze foto overnemen", obSkip:"Overslaan", obNext:"Verder", obBack:"Terug", obStart:"Aan de slag", obFinish:"Klaar — op naar het water!", obWelcomeTitle:"Welkom aan boord", obWelcomeText:"Je digitale vangstlogboek.", obProfileTitle:"Je profiel", obProfileText:"Een naam en optioneel een foto – altijd te wijzigen in instellingen.", ctxNamePh:"bijv. HSV Voorbeeld", ctxLocPh:"bijv. Voorbeeldvijver", obTeamHint:"Voeg een vereniging of groep toe via ＋ op het startscherm.", obV1t:"In een handomdraai vastgelegd", obV1d:"Soort, maat en foto – locatie, weer en maan vullen zichzelf aan.", obV2t:"Solo of samen", obV2d:"Een privélogboek – of gedeeld met je vereniging of vriendengroep.", obV3t:"Je beste vangsten", obV3d:"Records, trends en statistieken over al je vangsten.", obInstallTitle:"Bewaar de Butler op je telefoon", obInstallText:"Als app opgeslagen opent ButlerFish schermvullend en is sneller bij de hand.", obReplay:"Introductie bekijken"});
 Object.assign(I18N.de, {loginIntro2:"Gib deine E-Mail ein — wir schicken dir einen Code.<br>Kein Passwort nötig.", magicLink:"Anmelde-Link per E-Mail", toRegister:"Neu hier? Registrieren", toSignin:"Schon ein Konto? Anmelden", register:"Registrieren", tryDemo:"Ohne Konto testen", checkEmail:"Fast geschafft! Bestätige deine E-Mail über den Link, den wir dir geschickt haben.", magicSent:"Anmelde-Link an {email} gesendet. Öffne die E-Mail und tippe auf den Link — er gilt nur kurz und nur einmal. (Schau auch im Spam-Ordner.)", errAuthFields:"Bitte E-Mail und Passwort eingeben.", errNoConn:"Keine Verbindung zum Server. Bitte später erneut versuchen.", errEmail:"Bitte gib deine E-Mail ein.", errConfirm:"Bitte bestätige zuerst deine E-Mail (Link in deinem Postfach).", errInvalid:"E-Mail oder Passwort falsch.", errExists:"Diese E-Mail ist schon registriert. Melde dich an.", errRate:"Zu viele Versuche. Bitte kurz warten.", errAuth:"Anmeldung fehlgeschlagen. Bitte erneut versuchen.", loading:"Lädt …", errSave:"Speichern fehlgeschlagen. Bitte erneut versuchen.", noContextsHint:"Noch keine Vereine oder Gruppen. Nutze die Schaltflächen unten."});
 Object.assign(I18N.en, {loginIntro2:"Enter your email — we'll send you a code.<br>No password needed.", magicLink:"Email me a sign-in link", toRegister:"New here? Register", toSignin:"Already have an account? Sign in", register:"Register", tryDemo:"Try without an account", checkEmail:"Almost done! Confirm your email via the link we sent you.", magicSent:"Sign-in link sent to {email}. Open the email and tap the link — it's valid briefly and only once. (Check your spam folder too.)", errAuthFields:"Please enter email and password.", errNoConn:"Can't reach the server. Please try again later.", errEmail:"Please enter your email.", errConfirm:"Please confirm your email first (link in your inbox).", errInvalid:"Wrong email or password.", errExists:"This email is already registered. Please sign in.", errRate:"Too many attempts. Please wait a moment.", errAuth:"Sign-in failed. Please try again.", loading:"Loading …", errSave:"Couldn't save. Please try again.", noContextsHint:"No clubs or groups yet. Use the buttons below."});
 Object.assign(I18N.nl, {loginIntro2:"Voer je e-mail in — we sturen je een code.<br>Geen wachtwoord nodig.", magicLink:"Mail me een inloglink", toRegister:"Nieuw hier? Registreren", toSignin:"Al een account? Inloggen", register:"Registreren", tryDemo:"Zonder account proberen", checkEmail:"Bijna klaar! Bevestig je e-mail via de link die we je stuurden.", magicSent:"Inloglink verzonden naar {email}. Open de e-mail en tik op de link — hij is kort en eenmalig geldig. (Kijk ook in je spam.)", errAuthFields:"Voer e-mail en wachtwoord in.", errNoConn:"Geen verbinding met de server. Probeer later opnieuw.", errEmail:"Voer je e-mail in.", errConfirm:"Bevestig eerst je e-mail (link in je inbox).", errInvalid:"Onjuiste e-mail of wachtwoord.", errExists:"Dit e-mailadres is al geregistreerd. Log in.", errRate:"Te veel pogingen. Wacht even.", errAuth:"Inloggen mislukt. Probeer opnieuw.", loading:"Laden …", errSave:"Opslaan mislukt. Probeer opnieuw.", noContextsHint:"Nog geen verenigingen of groepen. Gebruik de knoppen hieronder."});
-Object.assign(I18N.de, {joinWithCode:"Mit Code beitreten", joinClubHint:"Code vom Verein? Direkt beitreten.", joinGroupHint:"Code der Gruppe? Direkt beitreten.", joinByCode:"Verein/Gruppe beitreten (Code)", createContext:"Verein/Gruppe anlegen", requestContext:"Verein/Gruppe fehlt? Anfragen", betaRequestNote:"In der Beta werden neue Vereine & Gruppen angefragt und vom Team freigeschaltet.", reqInbox:"Anfragen", joinTitle:"Verein oder Gruppe beitreten", joinHint:"Gib den Beitritts-Code deines Vereins oder deiner Gruppe ein.", join:"Beitreten", createTitle:"Verein/Gruppe anlegen", createHint:"Als App-Admin legst du einen neuen Verein oder eine Gruppe an. Du wirst automatisch Admin.", clubOne:"Verein", groupOne:"Gruppe", locationOpt:"Ort (optional)", noteOpt:"Nachricht (optional)", create:"Anlegen", send:"Senden", requestTitle:"Verein oder Gruppe anfragen", requestHint:"Dein Verein oder deine Gruppe fehlt? Sende eine Anfrage an den App-Admin.", codeLabel:"Code", reqInboxTitle:"Beitritts-Anfragen", reqNone:"Keine offenen Anfragen.", approve:"Freigeben", reject:"Ablehnen", close:"Schließen", reqSentTitle:"Anfrage gesendet", reqSentBody:"Danke! Der App-Admin prüft deine Anfrage und richtet alles ein.", errNameReq:"Bitte einen Namen eingeben.", errCodeReq:"Bitte einen Code eingeben.", errBadCode:"Dieser Code gehört zu keinem Verein und keiner Gruppe.", errGeneric:"Etwas ist schiefgelaufen. Bitte erneut versuchen.", errTitle:"Fehler", ok:"OK"});
-Object.assign(I18N.en, {joinWithCode:"Join with a code", joinClubHint:"Have a club code? Join instantly.", joinGroupHint:"Have a group code? Join instantly.", joinByCode:"Join a club/group (code)", createContext:"Create club/group", requestContext:"Club/group missing? Request it", betaRequestNote:"During the beta, new clubs & groups are requested and enabled by the team.", reqInbox:"Requests", joinTitle:"Join a club or group", joinHint:"Enter the join code of your club or group.", join:"Join", createTitle:"Create club/group", createHint:"As app admin you create a new club or group. You automatically become its admin.", clubOne:"Club", groupOne:"Group", locationOpt:"Location (optional)", noteOpt:"Message (optional)", create:"Create", send:"Send", requestTitle:"Request a club or group", requestHint:"Your club or group is missing? Send a request to the app admin.", codeLabel:"Code", reqInboxTitle:"Join requests", reqNone:"No open requests.", approve:"Approve", reject:"Decline", close:"Close", reqSentTitle:"Request sent", reqSentBody:"Thanks! The app admin will review your request and set up the club or group.", errNameReq:"Please enter a name.", errCodeReq:"Please enter a code.", errBadCode:"That code doesn't match any club or group.", errGeneric:"Something went wrong. Please try again.", errTitle:"Error", ok:"OK"});
-Object.assign(I18N.nl, {joinWithCode:"Deelnemen met code", joinClubHint:"Code van de vereniging? Meteen deelnemen.", joinGroupHint:"Code van de groep? Meteen deelnemen.", joinByCode:"Deelnemen (code)", createContext:"Vereniging/groep aanmaken", requestContext:"Vereniging/groep ontbreekt? Aanvragen", betaRequestNote:"Tijdens de bèta worden nieuwe verenigingen & groepen aangevraagd en door het team vrijgegeven.", reqInbox:"Aanvragen", joinTitle:"Word lid van een vereniging of groep", joinHint:"Voer de toetredingscode van je vereniging of groep in.", join:"Deelnemen", createTitle:"Vereniging/groep aanmaken", createHint:"Als app-beheerder maak je een nieuwe vereniging of groep aan. Je wordt automatisch beheerder.", clubOne:"Vereniging", groupOne:"Groep", locationOpt:"Plaats (optioneel)", noteOpt:"Bericht (optioneel)", create:"Aanmaken", send:"Verzenden", requestTitle:"Vereniging of groep aanvragen", requestHint:"Ontbreekt je vereniging of groep? Stuur een aanvraag naar de app-beheerder.", codeLabel:"Code", reqInboxTitle:"Toetredingsverzoeken", reqNone:"Geen openstaande aanvragen.", approve:"Goedkeuren", reject:"Afwijzen", close:"Sluiten", reqSentTitle:"Aanvraag verzonden", reqSentBody:"Bedankt! De app-beheerder bekijkt je aanvraag en richt de vereniging of groep in.", errNameReq:"Voer een naam in.", errCodeReq:"Voer een code in.", errBadCode:"Die code hoort bij geen enkele vereniging of groep.", errGeneric:"Er ging iets mis. Probeer opnieuw.", errTitle:"Fout", ok:"OK"});
-Object.assign(I18N.de, {betaAppSection:"Beta & App", installApp:"Als App speichern", installHelpHint:"Speichere ButlerFish wie eine App – für schnellen Zugriff und Vollbild.", installIosT:"iPhone / iPad (Safari)", installIos:"In Safari öffnen → unten auf „Teilen“ → „Zum Home-Bildschirm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menü (⋮) oben rechts → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Auf das Installieren-Symbol in der Adressleiste klicken – oder Menü → „Installieren / App installieren“.", feedbackHint:"Feedback, Bug oder Idee? Wir sind in der Beta und freuen uns über jeden Hinweis.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – Beta-Feedback", legalTitle:"Rechtliches", legalLink:"Beta-Hinweis · Datenschutz · Impressum", hideUnconfirmed:"Unbestätigte Fänge ausblenden", unconfirmedByHint:"Von {name} eingetragen – noch nicht vom Angler bestätigt.", unconfirmedOtherHint:"Noch nicht vom Angler bestätigt.", photoLimitTitle:"Zu viele Fotos", photoLimitMsg:"Maximal {n} Fotos pro Fang.", copy:"kopieren", copied:"Code kopiert", confirmTitle:"Bist du sicher?", yesDo:"Ja", confirmLogout:"Möchtest du dich wirklich abmelden?", cancel:"Abbrechen", fieldPrefHint:"Wähle, welche Felder beim Eintragen erscheinen. Gilt überall. Ein Verein/eine Gruppe kann zusätzliche Felder anzeigen oder zur Pflicht machen.", fieldsAdminTitle:"Fang-Felder · Verein/Gruppe", shareHintGlobal:"Gilt für alle deine Fänge.", adminOnlyTitle:"Nur für Admins", adminOnlyMsg:"Diese Vorgabe legt der Verein-/Gruppen-Admin fest. Deine eigenen Felder wählst du in den persönlichen Einstellungen.", savedToast:"Gespeichert", starReq:"immer erforderlich", starAdmin:"vom Verein/Gruppe als Pflicht gesetzt", leaveClub:"Verein verlassen", leaveGroup:"Gruppe verlassen", deleteClub:"Verein löschen", deleteGroup:"Gruppe löschen", ctxNameTitle:"Name", ctxNameHint:"Nur Admins können das Profil ändern (Name, Standort, Logo). Änderungen gelten für alle Mitglieder.", areaSection:"Profil", logToArea:"Eintragen in", ctxLocTitle:"Standort", fieldsAdminShort:"Fang-Felder", inviteHint:"Lade Angler ein – teile Link und Code.", copyCode:"Code kopieren", inviteShare:"Einladen / Teilen", alsoLoggedIn:"Auch eingetragen in", inviteMsg:"Tritt „{name}“ bei ButlerFish bei!\n{url}\nBeitritts-Code: {code}", feedbackTitle:"Feedback senden", feedbackModalHint:"Bug, Idee oder Hinweis? Schreib uns – danke fürs Testen!", feedbackPh:"Deine Nachricht …", feedbackEmpty:"Bitte etwas eingeben.", feedbackSentTitle:"Danke!", feedbackSentBody:"Dein Feedback ist angekommen. Vielen Dank fürs Testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-Eingang", feedbackNone:"Kein Feedback.", feedbackDone:"Erledigt", appHelpSection:"App & Hilfe", accountSection:"Konto", shareTemplateIntro:"Passe den Text an, den du beim Teilen eines Fangs verschickst. Platzhalter werden automatisch gefüllt; leere Felder fallen weg.", shareEditLabel:"Vorlage", tasksTitle:"Aufgaben", addClub:"Verein hinzufügen", addGroup:"Gruppe hinzufügen", noClubsYet:"Noch kein Verein.", noGroupsYet:"Noch keine Gruppe.", signOutAll:"Von allen Geräten abmelden", leaveShort:"Verlassen", membershipsTitle:"Meine Mitgliedschaften", noMembershipsHint:"Du bist in keinem Verein und keiner Gruppe.", signOutAllHint:"Meldet dich überall ab – nützlich, wenn du dich auf einem fremden Gerät angemeldet hast.", confirmLogoutAll:"Auf allen Geräten abmelden? Andere Sitzungen werden beendet.", requestCode:"Code anfordern", codeLabel2:"Code aus der E-Mail", codeSent:"Wir haben einen Code an {email} geschickt.\nGib ihn hier ein. (Auch Spam prüfen.)", resendCode:"Code erneut senden", changeEmail:"Andere E-Mail", errCode:"Bitte den Code eingeben.", errCodeWrong:"Code ungültig oder abgelaufen. Bitte neu anfordern.", exportTitle:"Exportieren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Format wählen.", exportCsvSub:"Tabelle, nur Daten", exportPdfSub:"Formatiert, mit Fotos", hdrOldest:"Älteste Fänge", hdrLongest:"Längste Fänge", hdrHeaviest:"Schwerste Fänge", hdrSpecies:"Nach Art"});
-Object.assign(I18N.en, {betaAppSection:"Beta & App", installApp:"Save as app", installHelpHint:"Save ButlerFish like an app – for quick access and full screen.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tap Share → “Add to Home Screen”.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) top right → “Install app” or “Add to Home screen”.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Click the install icon in the address bar – or Menu → “Install”.", feedbackHint:"Feedback, bug or idea? We're in beta and value every note.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – beta feedback", legalTitle:"Legal", legalLink:"Beta notice · Privacy · Imprint", hideUnconfirmed:"Hide unconfirmed catches", unconfirmedByHint:"Logged by {name} – not yet confirmed by the angler.", unconfirmedOtherHint:"Not yet confirmed by the angler.", photoLimitTitle:"Too many photos", photoLimitMsg:"Maximum {n} photos per catch.", copy:"copy", copied:"Code copied", confirmTitle:"Are you sure?", yesDo:"Yes", confirmLogout:"Do you really want to sign out?", cancel:"Cancel", fieldPrefHint:"Choose which fields appear when logging. Applies everywhere. A club/group can additionally show fields or make them required.", fieldsAdminTitle:"Log fields · club/group", shareHintGlobal:"Applies to all your catches.", adminOnlyTitle:"Admins only", adminOnlyMsg:"This is set by the club/group admin. Pick your own fields in personal settings.", savedToast:"Saved", starReq:"always required", starAdmin:"required by the club/group", leaveClub:"Leave club", leaveGroup:"Leave group", deleteClub:"Delete club", deleteGroup:"Delete group", ctxNameTitle:"Name", ctxNameHint:"Only admins can change the profile (name, location, logo). Changes apply to all members.", areaSection:"Profile", logToArea:"Log to", ctxLocTitle:"Location", fieldsAdminShort:"Log fields", inviteHint:"Invite anglers – share link and code.", copyCode:"Copy code", inviteShare:"Invite / Share", alsoLoggedIn:"Also logged in", inviteMsg:"Join \"{name}\" on ButlerFish!\n{url}\nJoin code: {code}", feedbackTitle:"Send feedback", feedbackModalHint:"Bug, idea or note? Tell us – thanks for testing!", feedbackPh:"Your message …", feedbackEmpty:"Please enter something.", feedbackSentTitle:"Thanks!", feedbackSentBody:"Your feedback was received. Thanks for testing!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback inbox", feedbackNone:"No feedback.", feedbackDone:"Done", appHelpSection:"App & Help", accountSection:"Account", shareTemplateIntro:"Customize the text you send when sharing a catch. Placeholders fill in automatically; empty fields are dropped.", shareEditLabel:"Template", tasksTitle:"Tasks", addClub:"Add club", addGroup:"Add group", noClubsYet:"No club yet.", noGroupsYet:"No group yet.", signOutAll:"Sign out of all devices", leaveShort:"Leave", membershipsTitle:"Your memberships", noMembershipsHint:"You're not in any club or group.", signOutAllHint:"Signs you out everywhere – useful if you signed in on someone else's device.", confirmLogoutAll:"Sign out of all devices? Other sessions will end.", requestCode:"Request code", codeLabel2:"Code from the email", codeSent:"We sent a code to {email}.\nEnter it here. (Check spam too.)", resendCode:"Resend code", changeEmail:"Change email", errCode:"Please enter the code.", errCodeWrong:"Code invalid or expired. Please request a new one.", exportTitle:"Export", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Choose a format.", exportCsvSub:"Spreadsheet, data only", exportPdfSub:"Formatted, with photos", hdrOldest:"Oldest catches", hdrLongest:"Longest catches", hdrHeaviest:"Heaviest catches", hdrSpecies:"By species"});
-Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app", installHelpHint:"Sla ButlerFish op als een app – voor snelle toegang en volledig scherm.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tik op Delen → „Zet op beginscherm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) rechtsboven → „App installeren“ of „Toevoegen aan startscherm“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Klik op het installatie-icoon in de adresbalk – of Menu → „Installeren“.", feedbackHint:"Feedback, bug of idee? We zitten in de bèta en horen graag van je.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – bèta-feedback", legalTitle:"Juridisch", legalLink:"Bèta-info · Privacy · Colofon", hideUnconfirmed:"Onbevestigde vangsten verbergen", unconfirmedByHint:"Ingevoerd door {name} – nog niet bevestigd door de visser.", unconfirmedOtherHint:"Nog niet bevestigd door de visser.", photoLimitTitle:"Te veel foto's", photoLimitMsg:"Maximaal {n} foto's per vangst.", copy:"kopiëren", copied:"Code gekopieerd", confirmTitle:"Weet je het zeker?", yesDo:"Ja", confirmLogout:"Wil je echt uitloggen?", cancel:"Annuleren", fieldPrefHint:"Kies welke velden verschijnen bij het loggen. Geldt overal. Een vereniging/groep kan extra velden tonen of verplicht maken.", fieldsAdminTitle:"Vangstvelden · vereniging/groep", shareHintGlobal:"Geldt voor al je vangsten.", adminOnlyTitle:"Alleen beheerders", adminOnlyMsg:"Dit stelt de beheerder in. Kies je eigen velden in persoonlijke instellingen.", savedToast:"Opgeslagen", starReq:"altijd vereist", starAdmin:"verplicht door vereniging/groep", leaveClub:"Vereniging verlaten", leaveGroup:"Groep verlaten", deleteClub:"Vereniging verwijderen", deleteGroup:"Groep verwijderen", ctxNameTitle:"Naam", ctxNameHint:"Alleen beheerders kunnen het profiel wijzigen (naam, locatie, logo). Wijzigingen gelden voor alle leden.", areaSection:"Profiel", logToArea:"Vastleggen in", ctxLocTitle:"Locatie", fieldsAdminShort:"Vangstvelden", inviteHint:"Nodig vissers uit – deel link en code.", copyCode:"Code kopiëren", inviteShare:"Uitnodigen / Delen", alsoLoggedIn:"Ook vastgelegd in", inviteMsg:"Word lid van \"{name}\" op ButlerFish!\n{url}\nToetredingscode: {code}", feedbackTitle:"Feedback sturen", feedbackModalHint:"Bug, idee of opmerking? Laat het weten – bedankt voor het testen!", feedbackPh:"Je bericht …", feedbackEmpty:"Voer iets in.", feedbackSentTitle:"Bedankt!", feedbackSentBody:"Je feedback is ontvangen. Bedankt voor het testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-inbox", feedbackNone:"Geen feedback.", feedbackDone:"Klaar", appHelpSection:"App & Hulp", accountSection:"Account", shareTemplateIntro:"Pas de tekst aan die je verstuurt bij het delen van een vangst. Plaatshouders worden automatisch ingevuld; lege velden vervallen.", shareEditLabel:"Sjabloon", tasksTitle:"Taken", addClub:"Vereniging toevoegen", addGroup:"Groep toevoegen", noClubsYet:"Nog geen vereniging.", noGroupsYet:"Nog geen groep.", signOutAll:"Overal afmelden", leaveShort:"Verlaten", membershipsTitle:"Je lidmaatschappen", noMembershipsHint:"Je zit in geen enkele vereniging of groep.", signOutAllHint:"Meldt je overal af – handig als je op andermans apparaat bent ingelogd.", confirmLogoutAll:"Op alle apparaten afmelden? Andere sessies worden beëindigd.", requestCode:"Code aanvragen", codeLabel2:"Code uit de e-mail", codeSent:"We hebben een code naar {email} gestuurd.\nVoer die hier in. (Check ook spam.)", resendCode:"Code opnieuw sturen", changeEmail:"Andere e-mail", errCode:"Voer de code in.", errCodeWrong:"Code ongeldig of verlopen. Vraag een nieuwe aan.", exportTitle:"Exporteren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Kies een formaat.", exportCsvSub:"Tabel, alleen data", exportPdfSub:"Opgemaakt, met foto's", hdrOldest:"Oudste vangsten", hdrLongest:"Langste vangsten", hdrHeaviest:"Zwaarste vangsten", hdrSpecies:"Op soort"});
+Object.assign(I18N.de, {joinWithCode:"Mit Code beitreten", joinClubHint:"Code vom Verein? Direkt beitreten.", joinGroupHint:"Code der Gruppe? Direkt beitreten.", joinByCode:"Verein/Gruppe beitreten (Code)", createContext:"Verein/Gruppe anlegen", requestContext:"Verein/Gruppe fehlt? Anfragen", betaRequestNote:"In der Beta werden neue Vereine & Gruppen angefragt und vom Team freigeschaltet.", reqInbox:"Anfragen", joinTitle:"Verein oder Gruppe beitreten", joinHint:"Gib den Beitritts-Code deines Vereins oder deiner Gruppe ein.", join:"Beitreten", createTitle:"Verein/Gruppe anlegen", createHint:"Als App-Admin legst du einen neuen Verein oder eine Gruppe an. Du wirst automatisch Admin.", clubOne:"Verein", groupOne:"Gruppe", locationOpt:"Ort (optional)", noteOpt:"Nachricht (optional)", create:"Anlegen", send:"Senden", requestTitle:"Verein oder Gruppe anfragen", requestHint:"Dein Verein oder deine Gruppe fehlt? Sende eine Anfrage an den App-Admin.", codeLabel:"Code", reqInboxTitle:"Gründungs-Anfragen", reqNone:"Keine offenen Anfragen.", approve:"Freigeben", reject:"Ablehnen", close:"Schließen", reqSentTitle:"Anfrage gesendet", reqSentBody:"Danke! Der App-Admin prüft deine Anfrage und richtet alles ein.", errNameReq:"Bitte einen Namen eingeben.", errCodeReq:"Bitte einen Code eingeben.", errBadCode:"Dieser Code gehört zu keinem Verein und keiner Gruppe.", errGeneric:"Etwas ist schiefgelaufen. Bitte erneut versuchen.", errTitle:"Fehler", ok:"OK"});
+Object.assign(I18N.en, {joinWithCode:"Join with a code", joinClubHint:"Have a club code? Join instantly.", joinGroupHint:"Have a group code? Join instantly.", joinByCode:"Join a club/group (code)", createContext:"Create club/group", requestContext:"Club/group missing? Request it", betaRequestNote:"During the beta, new clubs & groups are requested and enabled by the team.", reqInbox:"Requests", joinTitle:"Join a club or group", joinHint:"Enter the join code of your club or group.", join:"Join", createTitle:"Create club/group", createHint:"As app admin you create a new club or group. You automatically become its admin.", clubOne:"Club", groupOne:"Group", locationOpt:"Location (optional)", noteOpt:"Message (optional)", create:"Create", send:"Send", requestTitle:"Request a club or group", requestHint:"Your club or group is missing? Send a request to the app admin.", codeLabel:"Code", reqInboxTitle:"Founding requests", reqNone:"No open requests.", approve:"Approve", reject:"Decline", close:"Close", reqSentTitle:"Request sent", reqSentBody:"Thanks! The app admin will review your request and set up the club or group.", errNameReq:"Please enter a name.", errCodeReq:"Please enter a code.", errBadCode:"That code doesn't match any club or group.", errGeneric:"Something went wrong. Please try again.", errTitle:"Error", ok:"OK"});
+Object.assign(I18N.nl, {joinWithCode:"Deelnemen met code", joinClubHint:"Code van de vereniging? Meteen deelnemen.", joinGroupHint:"Code van de groep? Meteen deelnemen.", joinByCode:"Deelnemen (code)", createContext:"Vereniging/groep aanmaken", requestContext:"Vereniging/groep ontbreekt? Aanvragen", betaRequestNote:"Tijdens de bèta worden nieuwe verenigingen & groepen aangevraagd en door het team vrijgegeven.", reqInbox:"Aanvragen", joinTitle:"Word lid van een vereniging of groep", joinHint:"Voer de toetredingscode van je vereniging of groep in.", join:"Deelnemen", createTitle:"Vereniging/groep aanmaken", createHint:"Als app-beheerder maak je een nieuwe vereniging of groep aan. Je wordt automatisch beheerder.", clubOne:"Vereniging", groupOne:"Groep", locationOpt:"Plaats (optioneel)", noteOpt:"Bericht (optioneel)", create:"Aanmaken", send:"Verzenden", requestTitle:"Vereniging of groep aanvragen", requestHint:"Ontbreekt je vereniging of groep? Stuur een aanvraag naar de app-beheerder.", codeLabel:"Code", reqInboxTitle:"Oprichtingsverzoeken", reqNone:"Geen openstaande aanvragen.", approve:"Goedkeuren", reject:"Afwijzen", close:"Sluiten", reqSentTitle:"Aanvraag verzonden", reqSentBody:"Bedankt! De app-beheerder bekijkt je aanvraag en richt de vereniging of groep in.", errNameReq:"Voer een naam in.", errCodeReq:"Voer een code in.", errBadCode:"Die code hoort bij geen enkele vereniging of groep.", errGeneric:"Er ging iets mis. Probeer opnieuw.", errTitle:"Fout", ok:"OK"});
+Object.assign(I18N.de, {betaAppSection:"Beta & App", installApp:"Als App speichern", installHelpHint:"Speichere ButlerFish wie eine App – für schnellen Zugriff und Vollbild.", installIosT:"iPhone / iPad (Safari)", installIos:"In Safari öffnen → unten auf „Teilen“ → „Zum Home-Bildschirm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menü (⋮) oben rechts → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Auf das Installieren-Symbol in der Adressleiste klicken – oder Menü → „Installieren / App installieren“.", feedbackHint:"Feedback, Bug oder Idee? Wir sind in der Beta und freuen uns über jeden Hinweis.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – Beta-Feedback", legalTitle:"Rechtliches", legalLink:"Beta-Hinweis · Datenschutz · Impressum", hideUnconfirmed:"Unbestätigte Fänge ausblenden", unconfirmedByHint:"Von {name} eingetragen – noch nicht vom Angler bestätigt.", unconfirmedOtherHint:"Noch nicht vom Angler bestätigt.", photoLimitTitle:"Zu viele Fotos", photoLimitMsg:"Maximal {n} Fotos pro Fang.", copy:"kopieren", copied:"Code kopiert", confirmTitle:"Bist du sicher?", yesDo:"Ja", confirmLogout:"Möchtest du dich wirklich abmelden?", cancel:"Abbrechen", fieldsAdminTitle:"Fang-Felder · Verein/Gruppe", shareHintGlobal:"Gilt für alle deine Fänge.", adminOnlyTitle:"Nur für Admins", adminOnlyMsg:"Diese Vorgabe legt der Verein-/Gruppen-Admin fest. Deine eigenen Felder wählst du in den persönlichen Einstellungen.", savedToast:"Gespeichert", starReq:"immer erforderlich", starAdmin:"vom Verein/Gruppe als Pflicht gesetzt", leaveClub:"Verein verlassen", leaveGroup:"Gruppe verlassen", deleteClub:"Verein löschen", deleteGroup:"Gruppe löschen", ctxNameTitle:"Name", ctxNameHint:"Nur Admins können das Profil ändern (Name, Standort, Logo). Änderungen gelten für alle Mitglieder.", areaSection:"Profil", logToArea:"Eintragen in", ctxLocTitle:"Standort", fieldsAdminShort:"Fang-Felder", inviteHint:"Lade Angler ein – teile Link und Code.", copyCode:"Code kopieren", inviteShare:"Einladen / Teilen", alsoLoggedIn:"Auch eingetragen in", inviteMsg:"Tritt „{name}“ bei ButlerFish bei!\n{url}\nBeitritts-Code: {code}", feedbackTitle:"Feedback senden", feedbackModalHint:"Bug, Idee oder Hinweis? Schreib uns – danke fürs Testen!", feedbackPh:"Deine Nachricht …", feedbackEmpty:"Bitte etwas eingeben.", feedbackSentTitle:"Danke!", feedbackSentBody:"Dein Feedback ist angekommen. Vielen Dank fürs Testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-Eingang", feedbackNone:"Kein Feedback.", feedbackDone:"Erledigt", appHelpSection:"App & Hilfe", accountSection:"Konto", shareTemplateIntro:"Passe den Text an, den du beim Teilen eines Fangs verschickst. Platzhalter werden automatisch gefüllt; leere Felder fallen weg.", shareEditLabel:"Vorlage", tasksTitle:"Aufgaben", addClub:"Verein hinzufügen", addGroup:"Gruppe hinzufügen", noClubsYet:"Noch kein Verein.", noGroupsYet:"Noch keine Gruppe.", signOutAll:"Von allen Geräten abmelden", leaveShort:"Verlassen", membershipsTitle:"Meine Mitgliedschaften", noMembershipsHint:"Du bist in keinem Verein und keiner Gruppe.", signOutAllHint:"Meldet dich überall ab – nützlich, wenn du dich auf einem fremden Gerät angemeldet hast.", confirmLogoutAll:"Auf allen Geräten abmelden? Andere Sitzungen werden beendet.", requestCode:"Code anfordern", codeLabel2:"Code aus der E-Mail", codeSent:"Wir haben einen Code an {email} geschickt.\nGib ihn hier ein. (Auch Spam prüfen.)", resendCode:"Code erneut senden", changeEmail:"Andere E-Mail", errCode:"Bitte den Code eingeben.", errCodeWrong:"Code ungültig oder abgelaufen. Bitte neu anfordern.", exportTitle:"Exportieren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Format wählen.", exportCsvSub:"Tabelle, nur Daten", exportPdfSub:"Formatiert, mit Fotos", hdrOldest:"Älteste Fänge", hdrLongest:"Längste Fänge", hdrHeaviest:"Schwerste Fänge", hdrSpecies:"Nach Art"});
+Object.assign(I18N.en, {betaAppSection:"Beta & App", installApp:"Save as app", installHelpHint:"Save ButlerFish like an app – for quick access and full screen.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tap Share → “Add to Home Screen”.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) top right → “Install app” or “Add to Home screen”.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Click the install icon in the address bar – or Menu → “Install”.", feedbackHint:"Feedback, bug or idea? We're in beta and value every note.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – beta feedback", legalTitle:"Legal", legalLink:"Beta notice · Privacy · Imprint", hideUnconfirmed:"Hide unconfirmed catches", unconfirmedByHint:"Logged by {name} – not yet confirmed by the angler.", unconfirmedOtherHint:"Not yet confirmed by the angler.", photoLimitTitle:"Too many photos", photoLimitMsg:"Maximum {n} photos per catch.", copy:"copy", copied:"Code copied", confirmTitle:"Are you sure?", yesDo:"Yes", confirmLogout:"Do you really want to sign out?", cancel:"Cancel", fieldsAdminTitle:"Log fields · club/group", shareHintGlobal:"Applies to all your catches.", adminOnlyTitle:"Admins only", adminOnlyMsg:"This is set by the club/group admin. Pick your own fields in personal settings.", savedToast:"Saved", starReq:"always required", starAdmin:"required by the club/group", leaveClub:"Leave club", leaveGroup:"Leave group", deleteClub:"Delete club", deleteGroup:"Delete group", ctxNameTitle:"Name", ctxNameHint:"Only admins can change the profile (name, location, logo). Changes apply to all members.", areaSection:"Profile", logToArea:"Log to", ctxLocTitle:"Location", fieldsAdminShort:"Log fields", inviteHint:"Invite anglers – share link and code.", copyCode:"Copy code", inviteShare:"Invite / Share", alsoLoggedIn:"Also logged in", inviteMsg:"Join \"{name}\" on ButlerFish!\n{url}\nJoin code: {code}", feedbackTitle:"Send feedback", feedbackModalHint:"Bug, idea or note? Tell us – thanks for testing!", feedbackPh:"Your message …", feedbackEmpty:"Please enter something.", feedbackSentTitle:"Thanks!", feedbackSentBody:"Your feedback was received. Thanks for testing!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback inbox", feedbackNone:"No feedback.", feedbackDone:"Done", appHelpSection:"App & Help", accountSection:"Account", shareTemplateIntro:"Customize the text you send when sharing a catch. Placeholders fill in automatically; empty fields are dropped.", shareEditLabel:"Template", tasksTitle:"Tasks", addClub:"Add club", addGroup:"Add group", noClubsYet:"No club yet.", noGroupsYet:"No group yet.", signOutAll:"Sign out of all devices", leaveShort:"Leave", membershipsTitle:"Your memberships", noMembershipsHint:"You're not in any club or group.", signOutAllHint:"Signs you out everywhere – useful if you signed in on someone else's device.", confirmLogoutAll:"Sign out of all devices? Other sessions will end.", requestCode:"Request code", codeLabel2:"Code from the email", codeSent:"We sent a code to {email}.\nEnter it here. (Check spam too.)", resendCode:"Resend code", changeEmail:"Change email", errCode:"Please enter the code.", errCodeWrong:"Code invalid or expired. Please request a new one.", exportTitle:"Export", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Choose a format.", exportCsvSub:"Spreadsheet, data only", exportPdfSub:"Formatted, with photos", hdrOldest:"Oldest catches", hdrLongest:"Longest catches", hdrHeaviest:"Heaviest catches", hdrSpecies:"By species"});
+Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app", installHelpHint:"Sla ButlerFish op als een app – voor snelle toegang en volledig scherm.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tik op Delen → „Zet op beginscherm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) rechtsboven → „App installeren“ of „Toevoegen aan startscherm“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Klik op het installatie-icoon in de adresbalk – of Menu → „Installeren“.", feedbackHint:"Feedback, bug of idee? We zitten in de bèta en horen graag van je.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – bèta-feedback", legalTitle:"Juridisch", legalLink:"Bèta-info · Privacy · Colofon", hideUnconfirmed:"Onbevestigde vangsten verbergen", unconfirmedByHint:"Ingevoerd door {name} – nog niet bevestigd door de visser.", unconfirmedOtherHint:"Nog niet bevestigd door de visser.", photoLimitTitle:"Te veel foto's", photoLimitMsg:"Maximaal {n} foto's per vangst.", copy:"kopiëren", copied:"Code gekopieerd", confirmTitle:"Weet je het zeker?", yesDo:"Ja", confirmLogout:"Wil je echt uitloggen?", cancel:"Annuleren", fieldsAdminTitle:"Vangstvelden · vereniging/groep", shareHintGlobal:"Geldt voor al je vangsten.", adminOnlyTitle:"Alleen beheerders", adminOnlyMsg:"Dit stelt de beheerder in. Kies je eigen velden in persoonlijke instellingen.", savedToast:"Opgeslagen", starReq:"altijd vereist", starAdmin:"verplicht door vereniging/groep", leaveClub:"Vereniging verlaten", leaveGroup:"Groep verlaten", deleteClub:"Vereniging verwijderen", deleteGroup:"Groep verwijderen", ctxNameTitle:"Naam", ctxNameHint:"Alleen beheerders kunnen het profiel wijzigen (naam, locatie, logo). Wijzigingen gelden voor alle leden.", areaSection:"Profiel", logToArea:"Vastleggen in", ctxLocTitle:"Locatie", fieldsAdminShort:"Vangstvelden", inviteHint:"Nodig vissers uit – deel link en code.", copyCode:"Code kopiëren", inviteShare:"Uitnodigen / Delen", alsoLoggedIn:"Ook vastgelegd in", inviteMsg:"Word lid van \"{name}\" op ButlerFish!\n{url}\nToetredingscode: {code}", feedbackTitle:"Feedback sturen", feedbackModalHint:"Bug, idee of opmerking? Laat het weten – bedankt voor het testen!", feedbackPh:"Je bericht …", feedbackEmpty:"Voer iets in.", feedbackSentTitle:"Bedankt!", feedbackSentBody:"Je feedback is ontvangen. Bedankt voor het testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-inbox", feedbackNone:"Geen feedback.", feedbackDone:"Klaar", appHelpSection:"App & Hulp", accountSection:"Account", shareTemplateIntro:"Pas de tekst aan die je verstuurt bij het delen van een vangst. Plaatshouders worden automatisch ingevuld; lege velden vervallen.", shareEditLabel:"Sjabloon", tasksTitle:"Taken", addClub:"Vereniging toevoegen", addGroup:"Groep toevoegen", noClubsYet:"Nog geen vereniging.", noGroupsYet:"Nog geen groep.", signOutAll:"Overal afmelden", leaveShort:"Verlaten", membershipsTitle:"Je lidmaatschappen", noMembershipsHint:"Je zit in geen enkele vereniging of groep.", signOutAllHint:"Meldt je overal af – handig als je op andermans apparaat bent ingelogd.", confirmLogoutAll:"Op alle apparaten afmelden? Andere sessies worden beëindigd.", requestCode:"Code aanvragen", codeLabel2:"Code uit de e-mail", codeSent:"We hebben een code naar {email} gestuurd.\nVoer die hier in. (Check ook spam.)", resendCode:"Code opnieuw sturen", changeEmail:"Andere e-mail", errCode:"Voer de code in.", errCodeWrong:"Code ongeldig of verlopen. Vraag een nieuwe aan.", exportTitle:"Exporteren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Kies een formaat.", exportCsvSub:"Tabel, alleen data", exportPdfSub:"Opgemaakt, met foto's", hdrOldest:"Oudste vangsten", hdrLongest:"Langste vangsten", hdrHeaviest:"Zwaarste vangsten", hdrSpecies:"Op soort"});
 Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen und entferne Mitglieder.", membersHintMember:"Mitglieder und ihre Rollen.", manageMembers:"Mitglieder verwalten …", viewMembers:"Mitglieder ansehen", me:"ich", loggedByRow:"Erfasst von", unconfirmed:"Noch nicht bestätigt", unconfShort:"unbestätigt", loggedByHint:"Dieser Fang wurde von {name} für dich eingetragen. Bestätige ihn, wenn er stimmt.", unconfirmedHint:"Dieser Fang wartet auf Bestätigung.", confirmCatch:"Bestätigen", rejectCatch:"Ablehnen", confirmReject:"Diesen Fang ablehnen und löschen?", roleMember:"Mitglied", roleAdmin:"Admin", roleTreasurer:"Kassenwart", removeMember:"Entfernen", lastAdminHint:"Der/die letzte Admin kann nicht herabgestuft oder entfernt werden.", confirmRemove:"{name} aus diesem Verein/dieser Gruppe entfernen?", you:"du", roleTapHint:"Tippe eine Rolle an, um sie zu ändern.", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
 Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles and remove members.", membersHintMember:"Members and their roles.", manageMembers:"Manage members …", viewMembers:"View members", me:"me", loggedByRow:"Logged by", unconfirmed:"Not confirmed yet", unconfShort:"unconfirmed", loggedByHint:"This catch was logged for you by {name}. Confirm it if it's correct.", unconfirmedHint:"This catch is awaiting confirmation.", confirmCatch:"Confirm", rejectCatch:"Reject", confirmReject:"Reject and delete this catch?", roleMember:"Member", roleAdmin:"Admin", roleTreasurer:"Treasurer", removeMember:"Remove", lastAdminHint:"The last admin can't be demoted or removed.", confirmRemove:"Remove {name} from this club/group?", you:"you", roleTapHint:"Tap a role to change it.", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
 Object.assign(I18N.nl, {membersTitle:"Leden", membersHint:"Beheer rollen en verwijder leden.", membersHintMember:"Leden en hun rollen.", manageMembers:"Leden beheren …", viewMembers:"Leden bekijken", me:"ik", loggedByRow:"Ingevoerd door", unconfirmed:"Nog niet bevestigd", unconfShort:"onbevestigd", loggedByHint:"Deze vangst is voor jou ingevoerd door {name}. Bevestig als het klopt.", unconfirmedHint:"Deze vangst wacht op bevestiging.", confirmCatch:"Bevestigen", rejectCatch:"Afwijzen", confirmReject:"Deze vangst afwijzen en verwijderen?", roleMember:"Lid", roleAdmin:"Beheerder", roleTreasurer:"Penningmeester", removeMember:"Verwijderen", lastAdminHint:"De laatste beheerder kan niet worden gedegradeerd of verwijderd.", confirmRemove:"{name} uit deze vereniging/groep verwijderen?", you:"jij", roleTapHint:"Tik op een rol om die te wijzigen.", openMailbox:"Postvak openen", openMailApp:"Mail-app openen"});
 Object.assign(I18N.de,{welcomeSpecies:"Phantom-Fisch", welcomeLoc:"In deinen Träumen", welcomeNote:"Willkommen! Das ist nur mein Muster-Fang zum Zeigen — er zählt natürlich nicht und verschwindet, sobald du deinen ersten echten Fang einträgst. — Dein Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Nur zur Demonstration", welcomeHint:"Dein erster echter Fang lässt den Phantom-Fisch verschwinden.", welcomeRemove:"Phantom-Fisch entfernen", pbRecord:"Persönlicher Rekord", pbRemove:"Nicht mein Rekord", pbRemovedToast:"Rekord entfernt", pbMarkedToast:"Als Rekord markiert", pbMark:"Als Rekord markieren", pbNotRecord:"Dieser Fang ist nicht der Rekord", recordsShelfTitle:"Deine Rekorde", clubRecord:"Vereinsrekord", groupRecord:"Gruppenrekord", recordsSettingTitle:"Rekorde & Podium", recordMetricLabel:"Podium-Wertung", recordsEnabledLabel:"Rekorde anzeigen", recordsSettingHint:"Bestimmt, ob im Verein/der Gruppe ein Podium (Gold/Silber/Bronze je Art) angezeigt wird und ob nach Länge oder Gewicht gewertet wird. Nur Admins.", joinedTitle:"Beigetreten!", joinedBody:"Willkommen! Du bist dem Verein bzw. der Gruppe beigetreten.", sortTitle:"Sortieren nach", taSearchPh:"Suchen oder neu eingeben …", recentLabel:"Zuletzt verwendet", allLabel:"Alle", addNewOpt:"neu hinzufügen", addField:"hinzufügen"});
 Object.assign(I18N.en,{welcomeSpecies:"Phantom Fish", welcomeLoc:"In your dreams", welcomeNote:"Welcome! This is just my sample catch to show you around — it doesn't count, and it vanishes the moment you log your first real catch. — Your Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"For demonstration only", welcomeHint:"Your first real catch sends the Phantom Fish away.", welcomeRemove:"Remove Phantom Fish", pbRecord:"Personal best", pbRemove:"Not my record", pbRemovedToast:"Record removed", pbMarkedToast:"Marked as record", pbMark:"Mark as record", pbNotRecord:"This catch isn't the record", recordsShelfTitle:"Your records", clubRecord:"Club record", groupRecord:"Group record", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium ranking", recordsEnabledLabel:"Show records", recordsSettingHint:"Controls whether the club/group shows a podium (gold/silver/bronze per species) and whether it ranks by length or weight. Admins only.", joinedTitle:"You're in!", joinedBody:"Welcome! You've joined the club or group.", sortTitle:"Sort by", taSearchPh:"Search or type new …", recentLabel:"Recently used", allLabel:"All", addNewOpt:"add new", addField:"add"});
 Object.assign(I18N.nl,{welcomeSpecies:"Fantoomvis", welcomeLoc:"In je dromen", welcomeNote:"Welkom! Dit is alleen mijn voorbeeldvangst om je op weg te helpen — hij telt niet mee en verdwijnt zodra je je eerste echte vangst vastlegt. — Je Butler", welcomeDemo:"DEMO", welcomeDemoTitle:"Alleen ter demonstratie", welcomeHint:"Je eerste echte vangst laat de Fantoomvis verdwijnen.", welcomeRemove:"Fantoomvis verwijderen", pbRecord:"Persoonlijk record", pbRemove:"Niet mijn record", pbRemovedToast:"Record verwijderd", pbMarkedToast:"Als record gemarkeerd", pbMark:"Als record markeren", pbNotRecord:"Deze vangst is niet het record", recordsShelfTitle:"Je records", clubRecord:"Verenigingsrecord", groupRecord:"Groepsrecord", recordsSettingTitle:"Records & podium", recordMetricLabel:"Podium-waardering", recordsEnabledLabel:"Records tonen", recordsSettingHint:"Bepaalt of de vereniging/groep een podium toont (goud/zilver/brons per soort) en of er op lengte of gewicht wordt gerangschikt. Alleen beheerders.", joinedTitle:"Je bent lid!", joinedBody:"Welkom! Je bent lid geworden van de vereniging of groep.", sortTitle:"Sorteren op", taSearchPh:"Zoeken of nieuw invoeren …", recentLabel:"Recent gebruikt", allLabel:"Alle", addNewOpt:"nieuw toevoegen", addField:"toevoegen"});
-Object.assign(I18N.de, {fldLockedHint:"Immer dabei – kann nicht abgewählt werden.", dangerZone:"Gefahrenzone", deleteAccount:"Konto löschen", deleteAccountHint:"Löscht dein Konto und alle deine Daten (Fänge, Fotos, Mitgliedschaften) unwiderruflich.", confirmDeleteAccount:"Konto wirklich löschen? Alle deine Daten werden unwiderruflich gelöscht.", confirmDeleteAccount2:"Letzte Warnung: Das kann nicht rückgängig gemacht werden. Fortfahren?", accountDeletedTitle:"Konto gelöscht", accountDeletedBody:"Dein Konto und deine Daten wurden gelöscht.", leaveAreaBtn:"Verein/Gruppe verlassen", deleteContext:"Verein/Gruppe löschen", deleteContextHint:"Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.", confirmDeleteContext:"„{name}“ wirklich löschen? Alle Mitgliedschaften, Fänge und Fotos werden unwiderruflich gelöscht.", confirmLeave:"„{name}“ verlassen?", soleAdminLeave:"Du bist der/die einzige Admin. Mach zuerst jemanden zum Admin oder lösche den Verein/die Gruppe."});
-Object.assign(I18N.en, {fldLockedHint:"Always included – can't be turned off.", dangerZone:"Danger zone", deleteAccount:"Delete account", deleteAccountHint:"Permanently deletes your account and all your data (catches, photos, memberships).", confirmDeleteAccount:"Really delete your account? All your data will be permanently deleted.", confirmDeleteAccount2:"Last warning: this cannot be undone. Continue?", accountDeletedTitle:"Account deleted", accountDeletedBody:"Your account and data have been deleted.", leaveAreaBtn:"Leave club/group", deleteContext:"Delete club/group", deleteContextHint:"Permanently deletes everything: memberships, catches and photos.", confirmDeleteContext:"Really delete \"{name}\"? All memberships, catches and photos will be permanently deleted.", confirmLeave:"Leave \"{name}\"?", soleAdminLeave:"You are the only admin. Make someone else an admin first, or delete the club/group."});
-Object.assign(I18N.nl, {fldLockedHint:"Altijd inbegrepen – kan niet worden uitgezet.", dangerZone:"Gevarenzone", deleteAccount:"Account verwijderen", deleteAccountHint:"Verwijdert je account en al je gegevens (vangsten, foto's, lidmaatschappen) definitief.", confirmDeleteAccount:"Account echt verwijderen? Al je gegevens worden definitief verwijderd.", confirmDeleteAccount2:"Laatste waarschuwing: dit kan niet ongedaan worden gemaakt. Doorgaan?", accountDeletedTitle:"Account verwijderd", accountDeletedBody:"Je account en gegevens zijn verwijderd.", leaveAreaBtn:"Vereniging/groep verlaten", deleteContext:"Vereniging/groep verwijderen", deleteContextHint:"Verwijdert alles definitief: lidmaatschappen, vangsten en foto's.", confirmDeleteContext:"\"{name}\" echt verwijderen? Alle lidmaatschappen, vangsten en foto's worden definitief verwijderd.", confirmLeave:"\"{name}\" verlaten?", soleAdminLeave:"Je bent de enige beheerder. Maak eerst iemand anders beheerder of verwijder de vereniging/groep."});
+Object.assign(I18N.de, { dangerZone:"Gefahrenzone", deleteAccount:"Konto löschen", deleteAccountHint:"Löscht dein Konto und alle deine Daten (Fänge, Fotos, Mitgliedschaften) unwiderruflich.", confirmDeleteAccount:"Konto wirklich löschen? Alle deine Daten werden unwiderruflich gelöscht.", confirmDeleteAccount2:"Letzte Warnung: Das kann nicht rückgängig gemacht werden. Fortfahren?", accountDeletedTitle:"Konto gelöscht", accountDeletedBody:"Dein Konto und deine Daten wurden gelöscht.", leaveAreaBtn:"Verein/Gruppe verlassen", deleteContext:"Verein/Gruppe löschen", deleteContextHint:"Löscht alles unwiderruflich: Mitgliedschaften, Fänge und Fotos.", confirmDeleteContext:"„{name}“ wirklich löschen? Alle Mitgliedschaften, Fänge und Fotos werden unwiderruflich gelöscht.", confirmLeave:"„{name}“ verlassen?", soleAdminLeave:"Du bist der/die einzige Admin. Mach zuerst jemanden zum Admin oder lösche den Verein/die Gruppe."});
+Object.assign(I18N.en, { dangerZone:"Danger zone", deleteAccount:"Delete account", deleteAccountHint:"Permanently deletes your account and all your data (catches, photos, memberships).", confirmDeleteAccount:"Really delete your account? All your data will be permanently deleted.", confirmDeleteAccount2:"Last warning: this cannot be undone. Continue?", accountDeletedTitle:"Account deleted", accountDeletedBody:"Your account and data have been deleted.", leaveAreaBtn:"Leave club/group", deleteContext:"Delete club/group", deleteContextHint:"Permanently deletes everything: memberships, catches and photos.", confirmDeleteContext:"Really delete \"{name}\"? All memberships, catches and photos will be permanently deleted.", confirmLeave:"Leave \"{name}\"?", soleAdminLeave:"You are the only admin. Make someone else an admin first, or delete the club/group."});
+Object.assign(I18N.nl, { dangerZone:"Gevarenzone", deleteAccount:"Account verwijderen", deleteAccountHint:"Verwijdert je account en al je gegevens (vangsten, foto's, lidmaatschappen) definitief.", confirmDeleteAccount:"Account echt verwijderen? Al je gegevens worden definitief verwijderd.", confirmDeleteAccount2:"Laatste waarschuwing: dit kan niet ongedaan worden gemaakt. Doorgaan?", accountDeletedTitle:"Account verwijderd", accountDeletedBody:"Je account en gegevens zijn verwijderd.", leaveAreaBtn:"Vereniging/groep verlaten", deleteContext:"Vereniging/groep verwijderen", deleteContextHint:"Verwijdert alles definitief: lidmaatschappen, vangsten en foto's.", confirmDeleteContext:"\"{name}\" echt verwijderen? Alle lidmaatschappen, vangsten en foto's worden definitief verwijderd.", confirmLeave:"\"{name}\" verlaten?", soleAdminLeave:"Je bent de enige beheerder. Maak eerst iemand anders beheerder of verwijder de vereniging/groep."});
 Object.assign(I18N.de, {betaReqTitle:"Beta-Zugang anfragen", betaReqHint:"Die App ist gerade in einer geschlossenen Beta. Frag Zugang an — der Team-Admin schaltet dich frei.", betaReqSentTitle:"Anfrage gesendet", betaReqSentBody:"Danke! Der Team-Admin prüft deine Anfrage und schaltet dich frei.", betaReqInbox:"Beta-Anfragen", betaReqInboxTitle:"Beta-Zugangs-Anfragen"});
 Object.assign(I18N.en, {betaReqTitle:"Request beta access", betaReqHint:"The app is currently in a closed beta. Request access — the team admin will approve you.", betaReqSentTitle:"Request sent", betaReqSentBody:"Thanks! The team admin will review and approve you.", betaReqInbox:"Beta requests", betaReqInboxTitle:"Beta access requests"});
 Object.assign(I18N.nl, {betaReqTitle:"Bètatoegang aanvragen", betaReqHint:"De app is momenteel in een gesloten bèta. Vraag toegang aan — de teambeheerder geeft je vrij.", betaReqSentTitle:"Aanvraag verzonden", betaReqSentBody:"Bedankt! De teambeheerder bekijkt en geeft je vrij.", betaReqInbox:"Bèta-aanvragen", betaReqInboxTitle:"Bèta-toegangsaanvragen"});
@@ -2220,7 +2199,6 @@ function applyLang(){
 }
 function setLang(v){ state.lang=v; savePrefs(); applyLang(); syncUserLang();
   try{ renderClubs(); }catch(e){}
-  try{ renderFieldPrefPanel(); }catch(e){}
   try{ renderFieldCfgPanel(); }catch(e){}
   try{ renderShareCfgPanel(); }catch(e){}
   if(state.mode && state.catches){ try{ renderList(); }catch(e){} } }
@@ -2540,7 +2518,11 @@ function openSelSheet(selectId, title){ _selSheetId=selectId; const s=document.g
 function renderSelSheet(){
   const sel=document.getElementById(_selSheetId); if(!sel) return;
   const box=document.getElementById('sel-sheet-list'); if(!box) return;
-  const opts=[...sel.options]; const sEl=document.getElementById('sel-search');
+  /* data-hide lets a caller drop a choice from the sheet without removing the <option>. Removing it is
+     not an option: the empty "—" is usually the selected one, and the HTML reset algorithm then jumps
+     the <select> to the FIRST option — which would silently mark a released fish as kept. Hidden here,
+     still selected underneath, so the field stays empty and required-validation can do its job. */
+  const opts=[...sel.options].filter(o=>o.dataset.hide!=='1'); const sEl=document.getElementById('sel-search');
   const long=opts.length>8; if(sEl) sEl.style.display=long?'':'none';
   const q=(long&&sEl?sEl.value:'').toLowerCase().trim();
   const CHK='<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>';
@@ -3023,7 +3005,6 @@ async function rowsToCatches(rows, nameById){
     arr.forEach(p=>{ const u=signedMap[p.path]; if(!u) return; urls.push(u); thumbs.push((p.thumb_path&&signedMap[p.thumb_path])||u);
       crops.push({p:p.crop_pos||null, z:p.crop_zoom||null}); paths.push(p.path); });
     const cc=dbRowToCatch(r, urls, thumbs, crops, paths);
-    if(_dbgOn && crops.some(x=>x.p||x.z)) dlog('GELADEN '+String(r.species), {fotos:urls.length, crops});
     if(nameById){
       const own=nameById[r.owner_id];
       if(own){ cc.angler=own.name; cc.anglerAvatar=own.avatar; cc.anglerStyle=own.style; }   // carry the picture, not just the name
@@ -3167,13 +3148,14 @@ async function saveSoloPhotos(catchId, photos){
   const toRemove=[];
   (existing||[]).forEach(r=>{ if(!kept.has(r.path)){ toRemove.push(r.path); if(r.thumb_path) toRemove.push(r.thumb_path); } });
   if(toRemove.length){ try{ await c.storage.from('catch-photos').remove(toRemove); }catch(e){} }
-  // rewrite rows to reflect new order + cover
-  dlog('FOTO-EDIT: Zeilen werden geloescht und neu angelegt', {
-    vorher:(existing||[]).length, nachher:finalRows.length,
-    zuschnitteGerettet: finalRows.filter(r=>r.crop_pos||r.crop_zoom).length });
+  /* Rewrite rows to reflect new order + cover.
+     LEGACY TRAP — see BUGS-AND-FEEDBACK.md: this deletes every row and re-inserts them. If the insert
+     below fails, the catch loses ALL its photo rows (the storage objects survive, the rows do not).
+     Hence the console.error: this path must never fail silently. A real fix replaces delete+insert
+     with an upsert, which is its own job. */
   await c.from('catch_photos').delete().eq('catch_id', catchId);
   if(finalRows.length){ const { error } = await c.from('catch_photos').insert(finalRows);
-    if(error) dlog('!! Neuanlegen fehlgeschlagen', error.message||error); else dlog('FOTO-EDIT ok'); }
+    if(error){ try{ console.error('saveSoloPhotos: re-insert failed after delete — photo rows lost', error); }catch(e){} } }
 }
 async function saveCatchDb(obj, editId, contextId){
   const c=getSB(); const row=catchToDbRow(obj, contextId);
@@ -3638,14 +3620,24 @@ function renderList(){
   // stats
   let bigLen=null, bigWt=null;
   items.forEach(c=>{ if(c.length!=null && (bigLen==null || c.length>bigLen.length)) bigLen=c; if(c.weight!=null && (bigWt==null || c.weight>bigWt.weight)) bigWt=c; });
-  const scard=(label,val,rust)=>`<div style="flex:1; min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px;">
-      <div style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${label}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif; font-size:1.875rem; font-weight:700; line-height:1.1;${rust?' color:var(--teal);':''}">${val}</div>
+  const _sBox='flex:1; min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px;';
+  const _sLbl='font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+  const _sVal="font-family:'Barlow Condensed',sans-serif; font-size:1.875rem; font-weight:700; line-height:1.1;";
+  const scard=(label,val,rust)=>`<div style="${_sBox}">
+      <div style="${_sLbl}">${label}</div>
+      <div style="${_sVal}${rust?' color:var(--teal);':''}">${val}</div>
     </div>`;
+  /* Wie in den Stats (JC, 17. Juli): Längster/Schwerster führen zu ihrem Fang. `color:var(--text)` gegen
+     das `color:buttontext` des UA-Stylesheets, `font:inherit` gegen die System-Schrift. */
+  const scardBtn=(label,val,rust,cid)=>`<button type="button" onclick="openRecordCatch('${escAttr(String(cid))}','list')"
+      style="${_sBox} text-align:left; font:inherit; color:var(--text); cursor:pointer;">
+      <div style="${_sLbl}">${label}</div>
+      <div style="${_sVal}${rust?' color:var(--teal);':''}">${val}</div>
+    </button>`;
   document.getElementById('stats').innerHTML =
     scard(cnt>0?t('hits'):t('total'), items.length, false) +
-    (bigLen ? scard(t('longestStat'), fmtLen(bigLen.length), true) : '') +
-    (bigWt ? scard(t('heaviestStat'), fmtWeight(bigWt.weight), true) : '');
+    (bigLen ? scardBtn(t('longestStat'), fmtLen(bigLen.length), true, bigLen.id) : '') +
+    (bigWt ? scardBtn(t('heaviestStat'), fmtWeight(bigWt.weight), true, bigWt.id) : '');
 
   document.getElementById('sort-list').innerHTML=sortOptionsHtml(); try{ syncSelfield('sort-list'); }catch(e){}
   const list=document.getElementById('catch-list'); list.innerHTML=''; _openSwipe=null;
@@ -3721,7 +3713,17 @@ function renderRecordsShelf(items){
   }).join('');
   box.innerHTML=`<div class="rec-head">${CROWN_IC}<span>${esc(t('recordsShelfTitle'))}</span></div><div class="rec-strip">${cards}</div>`;
 }
-function openStatsRecord(id){ const c=(myCatches()||[]).find(x=>String(x.id)===String(id)); if(c) openDetailObj(c,'stats'); }
+/* Sucht in BEIDEN Töpfen: `myCatches()` sind die eigenen über alle Kontexte, `state.catches` die des
+   gerade offenen Vereins. Die Rekord-Kachel gibt es auf beiden Screens, und ein Vereinsfang muss nicht
+   in „Meine Fänge" liegen (er kann von einem anderen Mitglied sein). Der alte `openStatsRecord` schaute
+   nur in `myCatches()` und hätte auf der Vereinsseite ins Leere gegriffen. */
+function openRecordCatch(id, from){
+  for(const pool of [state.catches, (typeof myCatches==='function'?myCatches():null)]){
+    const c=(pool||[]).find(x=>x && String(x.id)===String(id));
+    if(c){ openDetailObj(c, from||'stats'); return; }
+  }
+}
+function openStatsRecord(id){ openRecordCatch(id,'stats'); }
 function renderStats(){
   _podium={};   // podium is context-scoped; the cross-context stats list must not show medals
   try{ updateSyncBanner(); }catch(e){}
@@ -3745,6 +3747,16 @@ function renderStats(){
   const kpi=(label,val,rust)=>`<div style="${_kcard}">
     <div style="${_kl}">${label}</div>
     <div style="${_kv}${rust?' color:var(--teal);':''}">${val}</div></div>`;
+  /* Längster/Schwerster öffnen den Fang direkt (JC, 17. Juli) — die Kachel nennt einen bestimmten Fisch,
+     also soll sie zu ihm führen; der Umweg über die Liste und das Suchen von Hand entfällt.
+     `color:var(--text)` ist kein Zierat: Ein <button> zieht sich `color:buttontext` aus dem
+     UA-Stylesheet, und das schlägt Vererbung — die Wertzeile hat keine eigene Farbe und würde
+     iOS-blau. Dieselbe Falle wie damals bei `.map-open` und `.wx-info`.
+     `font:inherit`, weil <button> sonst die System-Schrift setzt. */
+  const kpiBtn=(label,val,rust,cid)=>`<button type="button" onclick="openRecordCatch('${escAttr(String(cid))}','stats')"
+    style="${_kcard} display:block; width:100%; text-align:left; font:inherit; color:var(--text); cursor:pointer;">
+    <div style="${_kl}">${label}</div>
+    <div style="${_kv}${rust?' color:var(--teal);':''}">${val}</div></button>`;
   // Total tile carries the year count as a compact secondary on the right, so the grid stays a clean 2×2 (no uneven 5th tile) and tiles keep uniform height.
   const totalCard=`<div style="${_kcard} display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
     <div><div style="${_kl}">${t('total')}</div><div style="${_kv}">${items.length}</div></div>
@@ -3756,8 +3768,10 @@ function renderStats(){
   document.getElementById('stats-cards').innerHTML =
     totalCard +
     kpi(t('speciesCount'), speciesCount) +
-    (showMeasures ? kpi(t('longest'), bigLen?fmtLen(bigLen.length):'—', true) : '') +
-    (showMeasures ? kpi(t('heaviest'), bigWt?fmtWeight(bigWt.weight):'—', true) : '');
+    /* Nur klickbar, wenn es auch einen Fang dahinter gibt: Zeigt die Kachel „—", führt sie nirgendwo hin
+       und darf sich auch nicht so anfühlen. */
+    (showMeasures ? (bigLen ? kpiBtn(t('longest'), fmtLen(bigLen.length), true, bigLen.id) : kpi(t('longest'), '—', true)) : '') +
+    (showMeasures ? (bigWt ? kpiBtn(t('heaviest'), fmtWeight(bigWt.weight), true, bigWt.id) : kpi(t('heaviest'), '—', true)) : '');
   try{ renderRecordsShelf(items); }catch(e){}
   { const sc=document.getElementById('stats-count'); if(sc) sc.textContent=items.length+' '+t('catches'); }
   document.getElementById('sort-stats').innerHTML=sortOptionsHtml(); try{ syncSelfield('sort-stats'); }catch(e){}
@@ -3885,7 +3899,6 @@ async function persistDetailPhotos(){
   const idx=(state.catches||[]).findIndex(x=>x&&x.id===c.id);
   if(idx>=0){ const s=state.catches[idx]; s.photos=c.photos.slice(); s.photo=c.photo; s.crops=newCrops.slice(); s.photoPaths=newPaths.slice(); }
   if(!c._db){ try{ saveCatches(); }catch(e){} }
-  dlog('FOTOS gespeichert', {anzahl:cur.length, mitZuschnitt:newCrops.filter(x=>x&&(x.p||x.z)).length, ohnePfad:newPaths.filter(x=>!x).length});
 }
 function ensureStatsMap(items){
   const wrap=document.getElementById('stats-map');
@@ -3987,6 +4000,12 @@ function wxNeedsRefresh(c){
   if(!cur) return false;
   return cur.press3h===undefined || cur.temp24h===undefined || cur.windDir===undefined;
 }
+/* Wetter wird IMMER geholt und gespeichert — der Schalter regelt nur die Anzeige (JC, 17. Juli:
+   „speichern ist billig und macht es nachher einfach, falls der user es doch anzeigen möchte").
+   Das ist der Unterschied zu den Eingabefeldern: Wetter kann man nicht nachtragen. Wer es beim Loggen
+   nicht holt, hat es für diesen Fang für immer verloren — der Fisch liegt längst wieder im Wasser.
+   Deshalb ist „aus" hier eine Anzeige-Entscheidung, keine Aufzeichnungs-Entscheidung, und sie bleibt
+   jederzeit umkehrbar. */
 async function enrichWeather(c){
   if(!c || c.lat==null || c.weather) return;
   const w=await fetchWeather(c.lat, c.lon, c.date);
@@ -4009,7 +4028,10 @@ async function refreshWeatherFor(c){
   }catch(e){}
 }
 let previewTimer=null, previewSeq=0;
-function wxOn(key){ const pref=getUserFieldPref(); const admin=ctxAdminCfg(); const a=admin[key]; return pref[key]===true || a==='optional' || a==='required'; }
+/* Hier stand `wxOn(key)`. Der Name log doppelt: Er prüfte längst nicht nur Wetter (an der Nachtragsliste
+   im Detail-Edit fragte er `length`, `bait`, `method` …), und er las den GERADE OFFENEN Verein — derselbe
+   Fang zeigte aus „Meine Fänge" etwas anderes als aus dem Verein.
+   Seit dem 17. Juli gibt es die Frage gar nicht mehr: Alle Felder werden angezeigt. Ersatzlos entfallen. */
 // Trolling speed only belongs to the dedicated trolling method (de "Trolling/Schleppangeln", en "Trolling", nl "Trollen").
 function isTrollingMethod(m){ const s=(m||'').toLowerCase(); return s.indexOf('trolling')>=0 || s.indexOf('schlepp')>=0 || s.indexOf('trollen')>=0; }
 function previewWeather(){
@@ -4029,7 +4051,13 @@ function previewWeather(){
     try{ syncFormGroups(); }catch(e){}
   }, 350);
 }
-function renderWeather(c){ renderWeatherInto(c.weather, c.date, 'd-weather','d-weather-wrap', c.watertemp); }
+/* Wetter hat keinen Schalter mehr (JC, 17. Juli): Es wird immer geholt und immer gezeigt — wie jedes
+   andere Feld, das einen Wert hat. Mit dem Wegfall der persönlichen Ebene gab es niemanden mehr, der
+   einen solchen Schalter hätte setzen können, und ein Verein hat auf DEINEM Fang nichts auszublenden.
+   Damit ist auch der „Zwei-Türen"-Fehler endgültig weg: Es gibt nichts mehr, das je nach Blickwinkel
+   anders antworten könnte.
+   `watertemp` wird nicht mehr durchgereicht: Der Parameter war seit dem „Am Wasser"-Umbau tot. */
+function renderWeather(c){ renderWeatherInto(c.weather, c.date, 'd-weather','d-weather-wrap'); }
 const WX_IC={
   cloud:'<path d="M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878"/>',
   temperature:'<path d="M10 13.5a4 4 0 1 0 4 0v-8.5a2 2 0 0 0 -4 0v8.5"/><path d="M10 9l4 0"/>',
@@ -4097,32 +4125,38 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
      it — two different quantities in one line, the least honest of the three. The slot now carries the
      speed, and the direction became the value. */
   const pChip = (cur.pressure!=null && cur.press3h!=null) ? chip(cur.pressure-cur.press3h, 0.5, 1, 'hPa/3 h') : null;
-  /* (8, JC): a card needs a VALUE, not just a switched-on preference. wxOn() alone let an empty field
-     take a full slot and say "— hPa", which is a hole with a label on it, not information. The catch
-     fields have always worked this way (if(c.method) …) — the weather did not. */
+  /* (8, JC): a card needs a VALUE, not just a switched-on preference. An empty field used to take a
+     full slot and say "— hPa", which is a hole with a label on it, not information. The catch fields
+     have always worked this way (if(c.method) …) — the weather did not.
+     17 Jul (JC's rule): the DETAIL SHOWS EVERYTHING THAT IS THERE — no per-tile switch decides any
+     more. `wxOn()` is gone: it asked the *currently open* club, so the same catch showed the moon
+     inside the club and hid it in "Meine Fänge". The five switches became ONE ("record weather"), and
+     that one governs the FETCH, not the view — if it is off, nothing is fetched, `weather.cur` is
+     absent, and line ~4050 above already returns. So: weather recorded → show it all; not → show
+     nothing. Nothing left to gate here. */
   const cells=[];
   let vonApi=0;   // what ACTUALLY rendered — the credit must describe the cards, not the settings
   const api=(c)=>{ cells.push(c); vonApi++; };
-  if(wxOn('wxCond') && condKey) api(card('cloud',t('wCond'), esc(t(condKey)), true));
-  if(wxOn('wxTemp') && cur.temp!=null) api(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip), tChip);
-  /* Direction first, speed second (JC). Two things worth knowing here:
-     · The reported degrees say where the wind comes FROM — "Nordwind" blows from the north. That is the
-       convention and also the most common misreading, so the text spells it out ("aus NW") instead of
-       leaving a bare "NW" to be guessed.
-     · The arrow points where the wind BLOWS TO, i.e. direction + 180°, the way it is drawn on weather
-       maps. An arrow that means "from" and an arrow that means "to" look identical — only the caption
-       saves it, which is why the caption is there.
-     Old catches have no windDir (it was never fetched), so the speed stays the value for them. */
-  if(wxOn('wxWind') && cur.wind!=null){
+  if(condKey) api(card('cloud',t('wCond'), esc(t(condKey)), true));
+  if(cur.temp!=null) api(card('temperature',t('wTemp'), num(cur.temp,1)+' °C', false, tChip), tChip);
+  /* Geschwindigkeit ist der Wert, Richtung die Fußnote (JC, 17. Juli — umgedreht gegenüber gestern).
+     Zwei Konventionen treffen hier aufeinander, und JC hat entschieden, beide zu behalten:
+     · „NO" sagt, WOHER der Wind kam — so wird Windrichtung angegeben („Nordwind" kommt aus Norden).
+     · Der Pfeil zeigt, WOHIN er wehte (Richtung + 180°) — so wird er auf Wetterkarten gezeichnet.
+     Das „aus" ist raus (JC), die Karte liest also „12 km/h ↙ NO". Wer beide Konventionen kennt, liest
+     es richtig; wer nicht, findet es im Info-Modal, das genau diesen Satz schon enthält
+     („Der Pfeil zeigt, wohin er wehte").
+     Alte Fänge haben kein windDir (wurde nie geholt) — dort bleibt die Geschwindigkeit allein. */
+  if(cur.wind!=null){
     const kmh=num(cur.wind,0)+' km/h';
     if(cur.windDir!=null){
       const pt=(t('compass8').split(',')[Math.round(cur.windDir/45)%8]||'');
       const arrow=`<svg class="wind-arrow" viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.windDir+180)%360)}deg)"><path d="M12 20V5"/><path d="M6 11l6-6 6 6"/></svg>`;
-      cells.push(`<div class="wx-card"><span class="k">${wxIcon('wind')}${esc(t('wWind'))}</span><span class="v wind-v">${arrow}${esc(t('windFrom').replace('{d}',pt))}<span class="sub">${esc(kmh)}</span></span></div>`);
+      cells.push(`<div class="wx-card"><span class="k">${wxIcon('wind')}${esc(t('wWind'))}</span><span class="v wind-v">${esc(kmh)}<span class="sub wind-dir">${arrow}${esc(pt)}</span></span></div>`);
       vonApi++;
     } else api(card('wind',t('wWind'), kmh, false));
   }
-  if(wxOn('wxPress') && cur.pressure!=null) api(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip), pChip);
+  if(cur.pressure!=null) api(card('gauge',t('wPressure'), num(cur.pressure,0)+' hPa', false, pChip), pChip);
   // Phase-accurate icon + the phase name — no trend chip: the name already carries waxing/waning.
   // Exception (JC): the two quarters look identical apart from the mirroring, so they get a bare + / −.
   /* (6) The moon is the one icon here that carries real information — the phase IS the shape — and it
@@ -4136,7 +4170,14 @@ function renderWeatherInto(weather, date, boxId, wrapId, watertemp){
      information is the smallest thing here") and set the name as a trend chip. JC looked at it live
      and prefers this. The "+"/"−" on the quarters comes back with it: at label size the two quarters
      are the same drawing mirrored, so the sign is the only thing telling them apart. */
-  if(wxOn('wxMoon')){
+  /* The moon rides with the recorded weather (JC, 17 Jul: "Mond gehört zum Wetter"). It is the odd one
+     out — `moonPhaseKey()` COMPUTES it from the date, so unlike air/wind/pressure there is nothing to
+     fetch and no coordinates needed. That is exactly why it cannot hang off the fetch switch on its
+     own: it would always be available and therefore always shown. Tying it to `weather.cur` gives it
+     the one honest home it has — the catch recorded its conditions, and this is one of them.
+     Deliberately NOT counted in vonApi: it is our arithmetic, not Open-Meteo's, and the credit line
+     must only speak for their cards. */
+  {
     const qd = moonKey==='m_fq' ? {txt:'+', dir:'up'} : (moonKey==='m_lq' ? {txt:'−', dir:'down'} : null);
     cells.push(card(moonIcon(moonKey), t('wMoon'), esc(t(moonKey)), false, qd));
   }
@@ -4196,45 +4237,30 @@ const CFG_FIELDS=[
   {key:'reel',    i18n:'reel'},
   {key:'boat',    i18n:'boat'},
   {key:'watertemp',i18n:'watertemp'},
-  {key:'wxCond',   i18n:'wCond'},
-  {key:'wxTemp',   i18n:'wTemp'},
-  {key:'wxWind',   i18n:'wWind'},
-  {key:'wxPress',  i18n:'wPressure'},
-  {key:'wxMoon',   i18n:'moon'},
   {key:'trolling',i18n:'trolling'},
   {key:'released',i18n:'releasedLabel'},
   {key:'mapPin',  i18n:'mapPin'},
   {key:'photos',  i18n:'photos'},
   {key:'notes',   i18n:'notes'},
 ];
-const DEFAULT_FIELD_CFG={length:'optional',weight:'optional',released:'optional',photos:'optional',location:'optional',mapPin:'optional',watertemp:'off',wxCond:'optional',wxTemp:'optional',wxWind:'optional',wxPress:'optional',wxMoon:'off',method:'off',bait:'off',rod:'off',reel:'off',boat:'off',trolling:'off',notes:'optional'};
-// Globale, additive Feld-Wünsche des Nutzers (an/aus). Admin-Config kann Felder zusätzlich anzeigen/Pflicht machen, nie verbieten.
-const DEFAULT_FIELD_PREF={length:true,weight:true,location:true,method:false,bait:false,rod:false,reel:false,boat:false,watertemp:false,wxCond:true,wxTemp:true,wxWind:true,wxPress:true,wxMoon:false,trolling:false,released:true,mapPin:true,photos:true,notes:true};
+/* Nur noch EIN Zustand zählt: fordert der Verein einen Wert oder nicht (JC, 17. Juli).
+   Angezeigt wird ohnehin alles, also gibt es nichts mehr voreinzustellen — die Defaults sind leer.
+   Gespeicherte Configs bleiben lesbar: alles, was nicht 'required' ist (also 'optional', 'off' und die
+   alten wxCond/wxTemp/… -Schlüssel), heißt schlicht „nicht Pflicht" und wird ignoriert. Deshalb braucht
+   es weder eine Migration noch ein Umschreiben der Datenbank. */
+const DEFAULT_FIELD_CFG={};
 const FIELD_GROUPS=[
   {i18n:'grpPhotos', keys:['photos']},
   {i18n:'grpCatch',  keys:['length','weight','released']},
   {i18n:'grpWater',  keys:['location','mapPin']},
-  {i18n:'grpConditions', keys:['wxCond','wxTemp','wxWind','wxPress','wxMoon','watertemp']},
+  {i18n:'grpConditions', keys:['watertemp']},
   {i18n:'grpGear',   keys:['method','bait','rod','reel','boat','trolling']},
   {i18n:'grpNotes',  keys:['notes']},
 ];
 function cfgFieldI18n(key){ const f=CFG_FIELDS.find(x=>x.key===key); return f?f.i18n:key; }
-function getUserFieldPref(){ return Object.assign({}, DEFAULT_FIELD_PREF, (state.me&&state.me.fieldPref)||{}); }
-async function setUserFieldPref(pref){
-  if(state.me) state.me.fieldPref=pref;
-  if(state.auth==='supabase' && getSB() && state.me){ try{ await getSB().from('profiles').update({field_pref:pref}).eq('id', state.me.id); }catch(e){} }
-}
-const LOCK_IC='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-function renderFieldPrefPanel(){
-  const box=document.getElementById('field-pref-list'); if(!box) return;
-  const pref=getUserFieldPref();
-  // Locked core fields always appear — shown first so the panel reads as the complete picture.
-  const lockedChips=['species','datetime','angler'].map(key=>`<span class="fchip locked on">${LOCK_IC}${t(key)}</span>`).join('');
-  const lockedHTML=`<div class="setgroup">${t('grpBasis')}</div><div class="chiprow">${lockedChips}</div><p class="hint" style="margin:0 0 6px;">${t('fldLockedHint')}</p>`;
-  box.innerHTML=lockedHTML+FIELD_GROUPS.map(g=>`<div class="setgroup">${t(g.i18n)}</div><div class="chiprow">`+g.keys.map(key=>`<button type="button" class="fchip${pref[key]?' on':''}" onclick="toggleFieldChip('${key}', this)">${t(cfgFieldI18n(key))}</button>`).join('')+`</div>`).join('');
-}
-function toggleFieldChip(key, el){ const on=!el.classList.contains('on'); el.classList.toggle('on', on); setFieldPref(key, on); }
-function setFieldPref(key, on){ const pref=getUserFieldPref(); pref[key]=!!on; setUserFieldPref(pref); }
+/* renderFieldPrefPanel/toggleFieldChip/setFieldPref sind am 17. Juli entfallen — es gibt keine
+   persönliche Feld-Ebene mehr. `profiles.field_pref` bleibt in der DB stehen (nicht destruktiv), wird
+   aber nicht mehr gelesen. */
 function fieldCfgKey(){ return 'fanglog_fields_'+ctxKey(state.mode, state.club&&state.club.id); }
 // ---- role helpers (Phase 2d): shared Verein/Gruppen-Config wird vom Admin gesteuert ----
 function ctxIsDb(){ return state.auth==='supabase' && !!state.club && state.mode!=='solo'; }
@@ -4282,9 +4308,17 @@ function renderFieldCfgPanel(){
   const box=document.getElementById('fields-cfg-list'); if(!box) return;
   const c=getFieldCfg();
   const ro = ctxIsDb() && !canEditCtxCfg();
-  const states=[['required','stRequired'],['optional','stOptional'],['off','stOff']];
+  /* Zwei Stufen statt drei (JC, 17. Juli). „Immer anzeigen" hatte keinen Sinn mehr, sobald ohnehin
+     alles angezeigt wird, und „Nicht erzwingen" ist jetzt schlicht das Gegenteil von „Pflicht".
+     Gespeicherte Configs bleiben lesbar: 'optional' und die alten wx*-Schlüssel sind ≠ 'required' und
+     landen damit auf „Nicht Pflicht" — ohne Migration, ohne Datenverlust. */
+  const states=[['required','stRequired'],['off','stNotRequired']];
+  /* Normalisieren, nicht roh vergleichen: Eine gespeicherte 'optional' ist weder 'required' noch 'off' —
+     ohne diese Zeile leuchtete bei den Altbeständen KEINER der beiden Knöpfe, und der Admin sähe ein
+     Feld ohne Zustand. Alles, was nicht 'required' ist, ist „Nicht Pflicht". */
+  const cur=key=> c[key]==='required' ? 'required' : 'off';
   box.innerHTML=FIELD_GROUPS.map(g=>`<div class="setgroup">${t(g.i18n)}</div>`+g.keys.map(key=>`<div class="ffrow"><span class="ffname">${t(cfgFieldI18n(key))}</span>
-    <div class="seg ffseg${ro?' seg-ro':''}">${states.map(([s,lab])=>`<button type="button" onclick="setFieldState('${key}','${s}')" class="${c[key]===s?'on':''}">${t(lab)}</button>`).join('')}</div></div>`).join('')).join('');
+    <div class="seg ffseg${ro?' seg-ro':''}">${states.map(([s,lab])=>`<button type="button" onclick="setFieldState('${key}','${s}')" class="${cur(key)===s?'on':''}">${t(lab)}</button>`).join('')}</div></div>`).join('')).join('');
   const hint=document.getElementById('fields-hint');
   if(hint) hint.textContent = ro ? t('fieldsHintMember') : (ctxIsDb() ? t('fieldsHintAdmin') : t('fieldsHint'));
 }
@@ -4307,23 +4341,68 @@ function fieldHasValue(key){
   }
   return true;
 }
+/* ---- Feld-Konfiguration über mehrere Vereine: STRENGSTER GEWINNT (JC, 17. Juli) -------------------
+   Ein Fang — und ein Log-Formular — kann mehrere Vereine gleichzeitig treffen (`catches.context_ids`
+   ist ein Array, `state.formTargets` ebenso). Deren `field_config` können sich widersprechen: JCs
+   Forelle liegt in „ASV Steife Rute" (released = required) plus zwei Vereinen ganz ohne Regel.
+   JCs Regel: Verlangt EIN Verein ein Feld, ist es Pflicht.
+   Rang: required > optional > off — ein Verein, der das Feld sehen will, schlägt einen, der es versteckt. */
+const _CFG_RANK={off:1, optional:2, required:3};
+function ctxCfgFor(ids){
+  const out={};
+  if(!ids || !ids.length) return out;
+  const byId={}; (state.myContexts||[]).forEach(x=>{ if(x && x.id!=null) byId[x.id]=x; });
+  ids.forEach(id=>{
+    /* Ein Verein, in dem wir nicht (mehr) Mitglied sind, hat hier keine geladene Config. Der wird
+       übersprungen, nicht geraten — lieber keine Aussage als eine erfundene. */
+    const cfg=(byId[id]||{}).field_config; if(!cfg) return;
+    Object.keys(cfg).forEach(k=>{ if((_CFG_RANK[cfg[k]]||0) > (_CFG_RANK[out[k]]||0)) out[k]=cfg[k]; });
+  });
+  return out;
+}
+function ctxIdsOfCatch(c){
+  if(!c) return [];
+  return (c._ctxIds && c._ctxIds.length) ? c._ctxIds.filter(Boolean) : (c._ctxId!=null ? [c._ctxId] : []);
+}
+function fieldRequiredForCatch(c, key){ return ctxCfgFor(ctxIdsOfCatch(c))[key]==='required'; }
+/* Die ZIELE des Formulars, nicht der gerade offene Verein: `ctxAdminCfg()` las `state.club`, also nur
+   einen — wer in drei Vereine gleichzeitig loggte, konnte an der Pflicht des zweiten vorbeispeichern. */
+function formAdminCfg(){ return (state.auth==='supabase') ? ctxCfgFor(state.formTargets||[]) : {}; }
+/* Welcher Verein fordert dieses Feld? Für die Fehlermeldung — bei mehreren gewinnt der erste; das
+   Problem ist ohnehin gelöst, sobald der Wert dasteht. */
+function requiringCtxName(key){
+  const byId={}; (state.myContexts||[]).forEach(x=>{ if(x && x.id!=null) byId[x.id]=x; });
+  const hit=(state.formTargets||[]).find(id=>{
+    const cfg=(byId[id]||{}).field_config;
+    return !!cfg && cfg[key]==='required';
+  });
+  return hit ? (byId[hit].name||'') : '';
+}
 function ctxAdminCfg(){ return ctxIsDb() ? (state.club.field_config||{}) : {}; }
 let _lastFieldForce={};
+/* ALLE Felder werden angezeigt (JC, 17. Juli). Die persönliche Feld-Ebene ist entfallen; der Verein kann
+   nur noch eine Eingabe ERZWINGEN, nichts mehr ein- oder ausblenden.
+   Einzige Ausnahme bleibt die Schleppgeschwindigkeit: Sie gehört zur Trolling-Methode und wäre bei
+   „Fliegenfischen" nicht bloß überflüssig, sondern falsch. Hat der Fang schon einen Wert, bleibt sie
+   sichtbar — sonst verstecken wir Daten, die jemand eingetragen hat. */
 function applyFieldConfig(force){
   force = force || {};   // fields (by key) to force-show — e.g. an edited catch that already has a value there
   _lastFieldForce = force;   // remembered so a method change can re-evaluate without losing force-shown fields
-  const pref=getUserFieldPref();
-  const admin=ctxAdminCfg();
+  const admin=formAdminCfg();   // alle Ziele des Formulars, nicht nur der offene Verein
   CFG_FIELDS.forEach(f=>{
     const el=document.getElementById('ff-'+f.key); if(!el) return;
-    const a=admin[f.key];                        // 'off' | 'optional' (immer anzeigen) | 'required' (Pflicht) | undefined
-    const required = a==='required';
-    const forceShow = a==='optional' || required; // Admin zeigt es zusätzlich an
-    let show = pref[f.key]===true || forceShow || !!force[f.key];
-    // Schleppgeschwindigkeit erscheint nur bei der Trolling-Methode (oder wenn der Fang schon einen Wert hat).
-    if(f.key==='trolling' && show && !force.trolling){ show = isTrollingMethod((document.getElementById('f-method')||{}).value); }
+    const required = admin[f.key]==='required';
+    let show = true;
+    if(f.key==='trolling' && !force.trolling) show = isTrollingMethod((document.getElementById('f-method')||{}).value);
     el.style.display = show ? '' : 'none';
     el.classList.toggle('req-on', required);
+    /* A required field must not offer "no answer" (JC): with Entnahme on required, "—" is not a third
+       state, it is the absence of the answer the club is asking for. Hidden from the picker, never
+       removed — see renderSelSheet() for why. */
+    if(f.key==='released'){
+      const blank=document.querySelector('#f-released option[value=""]');
+      if(blank) blank.dataset.hide = required ? '1' : '0';
+    }
   });
   // collapse a .row whose fields are all hidden (e.g. Rute + Boot both off)
   document.querySelectorAll('#s-form .row').forEach(row=>{
@@ -4705,7 +4784,7 @@ function formReady(){
     const angler=selectedAngler();
     if(!species||!date||!angler) return false;
     if(new Date(date) > new Date()) return false;
-    const cfg=ctxAdminCfg();
+    const cfg=formAdminCfg();
     if(CFG_FIELDS.some(f=>cfg[f.key]==='required' && f.key.indexOf('wx')!==0 && !fieldHasValue(f.key))) return false;
     return true;
   }catch(e){ return true; }
@@ -4781,10 +4860,23 @@ function saveCatch(){
     return;
   }
   if(new Date(date) > new Date()){ err.textContent=t('errFuture'); err.style.display='block'; return; }
-  // enforce configured required fields (the minimum can't be skipped)
-  const cfg=ctxAdminCfg();
-  const missing=CFG_FIELDS.filter(f=>cfg[f.key]==='required' && f.key.indexOf('wx')!==0 && !fieldHasValue(f.key));
-  if(missing.length){ err.textContent=t('errRequired')+' '+missing.map(f=>t(f.i18n)).join(', '); err.style.display='block'; return; }
+  /* Pflichtfelder erzwingen — über ALLE Ziele (JC: strengster gewinnt).
+     `weather` ist ausgenommen: Es ist nichts, was man ausfüllen KANN — der Schalter entscheidet, ob
+     geholt wird. (Vorher stand hier `indexOf('wx')!==0` für die fünf alten Schalter; `weather` fiele
+     durch dieses Raster und wäre nur deshalb harmlos, weil `fieldHasValue` unbekannte Schlüssel mit
+     `true` beantwortet. Auf so einen Zufall soll sich niemand verlassen müssen.) */
+  const cfg=formAdminCfg();
+  const missing=CFG_FIELDS.filter(f=>cfg[f.key]==='required' && f.key!=='weather' && !fieldHasValue(f.key));
+  if(missing.length){
+    /* Den Verein NENNEN (JC, 17. Juli): Ein Feld kann allein dadurch zur Pflicht werden, dass du einen
+       Verein zu einem bestehenden Fang hinzufügst. „Bitte Pflichtfelder ausfüllen: Entnahme" lässt dich
+       dann raten, woher die Forderung kommt — obwohl du am Fang selbst gar nichts geändert hast. */
+    err.textContent=t('errRequired')+' '+missing.map(f=>{
+      const nm=requiringCtxName(f.key);
+      return nm ? t(f.i18n)+' ('+nm+')' : t(f.i18n);
+    }).join(', ');
+    err.style.display='block'; return;
+  }
   const w=document.getElementById('f-weight').value, l=document.getElementById('f-length').value;
   const obj={
     id: state.editId || Date.now(), species,
@@ -4871,52 +4963,8 @@ let _lb={photos:[],idx:0,scale:1,tx:0,ty:0};
    Interpolating the stored text raw therefore let one member's string break out of the attribute on
    everyone else's screen. Never pass the stored value through: parse it to numbers and rebuild it.
    Same for the zoom — a hostile or broken value must not reach transform:scale(). */
-/* ---- TEMPORARY crop test log (16 Jul) — remove with the button in Settings once verified. ---------
-   Lives on screen because iOS has no console to hand. Kept out of the way: it only renders when it is
-   switched on, and it never throws into the calling code. */
-let _dbgOn=false, _dbgLines=[];
-/* The panel appears as soon as logging is ON — not on the first dlog(). Otherwise the log runs
-   invisibly after a reload, you press the button to "switch it on", and actually switch it OFF.
-   Toggling off no longer throws the lines away either: the whole point is to reload, collect, copy. */
-function dbgPanel(){
-  if(!_dbgOn) return null;
-  let p=document.getElementById('dbg-panel');
-  if(!p && document.body){
-    p=document.createElement('div'); p.id='dbg-panel'; p.className='dbg-panel';
-    p.innerHTML='<div class="dbg-bar"><b>Test-Log läuft</b>'
-      +'<button type="button" onclick="dbgCopy()">Kopieren</button>'
-      +'<button type="button" onclick="dbgClear()">Leeren</button>'
-      +'<button type="button" onclick="dbgToggle()">Aus</button></div><pre id="dbg-out"></pre>';
-    document.body.appendChild(p);
-  }
-  return p;
-}
-function dbgLabel(){ try{ const b=[...document.querySelectorAll('#tab-personal button')].find(x=>/Test-Log/.test(x.textContent));
-  if(b) b.textContent='Test-Log: '+(_dbgOn?'AN — zum Ausschalten tippen':'AUS — zum Einschalten tippen'); }catch(e){} }
-function dbgRender(){ const p=dbgPanel(); if(!p) return; const o=document.getElementById('dbg-out');
-  o.textContent=_dbgLines.length?_dbgLines.join('\n'):'(noch nichts — App neu laden und den Fang öffnen)'; o.scrollTop=o.scrollHeight; }
-function dbgToggle(){
-  _dbgOn=!_dbgOn; try{ localStorage.setItem('bf_dbg', _dbgOn?'1':''); }catch(e){}
-  if(!_dbgOn){ const p=document.getElementById('dbg-panel'); if(p) p.remove(); }   // lines survive on purpose
-  else { dlog('— Log an —'); }
-  dbgLabel();
-  try{ toast(_dbgOn?'Test-Log an':'Test-Log aus (Zeilen bleiben)'); }catch(e){}
-}
-function dbgClear(){ _dbgLines=[]; dbgRender(); }
-function dlog(msg, obj){
-  if(!_dbgOn) return;
-  try{
-    const t=new Date().toLocaleTimeString();
-    _dbgLines.push(t+'  '+msg+(obj!==undefined?('  '+JSON.stringify(obj)):''));
-    if(_dbgLines.length>80) _dbgLines.shift();
-    dbgRender();
-  }catch(e){}
-}
-function dbgCopy(){ const s=_dbgLines.join('\n');
-  try{ if(navigator.clipboard) navigator.clipboard.writeText(s); else { const a=document.createElement('textarea'); a.value=s; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); } toast('Log kopiert ('+_dbgLines.length+' Zeilen)'); }catch(e){} }
-try{ if(localStorage.getItem('bf_dbg')==='1'){ _dbgOn=true; } }catch(e){}
-/* Show the panel right after boot when the flag survived a reload — that is exactly the case JC hit. */
-window.addEventListener('DOMContentLoaded', ()=>{ if(_dbgOn){ dlog('— Log läuft nach Neustart —'); dbgLabel(); } });
+/* The crop test log (16 Jul) lived here. Removed 17 Jul — the per-photo crop is verified and shipped.
+   What it taught us stays: saveCoverPos() below reports DB errors instead of swallowing them. */
 const COVER_ZMIN=1, COVER_ZMAX=4;
 function coverPosOf(v){
   const m=/^\s*(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%\s*$/.exec(String(v==null?'':v));
@@ -4950,19 +4998,23 @@ function saveCoverPos(c, pos, zoom, idx){
   try{ const i=(state.catches||[]).findIndex(x=>x.id===c.id);
        if(i>=0){ if(!state.catches[i].crops) state.catches[i].crops=[]; state.catches[i].crops[idx]={p:pos, z:zoom}; } }catch(e){}
   haptic(8);
+  /* Failure has to speak. Success stays silent (see below), so silence must mean "saved" — if the write
+     dies quietly, the crop is simply gone on the next load and nobody knows why. This used to be
+     .then(()=>{}, ()=>{}), which swallowed every DB error. */
+  const failed=(why)=>{ try{ console.error('saveCoverPos', why); }catch(e){} try{ toast(t('cropSaveFail')); }catch(e){} };
   if(c._db){
     // Branch on _db, not on "did we find a path": a DB catch with a missing path must NOT fall through
     // to saveCatches(), which writes the local list and would look like it saved while it did not.
     const path=(c.photoPaths||[])[idx];
-    dlog('SPEICHERN Bild '+idx, {pos, zoom, path:path?('…'+String(path).slice(-24)):null});
-    if(!path){ dlog('!! kein path fuer dieses Bild — nichts gespeichert'); }
-    else if(getSB()){
+    if(!path) failed('no path for photo '+idx);
+    else if(!getSB()) failed('no supabase client');
+    else {
       getSB().from('catch_photos').update({crop_pos:pos, crop_zoom:zoom}).eq('catch_id', c.id).eq('path', path)
-        .then(r=>{ if(r && r.error) dlog('!! DB-Fehler', r.error.message||r.error); else dlog('DB ok'); },
-              e=>{ dlog('!! DB abgelehnt', (e&&e.message)||String(e)); });
+        .then(r=>{ if(r && r.error) failed(r.error.message||r.error); },
+              e=>{ failed((e&&e.message)||String(e)); });
     }
   }
-  else { try{ saveCatches(); dlog('lokal gespeichert Bild '+idx, {pos, zoom}); }catch(e){} }
+  else { try{ saveCatches(); }catch(e){ failed((e&&e.message)||String(e)); } }
   /* No toast (JC): the picture visibly moved under the thumb and haptic() already fired — a message
      700px below the hero confirming what you just did with your own hand explains your own wrist.
      It also fired on EVERY drag-end, so three nudges meant three toasts. Other saves keep theirs,
@@ -5689,8 +5741,14 @@ function editTypeaheadField(c, field){
       const val=(v||'').trim()||null; await saveDetailField(c, field, field, val, {}); if(val){ try{ rememberSuggest({[field]:val}); }catch(e){} } openDetailObj(c, state.detailFrom, true); } });
 }
 function editReleasedField(c){
+  /* Kein „—", wenn irgendein Verein dieses Fangs die Entnahme verlangt (JC: strengster gewinnt).
+     Der Wert selbst bleibt unangetastet — wir nehmen nur die Möglichkeit, ihn auf „keine Angabe“
+     zurückzusetzen, wo ein Verein eine Angabe fordert. */
+  const _req=fieldRequiredForCatch(c,'released');
   openTypeaheadCfg({ title:t('releasedLabel'), allowNew:false, recent:()=>[],
-    opts:()=>[{v:t('releasedNone'),key:null},{v:t('releasedKept'),key:false},{v:t('releasedReleased'),key:true}],
+    opts:()=>{ const o=[{v:t('releasedKept'),key:false},{v:t('releasedReleased'),key:true}];
+               if(!_req) o.unshift({v:t('releasedNone'),key:null});
+               return o; },
     curVal:()=> c.released===true?t('releasedReleased'):(c.released===false?t('releasedKept'):t('releasedNone')),
     onPick:async(v,key)=>{ await saveDetailField(c, 'released', 'released', (key===true?true:(key===false?false:null)), {}); openDetailObj(c, state.detailFrom, true); } });
 }
@@ -5850,7 +5908,10 @@ function openDetailObj(c, from, keepEdit){
     [['length',t('dLength'),'length',false],['weight',t('dWeight'),'weight',false],['released',t('releasedLabel'),'released',false],['method',t('method'),'method',false],['boat',t('boat'),'boat',false],['trolling',t('trolling'),'trolling',false],['rod',t('rod'),'rod',true],['reel',t('reel'),'reel',true],['bait',t('bait'),'bait',true],['watertemp',t('sWaterTemp'),'watertemp',false],['water',t('dWater'),'location',true]]
       .forEach(a=>{ try{
         if(a[0]==='trolling' && !isTrollingMethod(c.method)) return;   // trolling speed only under the trolling method
-        if(!present.has(a[0]) && wxOn(a[2])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
+        /* `present` muss bleiben: Ein Feld, das schon einen Wert hat, steht bereits in `rows` — ohne
+           diese Prüfung stünde es ein zweites Mal da, als leeres „—". Die frühere Bedingung
+           `fieldOnForCatch(...)` ist entfallen (alle Felder werden angeboten), diese nicht. */
+        if(!present.has(a[0])) rows.push([a[0], a[1], '—', a[3], true]); }catch(e){} });
   }
   const EDITABLE_FIELDS={length:1,weight:1,trolling:1,water:1,method:1,bait:1,rod:1,reel:1,boat:1,released:1,date:1,watertemp:1};
   const _specOne=(r)=>{ const key=r[0]; const wide=r[3] || (''+r[2]).length>18; const empty=r[4];
@@ -6323,7 +6384,6 @@ function openSettings(){
     if(areaBtn){ const isClub = state.club && state.club.type==='club'; areaBtn.textContent = isClub ? t('tabAreaClub') : t('tabAreaGroup'); } }
   syncThemeSeg();
   syncLangSel();
-  renderFieldPrefPanel();
   renderShareCfgPanel();
   { const supa=(state.auth==='supabase');
     const dm=document.getElementById('account-memberships'); if(dm) dm.style.display=supa?'':'none';
@@ -6361,7 +6421,6 @@ function openSettings(){
 function closeSettings(){ go(state.settingsReturn || 'club'); }
 function setSettingsTab(tab){
   state.settingsTab=tab;
-  try{ dbgLabel(); }catch(e){}   // TEMPORARY: the switch must show its state whenever the tab is opened
   document.querySelectorAll('#settings-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.st===tab));
   document.getElementById('tab-personal').style.display = tab==='personal' ? '' : 'none';
   document.getElementById('tab-area').style.display = tab==='area' ? '' : 'none';
