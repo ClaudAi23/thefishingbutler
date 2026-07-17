@@ -765,6 +765,9 @@
   /* odd count: last half-width cell keeps its own border, but drop the divider that would visually double up */
   .spec:nth-last-child(1):nth-child(odd){border-bottom:1px solid var(--border);}
 
+  /* Tab-Zeile als zweite Zeile der Kopfzeile: gehört optisch zur Topbar (gleicher Grund, gleiche
+     Kante unten) und bleibt damit beim Scrollen stehen — der `.scroll` darunter scrollt, sie nicht. */
+  .tabrow{flex:0 0 auto; background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px 12px;}
   .seg{display:flex; background:var(--surface-2); border:1px solid var(--border-2); border-radius:8px; padding:4px; gap:4px;}
   .seg button{flex:1; border:none; background:transparent;
     font-family:'Barlow Condensed',sans-serif; font-size:1.0625rem; font-weight:600;
@@ -1959,23 +1962,49 @@
       <button class="iconbtn" data-i18n-title="ttSettings" title="Einstellungen" aria-label="Einstellungen" onclick="openSettings()">
         <svg class="ic" viewBox="0 0 24 24"><path d="M12 6a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M6 12a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M15 18a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg>
       </button>
-      
+
+    </div>
+    <!-- Variante D (JC, 17. Juli): Der Umschalter ist die ZWEITE ZEILE DER KOPFZEILE, nicht Inhalt.
+         Damit bleibt er beim Scrollen stehen — bei Variante A („Tabs im Inhalt") scrollte er weg,
+         genau dann, wenn man ihn braucht: unten in der Liste, zurück zur Karte.
+         Bewusst KEINE Leiste am unteren Rand: Dort sitzt der FAB (`position:fixed; bottom:18px`) und
+         er ist auf diesem Screen sichtbar — er hätte weichen müssen, aber nur hier, während er auf
+         Home und im Verein unten bleibt. Ein Knopf, der je nach Screen woanders sitzt, ist schlimmer
+         als ein Tab an zweitbester Stelle. Dazu: Eine Bottom-Leiste behauptet „oberste Ebene der App";
+         dieser Screen hat einen Zurück-Pfeil, ist also keine.
+         Das `.seg` ist kein neues Bauteil — es sind die Tabs aus den Einstellungen. -->
+    <div class="tabrow">
+      <div class="seg" id="stats-tabs">
+        <!-- `on` steht fest im Markup: Der Screen startet auf Übersicht, auch bevor je jemand
+             `setScreenTab` gerufen hat. Ohne das wäre beim ersten Laden KEIN Tab markiert, während
+             unten trotzdem die Übersicht steht. -->
+        <button type="button" class="on" data-tb="ueb" onclick="setScreenTab('stats','ueb')" data-i18n="tabOverview">Übersicht</button>
+        <button type="button" data-tb="lst" onclick="setScreenTab('stats','lst')" data-i18n="tabCatchList">Fangliste</button>
+      </div>
     </div>
     <div class="scroll pad">
       <button type="button" class="sync-banner" onclick="retrySync()" style="display:none;"><span class="sb-dot"></span><span class="sb-txt"></span></button>
-      <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
-      <div id="stats-records" style="margin-bottom:18px;"></div>
-      <div id="stats-map" class="map map-stats" style="display:none;"></div>
-      <div class="listtoolbar">
-        <span class="listtoolbar-title" id="stats-count"></span>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <select id="sort-stats" onchange="setSort(this.value)" style="display:none;"></select>
-          <button type="button" class="selfield selfield-sm" onclick="openSelSheet('sort-stats', t('sortTitle'))"><span id="sort-stats-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
-          <button type="button" class="exportbtn" onclick="openExportMenu('stats')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
-        </div>
+      <div data-tabpane="stats:ueb">
+        <div id="stats-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
+        <div id="stats-records" style="margin-bottom:18px;"></div>
+        <!-- Die Karte hatte nie eine Überschrift und stand kommentarlos im Fluss. In einem eigenen
+             Tab braucht sie einen Namen. `stats-maplabel` wird mit der Karte zusammen ein-/ausgeblendet
+             (`ensureStatsMap`), sonst stünde die Überschrift über nichts, wenn kein Fang Geodaten hat. -->
+        <p class="sectionlabel" id="stats-maplabel" data-i18n="whereYouFish" style="display:none;">Wo du fängst</p>
+        <div id="stats-map" class="map map-stats" style="display:none;"></div>
       </div>
-      <div id="stats-list"></div>
-      <div style="height:24px"></div>
+      <div data-tabpane="stats:lst" style="display:none;">
+        <div class="listtoolbar">
+          <span class="listtoolbar-title" id="stats-count"></span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <select id="sort-stats" onchange="setSort(this.value)" style="display:none;"></select>
+            <button type="button" class="selfield selfield-sm" onclick="openSelSheet('sort-stats', t('sortTitle'))"><span id="sort-stats-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
+            <button type="button" class="exportbtn" onclick="openExportMenu('stats')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
+          </div>
+        </div>
+        <div id="stats-list"></div>
+        <div style="height:24px"></div>
+      </div>
     </div>
   </section>
 </div>
@@ -2009,7 +2038,7 @@ const I18N = {
     details:"Fang-Details", dAngler:"Angler", dWater:"Gewässer", dLength:"Länge", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Keine Maße erfasst", ttShare:"Teilen",
     settings:"Einstellungen", display:"Darstellung", appearance:"Design", themeLight:"Hell", themeDark:"Dunkel", themeSystem:"System", themeHint:"„System\" folgt automatisch der Hell/Dunkel-Einstellung deines Geräts.", measureLabel:"Standard-Maß in Übersicht & Statistik", mLength:"Länge", mWeight:"Gewicht", measureHint:"Bestimmt, welches Maß in der Fangliste angezeigt wird, wonach der größte Fang berechnet wird und welcher Fang deinen persönlichen Rekord (Krone) hält.", language:"Sprache", clubLogoAdmin:"Logo", currentLogo:"Aktuelles Logo", uploadLogo:"Logo hochladen", logoHint:"Nur Admins können das Logo ändern. Es gilt für alle Mitglieder.", myImage:"Mein Bild", initialsDefault:"Standard: deine Initialen", uploadImage:"Bild hochladen",
     filter:"Filter", narrow:"Fänge eingrenzen", ttReset:"Zurücksetzen", period:"Zeitraum", year:"Jahr", month:"Monat", from:"Von", to:"Bis", periodHint:"Entweder Jahr/Monat <em>oder</em> Von–Bis — sie schließen sich gegenseitig aus.", properties:"Eigenschaften", fltCatch:"Fang", fltSize:"Maße", locationContains:"Ort / Gewässer enthält", locationPh:"z. B. Vereinsteich", lengthFrom:"Länge von (cm)", lengthTo:"Länge bis (cm)", weightFrom:"Gewicht von (kg)", weightTo:"Gewicht bis (kg)", minPh:"min", maxPh:"max", applyFilter:"Anwenden", reset:"Zurücksetzen", all:"Alle",
-    myStats:"Meine Fänge", statsSub:"Alle Fänge zusammen", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.", speciesCount:"Arten", thisYear:"Dieses Jahr", ctxFilter:"Verein / Gruppe",
+    myStats:"Meine Fänge", statsSub:"Alle Fänge zusammen", tabOverview:"Übersicht", tabCatchList:"Fangliste", whereYouFish:"Wo du fängst", byContext:"Nach Verein / Solo", bySpecies:"Nach Fischart", longest:"Längster", heaviest:"Schwerster", noneYet:"Noch keine Fänge.", speciesCount:"Arten", thisYear:"Dieses Jahr", ctxFilter:"Verein / Gruppe",
     clock:" Uhr", petri:"🎣 Petri Heil!", shareWater:"Gewässer:", loggedWith:"— geloggt mit ButlerFish", shareNoMeasure:"ohne Maße"
   },
   en:{
@@ -2022,7 +2051,7 @@ const I18N = {
     details:"Catch details", dAngler:"Angler", dWater:"Water", dLength:"Length", dWeight:"Weight", dDate:"Date", noMeasures:"No measurements", ttShare:"Share",
     settings:"Settings", display:"Display", appearance:"Theme", themeLight:"Light", themeDark:"Dark", themeSystem:"System", themeHint:"\"System\" follows your device's light/dark setting.", measureLabel:"Default measure in list & stats", mLength:"Length", mWeight:"Weight", measureHint:"Sets which measure shows in the catch list, how the biggest catch is determined, and which catch holds your personal best (crown).", language:"Language", clubLogoAdmin:"Logo", currentLogo:"Current logo", uploadLogo:"Upload logo", logoHint:"Only admins can change the logo. It applies to all members.", myImage:"My picture", initialsDefault:"Default: your initials", uploadImage:"Upload picture",
     filter:"Filter", narrow:"Narrow down catches", ttReset:"Reset", period:"Period", year:"Year", month:"Month", from:"From", to:"To", periodHint:"Either year/month <em>or</em> from–to — they're mutually exclusive.", properties:"Properties", fltCatch:"Catch", fltSize:"Measurements", locationContains:"Location / water contains", locationPh:"e.g. Club pond", lengthFrom:"Length from (cm)", lengthTo:"Length to (cm)", weightFrom:"Weight from (kg)", weightTo:"Weight to (kg)", minPh:"min", maxPh:"max", applyFilter:"Apply", reset:"Reset", all:"All",
-    myStats:"My catches", statsSub:"All catches combined", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.", speciesCount:"Species", thisYear:"This year", ctxFilter:"Club / group",
+    myStats:"My catches", statsSub:"All catches combined", tabOverview:"Overview", tabCatchList:"Catches", whereYouFish:"Where you fish", byContext:"By club / solo", bySpecies:"By species", longest:"Longest", heaviest:"Heaviest", noneYet:"No catches yet.", speciesCount:"Species", thisYear:"This year", ctxFilter:"Club / group",
     clock:"", petri:"🎣 Tight lines!", shareWater:"Water:", loggedWith:"— logged with ButlerFish", shareNoMeasure:"no measurements"
   },
   nl:{
@@ -2035,7 +2064,7 @@ const I18N = {
     details:"Vangstdetails", dAngler:"Visser", dWater:"Water", dLength:"Lengte", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Geen maten", ttShare:"Delen",
     settings:"Instellingen", display:"Weergave", appearance:"Thema", themeLight:"Licht", themeDark:"Donker", themeSystem:"Systeem", themeHint:"\"Systeem\" volgt de licht/donker-instelling van je apparaat.", measureLabel:"Standaardmaat in lijst & statistiek", mLength:"Lengte", mWeight:"Gewicht", measureHint:"Bepaalt welke maat in de vangstlijst staat, hoe de grootste vangst wordt bepaald en welke vangst je persoonlijk record (kroon) heeft.", language:"Taal", clubLogoAdmin:"Logo", currentLogo:"Huidig logo", uploadLogo:"Logo uploaden", logoHint:"Alleen beheerders kunnen het logo wijzigen. Het geldt voor alle leden.", myImage:"Mijn foto", initialsDefault:"Standaard: je initialen", uploadImage:"Foto uploaden",
     filter:"Filter", narrow:"Vangsten filteren", ttReset:"Resetten", period:"Periode", year:"Jaar", month:"Maand", from:"Van", to:"Tot", periodHint:"Of jaar/maand <em>of</em> van–tot — ze sluiten elkaar uit.", properties:"Eigenschappen", fltCatch:"Vangst", fltSize:"Maten", locationContains:"Plek / water bevat", locationPh:"bijv. Verenigingsvijver", lengthFrom:"Lengte van (cm)", lengthTo:"Lengte tot (cm)", weightFrom:"Gewicht van (kg)", weightTo:"Gewicht tot (kg)", minPh:"min", maxPh:"max", applyFilter:"Toepassen", reset:"Resetten", all:"Alle",
-    myStats:"Mijn vangsten", statsSub:"Alle vangsten samen", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.", speciesCount:"Soorten", thisYear:"Dit jaar", ctxFilter:"Vereniging / groep",
+    myStats:"Mijn vangsten", statsSub:"Alle vangsten samen", tabOverview:"Overzicht", tabCatchList:"Vangsten", whereYouFish:"Waar je vist", byContext:"Per vereniging / solo", bySpecies:"Per vissoort", longest:"Langste", heaviest:"Zwaarste", noneYet:"Nog geen vangsten.", speciesCount:"Soorten", thisYear:"Dit jaar", ctxFilter:"Vereniging / groep",
     clock:" uur", petri:"🎣 Petri heil!", shareWater:"Water:", loggedWith:"— vastgelegd met ButlerFish", shareNoMeasure:"zonder maten"
   }
 };
@@ -4038,6 +4067,11 @@ function myCatches(){
 }
 async function openStats(){
   state.filter=emptyFilter();
+  /* Nur HIER zurücksetzen — das ist der Eingang von Home. Die anderen Wege zurück auf diesen Screen
+     (nach dem Löschen eines Fangs, nach dem Filtern, Zurückwischen aus einem Fang) lassen den Tab
+     stehen, wo er war: Wer aus der Liste kommt, will in die Liste zurück, nicht auf die Karte.
+     Ein `go('stats')`-weiter Reset hätte genau das kaputtgemacht. */
+  try{ setScreenTab('stats','ueb'); }catch(e){}
   if(state.auth==='supabase'){
     document.getElementById('stats-cards').innerHTML=`<div class="empty" style="grid-column:1/-1;"><p>${t('loading')}</p></div>`;
     go('stats');
@@ -4263,8 +4297,10 @@ async function persistDetailPhotos(){
 function ensureStatsMap(items){
   const wrap=document.getElementById('stats-map');
   const pts=items.filter(c=>c.lat!=null&&c.lon!=null);
-  if(typeof L==='undefined'||!pts.length){ wrap.style.display='none'; return; }
-  wrap.style.display='block';
+  /* Die Überschrift folgt der Karte: Hat kein Fang Geodaten, steht sonst „Wo du fängst" über nichts. */
+  const _lbl=document.getElementById('stats-maplabel');
+  if(typeof L==='undefined'||!pts.length){ wrap.style.display='none'; if(_lbl) _lbl.style.display='none'; return; }
+  wrap.style.display='block'; if(_lbl) _lbl.style.display='';
   if(!sMap){
     sMap=L.map('stats-map',{zoomControl:true}).setView([pts[0].lat,pts[0].lon],6);
     L.tileLayer(TILE,TILE_OPT).addTo(sMap);
@@ -7012,6 +7048,27 @@ function openSettings(){
 function closeSettings(){
   const to = (typeof _navStack!=='undefined' && _navStack.length) ? _navStack.pop() : (state.settingsReturn || 'club');
   go(to, true);
+}
+/* ---- Screen-Tabs (17. Juli) ----------------------------------------------------------------------
+   Bewusst ALLGEMEIN, obwohl heute nur „Meine Fänge" sie nutzt: Der Vereins-/Gruppen-Screen soll
+   dasselbe bekommen (JC: „wahrscheinlich sollten wir das selbe benutzen fuer gruppen und vereine?").
+   Er hat heute aber weder Karte noch Rekord-Leiste — seine „Übersicht" wäre eine leere Schublade.
+   Wenn er den Inhalt hat, ruft er hier nur `setScreenTab('list', …)`; nachzubauen ist dann nichts.
+
+   Der Zustand steht NICHT im `state` und wird nicht gemerkt: Jedes Öffnen startet auf „Übersicht".
+   Ein gemerkter Tab ist bequem für den, der ihn gesetzt hat, und verwirrend für alle anderen — man
+   öffnet „Meine Fänge" und landet ohne erkennbaren Grund in der Liste. */
+function setScreenTab(screen, which){
+  document.querySelectorAll('#'+screen+'-tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tb===which); });
+  document.querySelectorAll('[data-tabpane^="'+screen+':"]').forEach(function(p){
+    p.style.display = (p.dataset.tabpane === screen+':'+which) ? '' : 'none';
+  });
+  /* Beim Wechsel nach oben: Der neue Tab fängt oben an, nicht auf der Scrollhöhe des alten. */
+  try{ const sc=document.querySelector('#s-'+screen+' .scroll'); if(sc) sc.scrollTop=0; }catch(e){}
+  /* Leaflet misst beim Bauen — in einem `display:none`-Kasten misst es 0 und die Karte bleibt grau.
+     Dieselbe Zeile steht schon bei fMap/dMap/sMap; hier ist sie nötig, weil der Kasten beim
+     Zurückwechseln erst JETZT wieder sichtbar wird. */
+  if(screen==='stats' && which==='ueb'){ setTimeout(function(){ try{ if(sMap) sMap.invalidateSize(); }catch(e){} }, 60); }
 }
 function setSettingsTab(tab){
   state.settingsTab=tab;
