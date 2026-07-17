@@ -690,14 +690,30 @@
   .detail-sub{color:var(--muted); margin:6px 0 0; font-size:0.9375rem; font-weight:500;}
   .detail-band{position:relative; padding:20px 16px 14px;}
   .detail-band .dt{font-family:'Barlow Condensed',sans-serif; font-size:2.125rem; font-weight:700; line-height:1; margin:0; color:var(--text);}
-  /* Selbst eingetragene Arten dürfen das Layout nicht sprengen (JC, 16. Juli).
-     Gemessen am 17. Juli im 386-px-Kasten: „Gefleckter Riesenschlammbeisser-Karpfen" bricht von selbst
-     sauber um — der Bindestrich gibt eine Trennstelle. Ein Wort OHNE Trennstelle nicht:
-     „Donaustaudammschifffahrtskapitaenswels" maß 532 px in 386 px Kasten und lief hinaus.
-     Genau das tippt jemand von Hand ein. `anywhere` bricht erst, wenn es sonst überliefe — normale
-     Namen bleiben unberührt (nachgemessen: „Hecht" unverändert einzeilig, der lange Name 2 Zeilen
-     statt Überlauf). `hyphens:auto` setzt dabei einen Trennstrich, wo die Sprache ihn erlaubt. */
-  .detail-band .dt, .catch .sp, .rec-sp{overflow-wrap:anywhere; hyphens:auto;}
+  /* ---- Lange Artnamen: ABSCHNEIDEN, nicht umbrechen (17. Juli, zweiter Anlauf) --------------------
+     Mein erster Versuch war `overflow-wrap:anywhere; hyphens:auto` — umbrechen statt abschneiden. Das
+     war falsch, und JCs Bild zeigt warum: Die Kachel wuchs auf VIER Zeilen und zerriss den Rhythmus der
+     Liste. JC: „I also dont want these things to extend the height of a tile it always needs to fail
+     gracefully. maybe just cut off at some point and .... at the end."
+     Also: feste Zeilenzahl, Rest mit „…". Die Kachelhöhe ist damit unabhängig vom Namen — ein
+     28-Zeichen-Wels sieht aus wie ein Hecht.
+     `overflow-wrap:anywhere` bleibt drin, wo mehrzeilig geklemmt wird: Ohne Trennstelle bräche ein
+     langes Wort SONST GAR NICHT um und die erste Zeile liefe hinaus, statt bei „…" zu enden.
+     `min-width:0` ist Pflicht, wo der Name in einem Flex-Container sitzt (`.catch .sp`, `.d-hero-band`):
+     Flex-Kinder haben `min-width:auto` und schrumpfen sonst nicht unter ihre Inhaltsbreite — genau
+     deshalb lief der Name im Hero-Band hinaus, obwohl meine Umbruch-Regel dort galt. */
+  .catch .sp{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; min-width:0;}
+  .rec-sp, .detail-band .dt, .d-hero-facts .dt{
+    display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere;}
+  /* Zwei Zeilen für den Artnamen: Eine wäre für „Amerikanischer Flusskrebs" zu wenig (ein echter Name,
+     kein Ausreißer), drei ließen die Kachel wieder wachsen. */
+  .rec-sp{-webkit-line-clamp:2;}
+  .detail-band .dt, .d-hero-facts .dt{-webkit-line-clamp:2;}
+  /* Das Hero-BAND ist ein Flex-Container (`.d-hero-band .dt{display:flex}`) — dort ist der Name ein
+     Flex-Kind neben der Krone. Ohne `min-width:0` am Kind schrumpft es nicht und läuft hinaus; genau
+     das zeigt JCs Bild. */
+  .d-hero-band .dt{min-width:0;}
+  .d-hero-band .dt > *{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .detail-band .dt-row{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
   .detail-band .ds{margin:5px 0 0; font-size:0.9375rem; font-weight:500; color:var(--muted);}
   .pending-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:0.625rem; font-weight:700; letter-spacing:.02em; line-height:1.4; background:var(--teal-tint); border:1px solid var(--teal); color:var(--teal-bright); white-space:nowrap; flex:0 0 auto;}
@@ -770,6 +786,23 @@
   /* "Deine Rekorde" shelf (Stats) */
   .rec-head{display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:0.78rem; color:var(--muted); margin:0 0 10px;}
   .rec-head svg{width:16px; height:16px; stroke:var(--accent); fill:none; stroke-width:2;}
+  /* ---- Wer hat den Vereinsrekord gefangen (17. Juli) ----------------------------------------------
+     Hochkant: nur das Gesicht. Der Avatar IST die Identität — ein Foto, oder Initialen aus
+     `initialsAvatar`. Ein Name daneben wäre bei 108 px nach 11 Zeichen abgeschnitten, und über einem
+     Initialen-Avatar stünde derselbe Buchstabe zweimal.
+     Quer/Desktop: Name dazu. Dort ist Platz — und quer IST der Desktop. */
+  .rec-who{display:flex; align-items:center; gap:5px; margin-top:4px; min-width:0;}
+  .rec-who-av{width:16px; height:16px; border-radius:50%; overflow:hidden; flex:0 0 auto;
+    background:var(--surface-2); display:flex; align-items:center; justify-content:center;}
+  .rec-who-av img{width:100%; height:100%; object-fit:cover; display:block;}
+  /* `initialsAvatar` setzt seine Schriftgröße INLINE (0.9375rem) — das ist für einen 16-px-Kreis viel
+     zu groß und inline schlägt Stylesheet. Deshalb `!important`, wie beim Vollbild der Karte auch. */
+  .rec-who-av > span{font-size:.5rem !important; letter-spacing:0 !important;}
+  .rec-who-nm{display:none; font-size:.66rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  @media (orientation:landscape) and (min-width:560px){
+    .rec-who-nm{display:inline;}
+    .rec-card{width:132px;}   /* quer ist Platz — da passt der Name hin */
+  }
   .rec-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;}
   /* color is NOT optional here: <button> gets "color:buttontext" from the UA sheet, which beats
      inheritance — so .rec-sp fell back to iOS Safari's system blue while the desktop looked fine. */
@@ -3441,6 +3474,21 @@ async function initAuth(){
   go('login');
 }
 function userAvatarHTML(){ return (state.me && state.me.avatar) ? `<img src="${state.me.avatar}" alt="">` : initialsAvatar(state.me ? state.me.name : '?', state.me && state.me.avatarStyle); }
+/* Das Gesicht zu einem FANG — eigenes oder das eines Vereinskameraden (17. Juli).
+   Stand wortwörtlich in der Byline der Detailseite; die Rekord-Karte braucht dasselbe, und zwei Kopien
+   dieser Logik laufen garantiert auseinander. Die Byline ruft jetzt hier her.
+   Der Kommentar von damals gilt weiter und ist der Grund, warum es nicht `isMe ? ... : initialsAvatar()`
+   heißt: JC — „René kann mein Profilbild nicht sehen und umgekehrt." Zwei Fehler hatten sich gegenseitig
+   versteckt; jeder andere war IMMER Initialen, weil die Zeile es so vorschrieb. Eigenes Bild aus
+   `state.me` (immer aktuell, auch direkt nach einer Änderung), das eines Kameraden aus dem Fang.
+   Kein Foto → `initialsAvatar` macht Initialen. Genau deshalb braucht es hochkant KEINEN Namen daneben:
+   Der Avatar IST die Identität — ein Gesicht, oder eben „OD". */
+function anglerAvatarHTML(c){
+  const nm=(c && c.angler || '').trim() || '—';
+  const isMe = !c || !c._db || (state.me && c.userId===state.me.id);
+  return isMe ? userAvatarHTML()
+    : (c.anglerAvatar ? `<img src="${escAttr(c.anglerAvatar)}" alt="">` : initialsAvatar(nm, c.anglerStyle));
+}
 // Refresh every surface that shows the user avatar (home "My catches" card, stats header, etc.) after a change.
 function refreshUserAvatarUI(){
   try{ const a=document.getElementById('stats-hdr-av'); if(a) a.innerHTML=userAvatarHTML(); }catch(e){}
@@ -4309,7 +4357,10 @@ const REC_SHELF={
           /* NICHT `ctxRecWord()` — das ist die EINZAHL („Vereinsrekord") und dient als Tag an einer
              einzelnen Goldkachel. Über einer Leiste mit mehreren Karten wäre sie schlicht falsch. */
           title:()=> (state.club && state.club.type==='group') ? t('groupRecordsTitle') : t('clubRecordsTitle'),
-          headIcon:()=> MEDAL_IC }
+          headIcon:()=> MEDAL_IC,
+          /* Nur im VEREIN: „Wer hat den gefangen?" ist dort die halbe Information (JC, 17. Juli).
+             In „Deine Rekorde" wäre es sinnlos — das bist immer du. */
+          who:true }
 };
 function renderRecordsShelf(kind, items){
   const CFG=REC_SHELF[kind]; if(!CFG) return;
@@ -4330,7 +4381,14 @@ function renderRecordsShelf(kind, items){
        Auf „Meine Fänge" ist `_podium` leer → nur die Krone. In der Vereins-Leiste ist alles Gold →
        Medaille, plus Krone, wenn der Gruppenrekord zugleich das eigene PB ist. Genau der Fall, den
        die alte Bauweise gar nicht zeigen konnte. */
-    return `<button type="button" class="rec-card" onclick="openRecordCatch('${c.id}','${CFG.from}')">${badgeWrap(thumb, c)}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`;
+    /* Hochkant nur das Gesicht, quer der Name dazu (JC, 17. Juli). Der Name steht im HTML immer drin
+       und wird per CSS ein-/ausgeblendet — kein zweiter Render-Pfad, der beim Drehen nachziehen müsste.
+       Gerechnet, nicht geraten: 108 px Karte − 16 px Avatar − Abstand ≈ 84 px für den Namen bei 0,66 rem
+       ≈ 11–12 Zeichen. „Sebastian" passt, „Oktay Düzgün" nicht. Deshalb hochkant gar nicht erst. */
+    const who = CFG.who
+      ? `<span class="rec-who"><span class="rec-who-av">${anglerAvatarHTML(c)}</span><span class="rec-who-nm">${esc((c.angler||'').trim())}</span></span>`
+      : '';
+    return `<button type="button" class="rec-card" onclick="openRecordCatch('${c.id}','${CFG.from}')">${badgeWrap(thumb, c)}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span>${who}</button>`;
   }).join('');
   box.innerHTML=`<div class="rec-head">${CFG.headIcon()}<span>${esc(CFG.title())}</span></div><div class="rec-strip">${cards}</div>`;
 }
@@ -5230,7 +5288,10 @@ async function openForm(skipAuto){
 function updateAreaSummary(){
   const el=document.getElementById('area-summary'); if(!el) return;
   const tg=state.formTargets||[]; const ctxs=state.myContexts||[];
-  if(!tg.length){ el.textContent=t('solo'); return; }
+  /* „Persönlich", nicht „Solo" (JC, 17. Juli). Die AUSWAHL sagt längst `t('personal')` als Überschrift —
+     nur diese Zusammenfassung sagte „Solo" und widersprach damit dem Sheet, das man gerade zugeklappt
+     hat. „Solo" ist der interne Modus, „Persönlich" das Wort, das der Nutzer sieht. */
+  if(!tg.length){ el.textContent=t('personal'); return; }
   const names=tg.map(id=>{ const c=ctxs.find(x=>x.id===id); return c?c.name:''; }).filter(Boolean);
   el.textContent = names.length<=2 ? names.join(', ') : (names[0]+' +'+(names.length-1));
 }
@@ -6186,8 +6247,36 @@ function _waterSuggest(){ const w=(_suggestGet().water)||[]; return w.length ? w
 const TA_CFG={
   'f-species':{
     title:()=> t('species'),
-    opts:()=> SPECIES.map(s=>({v:trSpecies(s), key:s})),
-    recent:()=> [],
+    /* Selbst eingetragene Arten gehören dazu, sonst verschwindet der „Amerikanische Flusskrebs" nach
+       dem Speichern aus der eigenen Auswahl. `SPECIES` ist der feste Katalog (9 Arten), der Rest kommt
+       aus den eigenen Fängen — Groß/Kleinschreibung egal, damit „hecht" nicht neben „Hecht" steht. */
+    opts:()=>{
+      const std=SPECIES.map(s=>({v:trSpecies(s), key:s}));
+      const seen=new Set(std.map(o=>o.v.toLowerCase()));
+      const eigene=[];
+      (myCatches()||[]).forEach(c=>{ const v=(c&&c.species||'').trim(); if(!v) return;
+        const k=v.toLowerCase(); if(seen.has(k)) return; seen.add(k); eigene.push({v:v, key:v}); });
+      return std.concat(eigene);
+    },
+    /* „Zuletzt verwendet" — entschieden am 17. Juli, der Platz war seither verdrahtet und stand leer
+       (`recent:()=> []`). JC: „fischart doesnt have a recently used".
+       Die letzten fünf ARTEN aus den eigenen Fängen, neueste zuerst. Bewusst KEIN eigener Speicher wie
+       bei Köder und Rute: Arten stehen auf den Fängen und werden nicht „gepflegt" wie Gerät — sie
+       abzuleiten ist hier richtig, weil es nichts zu bearbeiten gibt.
+       Wird wichtig, sobald der Artenkatalog von 9 auf hunderte wächst; bei neun Arten ist es Komfort,
+       danach ist es der Unterschied zwischen Tippen und Suchen. */
+    recent:()=>{
+      const seen=new Set(); const out=[];
+      (myCatches()||[])
+        .slice()
+        .sort((a,b)=> new Date(b.date) - new Date(a.date))
+        .forEach(c=>{
+          const k=(c&&c.species||'').trim(); if(!k) return;
+          const low=k.toLowerCase(); if(seen.has(low)) return;
+          seen.add(low); if(out.length<5) out.push({v:trSpecies(k), key:k});
+        });
+      return out;
+    },
     onPick:(v,key)=>{ const el=document.getElementById('f-species'); el.value=v; state.speciesKey=(key!=null?key:v); try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(_e){} }
   },
   'f-method':{
@@ -6368,9 +6457,7 @@ function _anglerByline(c){
      show either. RLS was never the problem: profiles_select already allows a club mate through
      shares_context(). Own picture from state.me (always current, even right after a change), a mate's
      from the catch. */
-  const isMe = !c._db || (state.me && c.userId===state.me.id);
-  const av = isMe ? userAvatarHTML()
-    : (c.anglerAvatar ? `<img src="${escAttr(c.anglerAvatar)}" alt="">` : initialsAvatar(nm, c.anglerStyle));
+  const av = anglerAvatarHTML(c);
   const rel = c.released==null ? '' :
     `<span class="d-rel ${c.released?'rel':'kept'}">${c.released?REL_IC:KEPT_IC}${esc(c.released?t('releasedReleased'):t('releasedKept'))}</span>`;
   return `<span class="av">${av}</span><span class="nm">${esc(nm)}</span>${rel}<span class="dt">${esc(fmtDateLong(c.date))}</span>`;
