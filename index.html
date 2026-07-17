@@ -191,6 +191,10 @@
   .btn:hover{background:var(--btn-fill-hover);}
   .btn:active{background:var(--btn-fill-active);}
   .btn.secondary{background:transparent; color:var(--teal); border:1.5px solid var(--border-2); box-shadow:none;}
+  /* Umriss-Rot für Unumkehrbares (JC, 17. Juli). Bewusst KEIN gefüllter roter Knopf: Gefüllt zieht er
+     mehr Blick auf sich als der harmlose Nachbar — ein Warnzeichen soll bremsen, nicht locken.
+     Erster Schritt zum Roadmap-Punkt „destruktive Aktionen vereinheitlichen". */
+  .btn.secondary.danger{color:var(--danger); border-color:var(--danger);}
   .btn.sm{padding:10px; font-size:1rem;}
   label{display:block; font-size:0.75rem; font-weight:600; color:var(--muted); margin:0 0 6px;
     text-transform:uppercase; letter-spacing:.05em;}
@@ -285,6 +289,10 @@
      sehen kann, also endet die Pille überall auf derselben Linie. */
   .mem-act{display:flex; align-items:center; justify-content:flex-end; gap:2px; flex:0 0 auto;}
   .mem-rm{background:none; border:none; color:var(--muted); cursor:pointer; padding:6px; flex:0 0 auto;}
+  /* Rot für das Unumkehrbare (JC, 17. Juli). Die Übergabe ist die einzige Aktion hier, die der
+     Handelnde nicht selbst zurücknehmen kann — zurückgeben kann sie nur noch der neue Inhaber.
+     Ein Mitglied entfernen ist dagegen heilbar: mit dem Beitritts-Code ist es wieder drin. */
+  .mem-rm.danger{color:var(--danger);}
   .mem-rm svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; display:block;}
   .tmpl-reset{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border-2); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
   .tmpl-reset svg{width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
@@ -2781,7 +2789,7 @@ async function renderMembersInline(){
       /* Schlüssel statt Stern (JC: „der Knopf ist nicht klar"). Ein Stern heißt überall „Favorit" —
          hier geht es ums Übergeben. Der Schlüssel ist das gängige Bild für „Zugang weiterreichen",
          und die Krone war vergeben: die trägt der persönliche Rekord. */
-      const tr = perm.canTransfer ? `<button type="button" class="mem-rm" title="${esc(t('transferOwner'))}" aria-label="${esc(t('transferOwner'))}" onclick="transferOwnership('${m.user_id}','${nmJs}')"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4"/><path d="M18 5l2 2"/><path d="M15 8l2 2"/></svg></button>` : '';
+      const tr = perm.canTransfer ? `<button type="button" class="mem-rm danger" title="${esc(t('transferOwner'))}" aria-label="${esc(t('transferOwner'))}" onclick="transferOwnership('${m.user_id}','${nmJs}')"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4"/><path d="M18 5l2 2"/><path d="M15 8l2 2"/></svg></button>` : '';
       return `<div class="mem-row"><span class="mem-av">${av}</span><span class="mem-nm">${esc(nm)}${isSelf?` <span class="loc">(${esc(t('you'))})</span>`:''}</span>${badge}<span class="mem-act" style="min-width:${actSlot}px">${tr}${rm}</span></div>`;
     }).join('') + (myRole==='owner' ? `<p class="hint" style="margin:8px 0 0;">${esc(t('roleTapHint'))}</p>` : '');
   }catch(e){ box.innerHTML=`<p class="hint">${esc(t('errGeneric'))}</p>`; }
@@ -2791,7 +2799,9 @@ function toggleMemberRole(memId, userId, cur){ setMemberRole(memId, userId, cur=
    Zeilen in EINER Transaktion wechseln müssen: sonst gäbe es einen Augenblick mit null oder zwei
    Ownern, und der Trigger würde (zu Recht) ablehnen. */
 async function transferOwnership(userId, name){
-  if(!(await confirmDialog(t('transferOwner'), t('transferOwnerConfirm').replace('{name}', name), t('transferOwner'), false))) return;
+  // danger=true (JC, 17. Juli): Der Dialog kann das rot einfärben — ich hatte false übergeben,
+  // ausgerechnet beim einzigen Schritt, den man selbst nicht mehr zurücknehmen kann.
+  if(!(await confirmDialog(t('transferOwner'), t('transferOwnerConfirm').replace('{name}', name), t('transferOwner'), true))) return;
   try{
     const { error } = await getSB().rpc('transfer_ctx_ownership', { p_ctx: state.club.id, p_to: userId });
     if(error) throw error;
@@ -2833,7 +2843,7 @@ async function renderMembers(){
             roles.map(r=>`<option value="${r}" ${m.role===r?'selected':''}>${esc(lab[r])}</option>`).join('')+`</select>`
           : '';
         const rm = (perm.canRemove && !isSelf) ? `<button type="button" class="btn secondary sm" onclick="removeMember('${m.id}','${m.user_id}','${name.replace(/'/g,"\\'")}')">${esc(t('removeMember'))}</button>` : '';
-        const tr = perm.canTransfer ? `<button type="button" class="btn secondary sm" onclick="transferOwnership('${m.user_id}','${name.replace(/'/g,"\\'")}')">${esc(t('transferOwner'))}</button>` : '';
+        const tr = perm.canTransfer ? `<button type="button" class="btn secondary sm danger" onclick="transferOwnership('${m.user_id}','${name.replace(/'/g,"\\'")}')">${esc(t('transferOwner'))}</button>` : '';
         if(sel||rm||tr) controls=`<div style="display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap;">${sel}${tr}${rm}</div>`;
       }
       return `<div class="card-box" style="margin-bottom:8px;">
