@@ -399,10 +399,13 @@
      margin-left:auto — space-between would have thrown it to the left the moment it was alone. */
   /* The (i) sits next to the heading, deliberately small (JC): it is an offer, not a call to action.
      Explicit color: a <button> takes `buttontext` from the UA sheet, which BEATS inheritance — that is
-     how the species names once turned iOS-blue. The tap target stays finger-sized via padding while
-     the glyph itself is 11px; shrinking the button instead would make it unhittable on a phone. */
-  .sectionlabel.wx-head{display:flex; align-items:center; gap:2px;}
-  .wx-info{padding:2px 6px; margin:-2px 0; border:none; background:none; line-height:0; cursor:pointer;
+     how the species names once turned iOS-blue.
+     Padding buys back the tap target the small glyph gives away, negative margin keeps the heading row
+     from growing: 11px glyph, ~33px to hit. Measured — with the padding I first wrote it was 23x15,
+     which is a mouse target, not a thumb. Still under Apple's 44px, but this is a nice-to-have, not
+     something you must find. */
+  .sectionlabel.wx-head{display:flex; align-items:center; gap:0;}
+  .wx-info{padding:11px; margin:-11px -5px; border:none; background:none; line-height:0; cursor:pointer;
     color:var(--muted); flex:0 0 auto;}
   .wx-info svg{width:11px; height:11px; display:block; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
   .wx-info:hover,.wx-info:active{color:var(--teal-bright);}
