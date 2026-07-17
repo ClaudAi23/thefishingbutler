@@ -289,10 +289,9 @@
      sehen kann, also endet die Pille überall auf derselben Linie. */
   .mem-act{display:flex; align-items:center; justify-content:flex-end; gap:2px; flex:0 0 auto;}
   .mem-rm{background:none; border:none; color:var(--muted); cursor:pointer; padding:6px; flex:0 0 auto;}
-  /* Rot für das Unumkehrbare (JC, 17. Juli). Die Übergabe ist die einzige Aktion hier, die der
-     Handelnde nicht selbst zurücknehmen kann — zurückgeben kann sie nur noch der neue Inhaber.
-     Ein Mitglied entfernen ist dagegen heilbar: mit dem Beitritts-Code ist es wieder drin. */
-  .mem-rm.danger{color:var(--danger);}
+  /* Kein `.mem-rm.danger` mehr: Ich hatte auch das Schlüssel-ICON rot gefärbt, JC wollte nur den
+     Knopf im Dialog (17. Juli: „you over reached"). Ein rotes Icon in einer Zeile voller neutraler
+     Icons schreit, bevor überhaupt etwas passiert ist — die Warnung gehört an die Bestätigung. */
   .mem-rm svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; display:block;}
   .tmpl-reset{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border-2); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
   .tmpl-reset svg{width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
@@ -2401,9 +2400,15 @@ window.addEventListener('pageshow', function(e){ if(e.persisted) _armBackIfNeede
    document.addEventListener('touchstart',function(e){ if(e.touches.length!==1){edge=false;return;} var t=e.touches[0]; sx=t.clientX; sy=t.clientY; t0=Date.now(); edge=sx<=24; },{passive:true});
    document.addEventListener('touchend',function(e){ if(!edge){return;} edge=false; var lb=document.getElementById('lightbox'); if(lb&&lb.style.display&&lb.style.display!=="none") return; var t=e.changedTouches[0]; var dx=t.clientX-sx, dy=t.clientY-sy;
      if(dx>60 && Math.abs(dy)<40 && (Date.now()-t0)<600){
-       // Hat die native Geste gerade schon einen popstate erzeugt? Dann ist der Rückschritt erledigt.
-       if(Date.now()-_lastPop < 700) return;
-       try{ appBack(); }catch(_e){}
+       /* REIHENFOLGE (17. Juli, JC: „geht zurück auf home, erwartet: zur Gruppe"):
+          `touchend` feuert VOR dem `popstate` der nativen Geste. Meine erste Absicherung fragte
+          „kam gerade ein popstate?" — zu diesem Zeitpunkt naturgemäß nein, also griff sie nie und
+          beide machten einen Rückschritt: zwei Ebenen statt einer.
+          Jetzt andersherum: kurz warten und nur handeln, wenn die native Geste es NICHT getan hat.
+          Damit bleibt dieser Handler das Notnetz für Fälle ohne native Zurück-Geste, ohne dort
+          zu doppeln, wo sie greift. */
+       var seen=_lastPop;
+       setTimeout(function(){ if(_lastPop===seen){ try{ appBack(); }catch(_e){} } }, 250);
      } },{passive:true});
  })();
  // Swipe a bottom-sheet down to dismiss it (works on all .modal-ov sheets).
@@ -2789,7 +2794,7 @@ async function renderMembersInline(){
       /* Schlüssel statt Stern (JC: „der Knopf ist nicht klar"). Ein Stern heißt überall „Favorit" —
          hier geht es ums Übergeben. Der Schlüssel ist das gängige Bild für „Zugang weiterreichen",
          und die Krone war vergeben: die trägt der persönliche Rekord. */
-      const tr = perm.canTransfer ? `<button type="button" class="mem-rm danger" title="${esc(t('transferOwner'))}" aria-label="${esc(t('transferOwner'))}" onclick="transferOwnership('${m.user_id}','${nmJs}')"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4"/><path d="M18 5l2 2"/><path d="M15 8l2 2"/></svg></button>` : '';
+      const tr = perm.canTransfer ? `<button type="button" class="mem-rm" title="${esc(t('transferOwner'))}" aria-label="${esc(t('transferOwner'))}" onclick="transferOwnership('${m.user_id}','${nmJs}')"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4"/><path d="M18 5l2 2"/><path d="M15 8l2 2"/></svg></button>` : '';
       return `<div class="mem-row"><span class="mem-av">${av}</span><span class="mem-nm">${esc(nm)}${isSelf?` <span class="loc">(${esc(t('you'))})</span>`:''}</span>${badge}<span class="mem-act" style="min-width:${actSlot}px">${tr}${rm}</span></div>`;
     }).join('') + (myRole==='owner' ? `<p class="hint" style="margin:8px 0 0;">${esc(t('roleTapHint'))}</p>` : '');
   }catch(e){ box.innerHTML=`<p class="hint">${esc(t('errGeneric'))}</p>`; }
