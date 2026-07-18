@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>ButlerFish</title>
 <meta name="description" content="ButlerFish — Catch · Log · Organize." />
-<link rel="icon" href="/favicon.ico?v=12" sizes="any" />
-<link rel="icon" href="/favicon.svg?v=12" type="image/svg+xml" />
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=12" />
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=12" />
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=12" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180.png?v=12" />
-<link rel="manifest" href="/site.webmanifest?v=12" />
+<link rel="icon" href="/favicon.ico?v=13" sizes="any" />
+<link rel="icon" href="/favicon.svg?v=13" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=13" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=13" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=13" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180.png?v=13" />
+<link rel="manifest" href="/site.webmanifest?v=13" />
 <!-- theme-color MUSS die Farbe der Topbar sein, nicht irgendein Blau der Palette.
      Hier stand #0D5164 (= --surface-2). Die Topbar ist aber --surface (#03354B im Dunkeln, #FFFFFF im
      Hellen) und reicht per padding-top:env(safe-area-inset-top) UNTER die Statusleiste. Ergebnis auf dem
@@ -527,10 +527,28 @@
      White buttons look wrong everywhere else in this app; here they are right. */
   :root{ --map-ink:#0D5164; }
   .leaflet-control-zoom{border:none !important; border-radius:11px !important; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.28) !important;}
-  .leaflet-control-zoom a{background:#fff !important; color:var(--map-ink) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid rgba(13,81,100,.25) !important; border-bottom:none !important;}
-  .leaflet-control-zoom a:last-child{border-bottom:1px solid rgba(13,81,100,.25) !important;}
-  .leaflet-control-zoom a:hover{background:#eef4f6 !important; color:var(--map-ink) !important;}
+  /* REVIEW S4 (18. Juli): Leaflet-Controls ins Theme geholt — weiß war der Fremdkörper auf jeder Karte. */
+  .leaflet-control-zoom a{background:var(--surface) !important; color:var(--teal) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid var(--border-2) !important; border-bottom:none !important;}
+  .leaflet-control-zoom a:last-child{border-bottom:1px solid var(--border-2) !important;}
+  .leaflet-control-zoom a:hover{background:var(--surface-2) !important; color:var(--teal) !important;}
   .leaflet-control-zoom a.leaflet-disabled{opacity:.4 !important;}
+  .leaflet-control-attribution{background:rgba(2,27,40,.65) !important; color:var(--muted) !important; font-size:.6rem !important;}
+  .leaflet-control-attribution a{color:var(--teal) !important;}
+  /* REVIEW D1: die Detail-Karte war die einzige HELLE Karte der App. Dunkler Schleier über den Kacheln
+     (z-index 350: über tilePane 200, unter markerPane 600 — Pin und Marker behalten ihre Farbe). */
+  #d-map{position:relative;}
+  #d-map::after{content:''; position:absolute; inset:0; background:#0D5164; opacity:.38; mix-blend-mode:multiply; pointer-events:none; z-index:350;}
+  /* REVIEW S3/D2: Fisch-Platzhalter war auf dunklen Kacheln fast unsichtbar. */
+  .rec-thumb-ph{background:var(--surface-2);}
+  .rec-thumb-ph svg, .thumb .fishic{color:var(--teal); opacity:.95;}
+  /* REVIEW L3/D3: sichtbare Scrollbalken (Desktop) in horizontalen Streifen verstecken. */
+  .rec-strip{scrollbar-width:none;} .rec-strip::-webkit-scrollbar{display:none;}
+  /* REVIEW F1: Datumsfeld lief über („23:5" beschnitten). */
+  #f-date{min-width:0; width:100%; font-size:.9rem; padding-left:10px; padding-right:6px;}
+  /* REVIEW E1: Avatar-Aktionen unter 44px — Badges vergrößert. */
+  .av-edit-badge{width:30px; height:30px;}
+  .av-edit-badge svg{width:16px; height:16px;}
+  .av-remove{min-width:28px; min-height:28px; display:inline-flex; align-items:center; justify-content:center;}
   .listtoolbar{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 2px 10px; padding-bottom:9px; border-bottom:1px solid var(--border);}
   .listtoolbar-title{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.9375rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
   .map-stats{height:240px; margin-bottom:18px;}
@@ -2348,7 +2366,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.18';
+const BUILD = '2026-07-18.19';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2448,11 +2466,11 @@ Object.assign(I18N.nl, {mapPin:"Locatie op kaart", myLocation:"Mijn locatie", ta
     +"<b>±0</b> betekent: de verandering was te klein om te melden.",
   m_new:"Nieuwe maan", m_wc:"Wassende sikkel", m_fq:"Eerste kwartier", m_wg:"Wassende maan", m_full:"Volle maan", m_ng:"Afnemende maan", m_lq:"Laatste kwartier", m_nc:"Afnemende sikkel",
   wc_clear:"Helder", wc_partly:"Licht bewolkt", wc_cloudy:"Bewolkt", wc_fog:"Mist", wc_drizzle:"Motregen", wc_rain:"Regen", wc_snow:"Sneeuw", wc_thunder:"Onweer"});
-Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe bei mehreren auf den Stern ☆, um das Titelbild festzulegen."});
+Object.assign(I18N.de, {demoHint:"Demo: Felder sind schon ausgefüllt — einfach auf „Anmelden\" tippen.", photos:"Fotos", cover:"Titelbild", setCover:"Als Titelbild", photoHint:"Bis zu 10 Fotos. Tippe ein Foto an, um es als Titelbild zu wählen."});
 Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"Boot", watertemp:"Wassertemperatur (°C)", watertempPh:"z. B. 18", trolling:"Schleppgeschw.", trollingPh:"z. B. 3,2", releasedLabel:"Entnahme", releasedNone:"—", releasedKept:"Entnommen", releasedReleased:"Zurückgesetzt", methodPh:"z. B. Spinnfischen", baitPh:"z. B. Gummifisch 12 cm", rodPh:"z. B. 2,70 m / 40 g", reel:"Rolle", reelPh:"z. B. 4000er Stationärrolle", boatPh:"z. B. Schlauchboot", fieldsTitle:"Fang-Felder", fieldsHint:"Lege fest, welche Felder beim Eintragen Pflicht sind. Angezeigt werden immer alle.", fieldsHintAdmin:"Als Admin kannst du Felder zur Pflicht machen. Angezeigt werden immer alle – verbergen geht nicht.", fieldsHintMember:"Welche Felder Pflicht sind, legt der Admin fest (nur lesbar).", stRequired:"Pflicht", stNotRequired:"Nicht Pflicht", moreFields:"Weitere Felder", errRequired:"Bitte Pflichtfelder ausfüllen:", shareTitle:"Teilen", shareModeFields:"Felder", shareModeTemplate:"Eigene Vorlage", sharePreview:"Vorschau", shareLink:"Link zur App", shareHint:"Gilt für diesen Bereich (Solo / Gruppe / Verein).", sharePhHint:"Platzhalter: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Als CSV exportieren", exportPdf:"Als PDF exportieren (mit Fotos)", exportEmpty:"Keine Fänge zum Exportieren.", exportPdfErr:"PDF-Export konnte nicht geladen werden (Internet nötig)."});
-Object.assign(I18N.en, {demoHint:"Demo: fields are pre-filled — just tap Sign in.", photos:"Photos", cover:"Cover", setCover:"Set as cover", photoHint:"Up to 10 photos. With several, tap the star ☆ to choose the cover."});
+Object.assign(I18N.en, {demoHint:"Demo: fields are pre-filled — just tap Sign in.", photos:"Photos", cover:"Cover", setCover:"Set as cover", photoHint:"Up to 10 photos. Tap a photo to set it as the cover."});
 Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", watertemp:"Water temperature (°C)", watertempPh:"e.g. 18", trolling:"Trolling speed", trollingPh:"e.g. 3.2", releasedLabel:"Kept / Released", releasedNone:"—", releasedKept:"Kept", releasedReleased:"Released", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", reel:"Reel", reelPh:"e.g. 4000 spinning reel", boatPh:"e.g. dinghy", fieldsTitle:"Log fields", fieldsHint:"Choose which fields are required when logging. All fields are always shown.", fieldsHintAdmin:"As admin you can make fields required. Every field is always shown — hiding is not possible.", fieldsHintMember:"Which fields are required is set by the admin (read-only).", stRequired:"Required", stNotRequired:"Not required", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Sharing", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
-Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon op Inloggen.", photos:"Foto's", cover:"Omslag", setCover:"Als omslag", photoHint:"Tot 10 foto's. Tik bij meerdere op de ster ☆ om de omslag te kiezen."});
+Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon op Inloggen.", photos:"Foto's", cover:"Omslag", setCover:"Als omslag", photoHint:"Tot 10 foto's. Tik op een foto om die als omslag te kiezen."});
 /* Pflichtwert beim Verein-Tap (JC, 17. Juli). Der Verein wird GENANNT: Ein Feld wird hier allein dadurch
    zur Pflicht, dass man einen Verein hinzufügt — „Bitte Pflichtfelder ausfüllen" ließe einen raten,
    woher die Forderung kommt, obwohl man am Fang selbst nichts geändert hat. Dieselbe Überlegung wie bei
@@ -4205,8 +4223,9 @@ async function signOut(){
 }
 
 // ---------- formatting ----------
-function fmtWeight(w){ if(w==null) return '—'; const sep=curLang()==='en'?'.':','; return String(w).replace('.',sep)+' kg'; }
-function fmtLen(l){ return (l!=null)? l+' cm' : '—'; }
+function fmtNum(n){ const en=curLang()==='en'; const s=String(n).split('.'); s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g, en?',':'.'); return s.length>1? s[0]+(en?'.':',')+s[1] : s[0]; }
+function fmtWeight(w){ if(w==null) return '—'; return fmtNum(w)+' kg'; }
+function fmtLen(l){ return (l!=null)? fmtNum(l)+' cm' : '—'; }
 function fmtTemp(v){ if(v==null) return '—'; const sep=curLang()==='en'?'.':','; return String(v).replace('.',sep)+' °C'; }
 function fmtDate(iso){ const d=new Date(iso); const dot=curLang()==='de'?'. ':' '; const s=d.getDate()+dot+MONTHS[curLang()].s[d.getMonth()]; return d.getFullYear()!==(new Date()).getFullYear() ? s+' '+d.getFullYear() : s; }
 function fmtDateLong(iso){
