@@ -41,6 +41,34 @@ Stand: 17. Juli 2026. Legende: 🐛 offener Bug · 🔧 offener Bau (abgestimmt)
   `v 2026-07-17.5` ist im Video lesbar, JC hatte also den richtigen Stand.
 
 ### Karte
+- **🐛 Hellblauer Kreis an 2 Fängen, nicht klickbar (JC, 18. Juli: „in butter bei die mutti, i do have
+  2 catches that show a light blue circle, that i cant click"). BRAUCHT EINEN SCREENSHOT.**
+  **Auf der KARTE ist es nicht** — live gegengeprüft (`v 2026-07-18.5`, Gruppe „Butter bei die Mutti!"):
+  drei Marker, **alle** `interactive:true`, **alle** mit Click-Handler, `pointer-events:auto`, Farbe
+  `rgb(13,81,100)` = `--map-ink`. Nichts Hellblaues, nichts Totes.
+  **Verdächtige, in dieser Reihenfolge:**
+  1. **Die Fangliste**, nicht die Karte — JC schreibt nicht, wo. Zwei der sieben Fänge dort haben kein
+     Foto; deren Platzhalter (`--teal-tint`) könnte gemeint sein.
+  2. Der **Standort-Punkt** (`_meMk`, `#4C8DF6`, `interactive:false`) — der ist hellblau UND absichtlich
+     nicht klickbar. Aber es gibt nur **einen** pro Karte, JC sagt „2".
+  3. Unbestätigte Fänge? (`hideUnconfirmed`/`unconfirmedByHint` — eigene Optik, zu prüfen.)
+  **Nicht raten: JC nach einem Screenshot fragen.** Ich habe heute zweimal einen Befund auf eine falsche
+  Annahme gestützt (Rundungs-Illusion, `touch-action`); ein drittes Mal lohnt nicht.
+
+- **🐛? Schrift der oberen Elemente zu groß beim ERSTEN Laden nach einem Deploy (JC, 18. Juli:
+  „nach einem neuen deployment, das erste mal dass die app wieder lädt … die font size der oberen
+  elemente größer, auf jeden fall von übersicht/fangliste"). UNGEPRÜFT — Verdacht ist stark.**
+  **Verdacht: FOUT (Flash of Unstyled Text).** Die Tabs „ÜBERSICHT/FANGLISTE" und die Zahlen laufen in
+  **Barlow Condensed** mit `font-display:swap`. Beim allerersten Laden nach einem Deploy ist der Cache
+  leer → der Fallback (system-ui) wird gezeigt, bis die Schrift da ist. **Barlow Condensed ist SCHMAL** —
+  jeder Ersatz ist bei gleicher `font-size` breiter und wirkt größer. Genau JCs Beobachtung: nur beim
+  ersten Mal, nur die oberen Elemente (die Barlow nutzen).
+  - **Zu prüfen:** Ob es die Schrift ist (Netzwerk drosseln, Cache leeren, Ladefolge ansehen).
+  - **Mögliche Wege, falls bestätigt:** `size-adjust`/`ascent-override` im `@font-face`-Fallback (macht
+    den Ersatz metrisch passend, ohne zu blockieren) · `<link rel="preload">` für die Barlow-Dateien,
+    die *oben* gebraucht werden · `font-display:optional` (kein Umbruch, aber die Schrift fehlt beim
+    ersten Mal ganz).
+  - *(Die Schriften liegen seit dem DSGVO-Umbau selbst-gehostet — der Weg ist also kurz und in unserer Hand.)*
 - **🔧 Karte: Punkt → Foto, sobald wenige Fänge im Bild sind — ENTSCHIEDEN (JC, 18. Juli).**
   JCs Idee: *„dass es ein foto wird sobald man reingezoomt ist."* Dazu mein Einwand: Zoom misst die
   Kartenweite, nicht das Gedränge — bei 20 Fängen an einem See hilft er nicht.

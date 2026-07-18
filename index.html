@@ -2318,7 +2318,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.5';
+const BUILD = '2026-07-18.6';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4783,7 +4783,8 @@ async function persistDetailPhotos(){
 /* `pts` = die Fänge mit Geodaten dieser Karte. Steht hier, weil `drawCatchMarkers` sie bei JEDEM Zoom
    neu braucht (Cluster hängen am Maßstab, nicht an den Daten) — ohne sie müsste `ensureCatchMap` beim
    Zoomen komplett neu laufen und würde per `fitBounds` die Ansicht zurückwerfen. */
-const _mapRef={ stats:{m:null, mk:[], pts:[]}, list:{m:null, mk:[], pts:[]} };
+/* `key` = Fingerabdruck der Fänge (ids). Entscheidet, ob neu eingerahmt wird — siehe `ensureCatchMap`. */
+const _mapRef={ stats:{m:null, mk:[], pts:[], key:null}, list:{m:null, mk:[], pts:[], key:null} };
 /* ---- Vollbild-Karte (17. Juli) --------------------------------------------------------------------
    Umgeschaltet wird eine Klasse am KARTEN-Element — die Leaflet-Instanz bleibt dieselbe. Ein Overlay
    mit zweiter Karte hätte Marker, Zoom und Mittelpunkt neu aufbauen müssen; so überlebt alles.
@@ -4924,9 +4925,22 @@ function ensureCatchMap(kind, items){
   }
   R.pts=pts;
   drawCatchMarkers(kind);
-  const bounds=pts.map(c=>[c.lat,c.lon]);
-  if(bounds.length>1){ try{ R.m.fitBounds(bounds,{padding:[24,24], maxZoom:13}); }catch(e){} }
-  else R.m.setView(bounds[0],12);
+  /* EINRAHMEN NUR BEIM ERSTEN MAL (JC, 18. Juli: „nachdem ich ein element öffne, geht der zoom in die
+     karte verloren wenn ich den zurück button drücke, swipe left funktioniert und hält position").
+     Der Befund erklärt sich selbst, sobald man ihn nebeneinanderlegt: `fitBounds` lief bei JEDEM Aufruf.
+     Der Zurück-Knopf rendert den Screen neu → `ensureCatchMap` → Ansicht zurückgeworfen. Die Wischgeste
+     geht an diesem Weg vorbei, deshalb hielt sie. Nicht die Geste war richtig, sondern der Knopf falsch.
+     Wer die Karte einmal hingeschoben hat, hat eine Absicht — die überschreibt man nicht bei jedem
+     Rendern. Neu eingerahmt wird nur, wenn sich die FÄNGE ändern (Filter, neuer Fang): Dann stimmt der
+     alte Ausschnitt womöglich nicht mehr. Schlüssel = ids+Reihenfolge; `length` allein wäre blind gegen
+     einen Filterwechsel mit gleich vielen Treffern. */
+  const key=pts.map(c=>c.id).join('|');
+  if(R.key!==key){
+    R.key=key;
+    const bounds=pts.map(c=>[c.lat,c.lon]);
+    if(bounds.length>1){ try{ R.m.fitBounds(bounds,{padding:[24,24], maxZoom:13}); }catch(e){} }
+    else R.m.setView(bounds[0],12);
+  }
   setTimeout(()=>{ try{R.m.invalidateSize();}catch(e){} }, 80);
 }
 /* Wer liegt auf dem SCHIRM übereinander? (18. Juli — Korrektur eines Fehlers von derselben Nacht.)
@@ -4959,9 +4973,19 @@ function drawCatchMarkers(kind){
   _clusterGruppen(kind).forEach(g=>{
     const c0=g[0];
     if(g.length>1){
+      /* Der Cluster sitzt im SCHWERPUNKT, nicht auf dem ersten Fang (JC, 18. Juli: „wenn zooming out and
+         two circles merge, the new point doesnt find the best new position, but just moves to one of the
+         two spots before"). Er hatte recht: Ich nahm `g[0]` — welcher das ist, entscheidet allein die
+         Reihenfolge im Array, also der Zufall. Beim Verschmelzen sprang der Cluster damit auf einen der
+         beiden Vorgänger statt zwischen sie.
+         Mittelwert reicht hier: Ein Cluster entsteht erst, wenn alle < 44 px beieinander liegen — auf so
+         kurzer Strecke ist die Erdkrümmung kein Thema. Der Datumsgrenzen-Fall (lon +179/−179) kann hier
+         nicht auftreten: Zwei Punkte, die sich auf dem Schirm berühren, liegen nie auf beiden Seiten. */
+      const lat=g.reduce((s,c)=>s+(+c.lat),0)/g.length;
+      const lon=g.reduce((s,c)=>s+(+c.lon),0)/g.length;
       // Cluster: NUR die Zahl (JC). Antippen -> Spot-Sheet: zentrieren, abdunkeln, Hero + Streifen.
-      const m=L.marker([c0.lat,c0.lon],{icon:L.divIcon({html:`<div class="cl-dot">${g.length}</div>`, iconSize:[46,46], iconAnchor:[23,23]})}).addTo(R.m);
-      m.on('click', ()=>openSpotSheet(kind, g));
+      const m=L.marker([lat,lon],{icon:L.divIcon({html:`<div class="cl-dot">${g.length}</div>`, iconSize:[46,46], iconAnchor:[23,23]})}).addTo(R.m);
+      m.on('click', ()=>openSpotSheet(kind, g, [lat,lon]));
       R.mk.push(m);
     } else {
       /* Stats map keeps dots (JC) — many catches are a scatter, not a pincushion. Only the ink follows.
@@ -4987,7 +5011,10 @@ function drawCatchMarkers(kind){
 let _spot=null;          // {kind, items, i}
 let _spotSelbstBewegt=false;
 function _spotEl(id){ return document.getElementById(id); }
-function openSpotSheet(kind, items){
+/* `mitte` = der Schwerpunkt, auf dem der Cluster sitzt. Ohne ihn zentrierte das Sheet auf `items[0]` und
+   zeigte damit woandershin als der Knopf, den man gerade gedrückt hat — die Karte würde unter dem Finger
+   verrutschen. */
+function openSpotSheet(kind, items, mitte){
   if(!items || !items.length) return;
   _spot={ kind, items: items.slice(), i:0 };
   const R=_mapRef[kind];
@@ -4999,7 +5026,7 @@ function openSpotSheet(kind, items){
      Deshalb ein Flag um die EIGENE Bewegung; `moveend` räumt es wieder ab. */
   if(R && R.m){
     _spotSelbstBewegt=true;
-    try{ R.m.panTo([items[0].lat, items[0].lon], {animate:true, duration:.28}); }catch(e){}
+    try{ R.m.panTo(mitte || [items[0].lat, items[0].lon], {animate:true, duration:.28}); }catch(e){}
     setTimeout(()=>{ _spotSelbstBewegt=false; }, 700);   // > die .28s Animation, mit Luft
   }
   renderSpotSheet();
