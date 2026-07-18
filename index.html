@@ -492,6 +492,18 @@
     top:calc(52px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
   }
+  /* „Alle Fänge" — dritter in der Reihe, gleiche Kante. Die drei stehen in der Reihenfolge, in der man
+     sie braucht: Vollbild (schauen) · Mein Standort (wo bin ich) · Alle Fänge (zurück zur Übersicht). */
+  .map-all-btn{position:absolute; top:92px; right:8px; z-index:401; width:34px; height:34px; border-radius:9px;
+    border:1px solid rgba(13,81,100,.25); background:#fff; color:var(--map-ink);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.28);}
+  .map-all-btn:hover{background:#eef4f6;}
+  .map-all-btn svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .map.is-fs .map-all-btn{
+    top:calc(94px + env(safe-area-inset-top));
+    right:calc(12px + env(safe-area-inset-right));
+  }
   .map.is-fs .leaflet-top{ padding-top:env(safe-area-inset-top); }
   .map.is-fs .leaflet-left{ padding-left:env(safe-area-inset-left); }
   .map.is-fs .leaflet-bottom{ padding-bottom:env(safe-area-inset-bottom); }
@@ -2331,7 +2343,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.7';
+const BUILD = '2026-07-18.8';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2443,9 +2455,9 @@ Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon o
 /* Ortung gescheitert (18. Juli). Bewusst ohne Schuldzuweisung: Der häufigste Grund ist eine verweigerte
    Erlaubnis, aber es kann auch drinnen ohne Empfang sein — „Bitte erlaube den Zugriff" wäre in der
    Hälfte der Fälle eine Unterstellung. */
-Object.assign(I18N.de, {locFail:"Standort nicht gefunden."});
-Object.assign(I18N.en, {locFail:"Couldn't find your location."});
-Object.assign(I18N.nl, {locFail:"Locatie niet gevonden."});
+Object.assign(I18N.de, {locFail:"Standort nicht gefunden.", mapShowAll:"Alle Fänge zeigen"});
+Object.assign(I18N.en, {locFail:"Couldn't find your location.", mapShowAll:"Show all catches"});
+Object.assign(I18N.nl, {locFail:"Locatie niet gevonden.", mapShowAll:"Alle vangsten tonen"});
 Object.assign(I18N.de, {reqAreaTitle:"Ein Wert fehlt noch", reqAreaMsg:"„{ctx}“ verlangt: {fields}. Ohne diesen Wert kann der Fang dort nicht eingetragen werden.", reqAreaGo:"Jetzt eintragen", reqAreaAdded:"In „{ctx}“ eingetragen.", reqAreaPick:"Bitte den Wert oben am Fang eintragen."});
 Object.assign(I18N.en, {reqAreaTitle:"A value is missing", reqAreaMsg:"“{ctx}” requires: {fields}. Without it the catch can't be logged there.", reqAreaGo:"Add it now", reqAreaAdded:"Logged to “{ctx}”.", reqAreaPick:"Please add the value on the catch above."});
 Object.assign(I18N.nl, {reqAreaTitle:"Er ontbreekt een waarde", reqAreaMsg:"„{ctx}” vereist: {fields}. Zonder die waarde kan de vangst daar niet worden vastgelegd.", reqAreaGo:"Nu invullen", reqAreaAdded:"Vastgelegd in „{ctx}”.", reqAreaPick:"Vul de waarde hierboven bij de vangst in."});
@@ -4853,6 +4865,36 @@ function mapMeButton(kind, wrap){
   };
   wrap.appendChild(b);
 }
+/* „Alle Fänge zeigen" (JC, 18. Juli: „wenn wir einen zoom in button haben, sollten wir dann auch einen
+   zoom out button haben"). JA — und nicht aus Symmetrie:
+   Bis v18.6 rahmte `fitBounds` die Karte bei JEDEM Rendern neu ein. Das war der Zoom-Verlust, den JC
+   gemeldet hat — aber es war zugleich der EINZIGE Weg zurück zur Gesamtansicht. Ich habe den Bug behoben
+   und damit den Rückweg mitgenommen. Dieser Knopf gibt ihn zurück, jetzt als ABSICHT statt als Nebenwirkung.
+   Der Fisch als Zeichen, nicht Pfeile: Das Vollbild-Symbol sind schon Pfeile nach außen — zwei
+   Pfeil-Knöpfe übereinander wären nicht zu unterscheiden. Und es geht hier nicht um „raus", sondern um
+   „alle meine Fänge". */
+function mapAllButton(kind, wrap){
+  const b=document.createElement('button');
+  b.type='button'; b.className='map-all-btn';
+  b.setAttribute('aria-label', t('mapShowAll'));
+  b.title=t('mapShowAll');
+  b.innerHTML=FISH_IC;
+  b.onclick=(e)=>{
+    e.stopPropagation();
+    const R=_mapRef[kind]; if(!R||!R.m||!(R.pts||[]).length) return;
+    const bounds=R.pts.map(c=>[c.lat,c.lon]);
+    /* `_spotSelbstBewegt`, sonst schlösse dieser Flug ein offenes Spot-Sheet — dieselbe Falle wie beim
+       Zentrieren und beim Standort-Flug. Zum dritten Mal dieselbe Leitung, zum dritten Mal derselbe Riegel. */
+    _spotSelbstBewegt=true;
+    try{
+      if(bounds.length>1) R.m.flyToBounds(bounds,{padding:[24,24], maxZoom:13, duration:.6});
+      else R.m.flyTo(bounds[0], 12, {duration:.6});
+    }catch(e2){ try{ if(bounds.length>1) R.m.fitBounds(bounds,{padding:[24,24], maxZoom:13}); else R.m.setView(bounds[0],12); }catch(e3){} }
+    setTimeout(()=>{ _spotSelbstBewegt=false; }, 1100);
+    try{ haptic(8); }catch(e2){}
+  };
+  wrap.appendChild(b);
+}
 function mapFsButton(kind, wrap){
   const b=document.createElement('button');
   b.type='button'; b.className='map-fs-btn';
@@ -4935,6 +4977,7 @@ function ensureCatchMap(kind, items){
        Leaflet-Control), damit er den Vollbild-Zustand mit umschalten kann. */
     try{ mapFsButton(kind, wrap); }catch(e){}
     try{ mapMeButton(kind, wrap); }catch(e){}
+    try{ mapAllButton(kind, wrap); }catch(e){}
   }
   R.pts=pts;
   drawCatchMarkers(kind);
