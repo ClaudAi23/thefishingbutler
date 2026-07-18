@@ -211,6 +211,15 @@
   .skel-l1{height:14px; width:55%; margin-bottom:8px;} .skel-l2{height:11px; width:75%;}
   @media (prefers-reduced-motion: reduce){ .screen.active, .screen.active.is-back, .skel, .modal-box{animation:none!important;} }
   .scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(8px + env(safe-area-inset-bottom));}
+  /* Platz für den FAB am Ende der Seite (JC, 18. Juli: „it would be nice if you could scroll down
+     further, so that the log a catch button doesnt cover the map").
+     Der FAB ist `fixed` — er liegt also AUF dem Inhalt und kennt dessen Ende nicht. Er ist 60 px hoch
+     und sitzt 18 px über der Kante: 60+18+18 = 96 px, die dem letzten Element fehlen. Bisher hatte der
+     Scroll-Container 8 px Polster. Auf der Übersicht ist das letzte Element die KARTE — die war unten
+     rechts also immer verdeckt, und man konnte nicht weiterscrollen, weil da nichts mehr war.
+     Nur wo der FAB wirklich steht (`body.has-fab`, gesetzt von `go()`): Auf Screens ohne ihn wären
+     96 px Leere am Ende ein Loch ohne Grund. */
+  body.has-fab .scroll{padding-bottom:calc(96px + env(safe-area-inset-bottom));}
   .form-actions{flex:0 0 auto; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--border); box-shadow:0 -8px 22px rgba(0,0,0,.28);}
   .form-actions .btn{margin:0; transition:filter .18s, opacity .18s, background .16s;}
   .btn.not-ready{filter:saturate(.3) brightness(.92); opacity:.55;}
@@ -2343,7 +2352,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.8';
+const BUILD = '2026-07-18.9';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2763,7 +2772,13 @@ function go(name, isBack, viaGesture, noArm){
     if(_ROOT_SCREENS.includes(name)) _navStack=[]; else _navStack.push(_curScreen);
   }
   _curScreen=name;
-  { const _fb=document.getElementById('mainfab'); if(_fb) _fb.style.display=(name==='club'||name==='stats'||name==='list')?'':'none'; }
+  /* `has-fab` am <body> hängt an DERSELBEN Bedingung wie das display — eine Quelle, zwei Wirkungen.
+     Zwei getrennte Listen von Screen-Namen liefen garantiert auseinander, sobald ein vierter dazukommt;
+     dann hätte ein Screen den FAB und kein Polster, oder umgekehrt. (Dieselbe Sorte Fehler wie die zwei
+     Schreiber auf `share-btn` — nur vorher bemerkt statt hinterher.) */
+  { const _fabDa=(name==='club'||name==='stats'||name==='list');
+    const _fb=document.getElementById('mainfab'); if(_fb) _fb.style.display=_fabDa?'':'none';
+    try{ document.body.classList.toggle('has-fab', _fabDa); }catch(e){} }
   try{ updateFab(); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','is-back','no-anim'));
   { const _sc=document.getElementById('s-'+name); _sc.classList.add('active'); _sc.classList.toggle('is-back', !!isBack);
@@ -4870,15 +4885,25 @@ function mapMeButton(kind, wrap){
    Bis v18.6 rahmte `fitBounds` die Karte bei JEDEM Rendern neu ein. Das war der Zoom-Verlust, den JC
    gemeldet hat — aber es war zugleich der EINZIGE Weg zurück zur Gesamtansicht. Ich habe den Bug behoben
    und damit den Rückweg mitgenommen. Dieser Knopf gibt ihn zurück, jetzt als ABSICHT statt als Nebenwirkung.
-   Der Fisch als Zeichen, nicht Pfeile: Das Vollbild-Symbol sind schon Pfeile nach außen — zwei
-   Pfeil-Knöpfe übereinander wären nicht zu unterscheiden. Und es geht hier nicht um „raus", sondern um
-   „alle meine Fänge". */
+   DAS ICON: vier Punkte (JC wählte D aus `mockup-karte-icons.html`).
+   Nicht der Fisch (mein erster Wurf): Der benennt den GEGENSTAND, nicht die Handlung — auf einer Karte
+   voller Fische könnte er ebenso „nach Arten filtern" heißen.
+   Nicht Eckmarken oder Pfeile-nach-innen: Der Nachbar darüber ist das Vollbild — Pfeile nach außen.
+   Bei 19 px ist jedes Winkel-Muster davon nicht zu unterscheiden; im Stapel-Vergleich standen dann drei
+   gleiche Zeichen übereinander.
+   JCs Begründung war der Kontrast, und sie schlug meine (ich hatte gegen D eingewandt, es „sage nicht,
+   dass etwas passiert" — das tut aber KEIN Icon hier: Das Fadenkreuz daneben sagt „Standort", nicht
+   „fliege dorthin". Icons benennen Ziele, das Verb steht im Tooltip).
+   Der eigentliche Gewinn: Die vier Punkte ZITIEREN DIE KARTE. Sie sind genau das, was darunter liegt —
+   kein abstraktes Zeichen für „einrahmen", sondern das Ding selbst. */
 function mapAllButton(kind, wrap){
   const b=document.createElement('button');
   b.type='button'; b.className='map-all-btn';
   b.setAttribute('aria-label', t('mapShowAll'));
   b.title=t('mapShowAll');
-  b.innerHTML=FISH_IC;
+  /* Gefüllte Punkte, kein Strich: Sie sollen aussehen wie die Fang-Punkte auf der Karte — die sind auch
+     gefüllt. `stroke:none` je Kreis, weil der Knopf global `stroke-width:2` setzt. */
+  b.innerHTML='<svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="16" cy="7" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r="1.8" fill="currentColor" stroke="none"/><circle cx="18" cy="15" r="1.8" fill="currentColor" stroke="none"/></svg>';
   b.onclick=(e)=>{
     e.stopPropagation();
     const R=_mapRef[kind]; if(!R||!R.m||!(R.pts||[]).length) return;
