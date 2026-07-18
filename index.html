@@ -211,15 +211,11 @@
   .skel-l1{height:14px; width:55%; margin-bottom:8px;} .skel-l2{height:11px; width:75%;}
   @media (prefers-reduced-motion: reduce){ .screen.active, .screen.active.is-back, .skel, .modal-box{animation:none!important;} }
   .scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(8px + env(safe-area-inset-bottom));}
-  /* Platz für den FAB am Ende der Seite (JC, 18. Juli: „it would be nice if you could scroll down
-     further, so that the log a catch button doesnt cover the map").
-     Der FAB ist `fixed` — er liegt also AUF dem Inhalt und kennt dessen Ende nicht. Er ist 60 px hoch
-     und sitzt 18 px über der Kante: 60+18+18 = 96 px, die dem letzten Element fehlen. Bisher hatte der
-     Scroll-Container 8 px Polster. Auf der Übersicht ist das letzte Element die KARTE — die war unten
-     rechts also immer verdeckt, und man konnte nicht weiterscrollen, weil da nichts mehr war.
-     Nur wo der FAB wirklich steht (`body.has-fab`, gesetzt von `go()`): Auf Screens ohne ihn wären
-     96 px Leere am Ende ein Loch ohne Grund. */
-  body.has-fab .scroll{padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+  /* Hier stand einen Tag lang `body.has-fab .scroll{padding-bottom:96px…}` — Scroll-Platz unter dem
+     FAB, auf JCs Wunsch vom 18. Juli gebaut und am SELBEN Tag von ihm zurückgenommen (Feedback-Mail:
+     „Nimm das scrolling unter Button wieder raus", Rückfrage: ganz raus). Bewusst gelöscht, nicht
+     auskommentiert. Falls „FAB verdeckt die Karte" wiederkommt: nicht diese Regel wiederbeleben,
+     sondern anders lösen (z. B. Karte selbst höher polstern). */
   .form-actions{flex:0 0 auto; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--border); box-shadow:0 -8px 22px rgba(0,0,0,.28);}
   .form-actions .btn{margin:0; transition:filter .18s, opacity .18s, background .16s;}
   .btn.not-ready{filter:saturate(.3) brightness(.92); opacity:.55;}
@@ -2352,7 +2348,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.13';
+const BUILD = '2026-07-18.14';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4496,9 +4492,14 @@ function renderKpiCards(kind, items){
     (showMeasures ? (bigLen ? kpiBtn(t('longest'), fmtLen(bigLen.length), true, bigLen.id) : kpi(t('longest'), '—', true)) : '') +
     (showMeasures ? (bigWt ? kpiBtn(t('heaviest'), fmtWeight(bigWt.weight), true, bigWt.id) : kpi(t('heaviest'), '—', true)) : '');
 }
-function badgeWrap(thumbHtml, c){
+/* `noCrown` (JC, 18. Juli, Feedback-Mail: „Mach die Kronen bei den eignen Rekorden weg. Die Überschrift
+   hast schon eine."): Auf der „Deine Rekorde"-Leiste ist JEDE Karte per Definition ein PB — die Krone
+   an der Kachel wiederholt nur die Krone in der Überschrift. Nur dort unterdrückt. Fangliste und
+   Vereins-Podium (Medaille + Krone, wenn Gruppenrekord zugleich eigenes PB) bleiben unverändert —
+   dort trägt die Krone Information. */
+function badgeWrap(thumbHtml, c, noCrown){
   const r=podiumRank(c);
-  const crown = isPb(c) ? `<span class="bdg bdg-crown">${CROWN_IC}</span>` : '';
+  const crown = (!noCrown && isPb(c)) ? `<span class="bdg bdg-crown">${CROWN_IC}</span>` : '';
   const med   = r ? `<span class="bdg bdg-medal bdg-${r===1?'g':(r===2?'s':'b')}">${MEDAL_IC}</span>` : '';
   return `<span class="thumbwrap">${thumbHtml}${crown}${med}</span>`;
 }
@@ -4656,7 +4657,8 @@ function renderRecordsShelf(kind, items){
        die alte Bauweise gar nicht zeigen konnte. */
     /* KEIN Angler auf der Karte (JC, 17. Juli: „nimm den einfach komplett raus"). Die Begründung steht
        im CSS bei `.rec-strip`. Wer ihn gefangen hat, sagt die Detailseite — ein Tipp entfernt. */
-    return `<button type="button" class="rec-card" onclick="openRecordCatch('${c.id}','${CFG.from}')">${badgeWrap(thumb, c)}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`;
+    /* kind==='stats' → noCrown: die persönliche Leiste, wo alles PB ist (Begründung bei `badgeWrap`). */
+    return `<button type="button" class="rec-card" onclick="openRecordCatch('${c.id}','${CFG.from}')">${badgeWrap(thumb, c, kind==='stats')}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`;
   }).join('');
   box.innerHTML=`<div class="rec-head">${CFG.headIcon()}<span>${esc(CFG.title())}</span></div><div class="rec-strip">${cards}</div>`;
 }
@@ -4912,9 +4914,11 @@ function mapAllButton(kind, wrap){
        Zentrieren und beim Standort-Flug. Zum dritten Mal dieselbe Leitung, zum dritten Mal derselbe Riegel. */
     _spotSelbstBewegt=true;
     try{
-      if(bounds.length>1) R.m.flyToBounds(bounds,{padding:[24,24], maxZoom:13, duration:.6});
-      else R.m.flyTo(bounds[0], 12, {duration:.6});
-    }catch(e2){ try{ if(bounds.length>1) R.m.fitBounds(bounds,{padding:[24,24], maxZoom:13}); else R.m.setView(bounds[0],12); }catch(e3){} }
+      /* maxZoom 13 → 12 (JC, 18. Juli, Feedback-Mail): „Wenn alle Fische im zoom sind … nimm vom
+         jetzigen Wert noch eine Zoom Stufe weiter raus." Gilt für Knopf UND Erst-Aufbau (unten). */
+      if(bounds.length>1) R.m.flyToBounds(bounds,{padding:[24,24], maxZoom:12, duration:.6});
+      else R.m.flyTo(bounds[0], 11, {duration:.6});
+    }catch(e2){ try{ if(bounds.length>1) R.m.fitBounds(bounds,{padding:[24,24], maxZoom:12}); else R.m.setView(bounds[0],11); }catch(e3){} }
     setTimeout(()=>{ _spotSelbstBewegt=false; }, 1100);
     try{ haptic(8); }catch(e2){}
   };
@@ -5019,8 +5023,10 @@ function ensureCatchMap(kind, items){
   if(R.key!==key){
     R.key=key;
     const bounds=pts.map(c=>[c.lat,c.lon]);
-    if(bounds.length>1){ try{ R.m.fitBounds(bounds,{padding:[24,24], maxZoom:13}); }catch(e){} }
-    else R.m.setView(bounds[0],12);
+    /* maxZoom 13 → 12, Einzelfang 12 → 11 (JC, 18. Juli): eine Zoomstufe weiter raus — gleiche Werte
+       wie der „Alle Fänge"-Knopf, sonst zeigen Reload und Knopf verschiedene Ausschnitte. */
+    if(bounds.length>1){ try{ R.m.fitBounds(bounds,{padding:[24,24], maxZoom:12}); }catch(e){} }
+    else R.m.setView(bounds[0],11);
   }
   setTimeout(()=>{ try{R.m.invalidateSize();}catch(e){} }, 80);
 }
