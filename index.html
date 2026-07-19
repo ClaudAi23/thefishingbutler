@@ -259,6 +259,24 @@
   .req{color:var(--teal); font-weight:600;}
   /* Same treatment. The FAB floats over content, so it keeps a shadow — but a NEUTRAL one that
      reads as elevation, not the teal halo that read as glow. */
+  /* ---- #15 Stufe 1: Unified-Form (Flag bf_unified; 'off' in localStorage schaltet zurück) ---- */
+  #uf-hero{position:relative; height:170px; margin:-14px -16px 14px; background:var(--surface-2); background-size:cover; background-position:center; display:flex; align-items:flex-end; padding:12px 16px; overflow:hidden;}
+  #uf-hero::after{content:''; position:absolute; inset:auto 0 0 0; height:72%; background:linear-gradient(transparent, rgba(2,27,40,.82)); pointer-events:none;}
+  #uf-hero-ph{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--muted); font-size:.72rem;}
+  #uf-hero-ph svg{width:30px; height:30px; stroke:currentColor; fill:none; stroke-width:1.6;}
+  #uf-hero.hasimg #uf-hero-ph{display:none;}
+  .uf-tt{position:relative; z-index:2;}
+  #uf-sp{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.5rem; color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.55); min-height:1.15em;}
+  #uf-sp.empty{color:rgba(244,239,226,.45);}
+  .uf-chips{display:flex; gap:6px; margin-top:5px;}
+  .ufchip{background:rgba(2,27,40,.72); border-radius:999px; padding:3px 10px; font-size:.7rem; color:var(--text);}
+  .ufchip.ghost{color:rgba(244,239,226,.4); border:1px dashed rgba(244,239,226,.3); background:none;}
+  #uf-chiprow{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px;}
+  .uf-tchip{border:1.5px solid var(--border-2); background:var(--surface); color:var(--text); border-radius:999px; padding:6px 13px; font-size:.8rem; cursor:pointer;}
+  .uf-tchip.on{background:var(--teal); color:var(--on-btn); border-color:var(--teal); font-weight:600;}
+  #uf-jump{position:sticky; bottom:0; z-index:6; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; background:color-mix(in srgb, var(--sand) 88%, transparent); backdrop-filter:blur(6px); padding:8px 4px; margin:0 -4px;}
+  #uf-jump::-webkit-scrollbar{display:none;}
+  #uf-jump button{flex:0 0 auto; font-size:.7rem; color:var(--teal); background:none; border:1px solid var(--border-2); border-radius:999px; padding:5px 11px; cursor:pointer;}
   .fab{position:fixed; right:max(18px, calc(50% - 192px)); bottom:calc(18px + env(safe-area-inset-bottom)); z-index:50;
     width:60px; height:60px; border-radius:50%; border:none; background:var(--btn-fill); color:var(--on-btn);
     box-shadow:0 6px 16px rgba(2,27,40,.30); cursor:pointer; transition:background .16s ease;
@@ -1525,6 +1543,13 @@
       <div><h1 id="f-title" data-i18n="logCatch">Fang eintragen</h1></div>
     </div>
     <div class="scroll pad">
+      <!-- #15 Stufe 1 (19. Juli, Flag bf_unified): Live-Hero — das Formular ist die leere Detailseite. -->
+      <div id="uf-hero" style="display:none;">
+        <div id="uf-hero-ph"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg><span data-i18n="ufHeroHint">Foto wählen — wird dein Hero</span></div>
+        <div class="uf-tt"><div id="uf-sp" class="empty">…</div>
+          <div class="uf-chips"><span id="uf-len" class="ufchip ghost">— cm</span><span id="uf-wt" class="ufchip ghost">— kg</span></div>
+        </div>
+      </div>
       <div class="field" id="ff-area" style="display:none;">
         <label data-i18n="logToArea">Eintragen in</label>
         <button type="button" id="area-selector" class="area-selector" onclick="openAreaSheet()">
@@ -1532,6 +1557,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18" style="stroke:var(--muted); stroke-width:2; fill:none; flex:0 0 auto;"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="hint" style="margin-top:6px;" data-i18n="logToAreaHint">Mehrere Vereine/Gruppen möglich.</div>
+        <div id="uf-chiprow" style="display:none;"></div>
       </div>
       <div class="field secfield" id="ff-photos">
         <label><svg viewBox="0 0 24 24"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg><span data-i18n="grpPhotos">Fotos</span></label>
@@ -2366,7 +2392,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.23';
+const BUILD = '2026-07-19.1';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2495,10 +2521,13 @@ Object.assign(I18N.de, {joinWithCode:"Mit Code beitreten", joinClubHint:"Code vo
 Object.assign(I18N.en, {joinWithCode:"Join with a code", joinClubHint:"Have a club code? Join instantly.", joinGroupHint:"Have a group code? Join instantly.", joinByCode:"Join a club/group (code)", createContext:"Create club/group", requestContext:"Club/group missing? Request it", betaRequestNote:"During the beta, new clubs & groups are requested and enabled by the team.", reqInbox:"Requests", joinTitle:"Join a club or group", joinHint:"Enter the join code of your club or group.", join:"Join", createTitle:"Create club/group", createHint:"As app admin you create a new club or group. You automatically become its admin.", clubOne:"Club", groupOne:"Group", locationOpt:"Location (optional)", noteOpt:"Message (optional)", create:"Create", send:"Send", requestTitle:"Request a club or group", requestHint:"Your club or group is missing? Send a request to the app admin.", codeLabel:"Code", reqInboxTitle:"Founding requests", reqNone:"No open requests.", approve:"Approve", reject:"Decline", close:"Close", reqSentTitle:"Request sent", reqSentBody:"Thanks! The app admin will review your request and set up the club or group.", errNameReq:"Please enter a name.", errCodeReq:"Please enter a code.", errBadCode:"That code doesn't match any club or group.", errGeneric:"Something went wrong. Please try again.", errTitle:"Error", ok:"OK"});
 Object.assign(I18N.nl, {joinWithCode:"Deelnemen met code", joinClubHint:"Code van de vereniging? Meteen deelnemen.", joinGroupHint:"Code van de groep? Meteen deelnemen.", joinByCode:"Deelnemen (code)", createContext:"Vereniging/groep aanmaken", requestContext:"Vereniging/groep ontbreekt? Aanvragen", betaRequestNote:"Tijdens de bèta worden nieuwe verenigingen & groepen aangevraagd en door het team vrijgegeven.", reqInbox:"Aanvragen", joinTitle:"Word lid van een vereniging of groep", joinHint:"Voer de toetredingscode van je vereniging of groep in.", join:"Deelnemen", createTitle:"Vereniging/groep aanmaken", createHint:"Als app-beheerder maak je een nieuwe vereniging of groep aan. Je wordt automatisch beheerder.", clubOne:"Vereniging", groupOne:"Groep", locationOpt:"Plaats (optioneel)", noteOpt:"Bericht (optioneel)", create:"Aanmaken", send:"Verzenden", requestTitle:"Vereniging of groep aanvragen", requestHint:"Ontbreekt je vereniging of groep? Stuur een aanvraag naar de app-beheerder.", codeLabel:"Code", reqInboxTitle:"Oprichtingsverzoeken", reqNone:"Geen openstaande aanvragen.", approve:"Goedkeuren", reject:"Afwijzen", close:"Sluiten", reqSentTitle:"Aanvraag verzonden", reqSentBody:"Bedankt! De app-beheerder bekijkt je aanvraag en richt de vereniging of groep in.", errNameReq:"Voer een naam in.", errCodeReq:"Voer een code in.", errBadCode:"Die code hoort bij geen enkele vereniging of groep.", errGeneric:"Er ging iets mis. Probeer opnieuw.", errTitle:"Fout", ok:"OK"});
 Object.assign(I18N.de, {betaAppSection:"Beta & App", installApp:"Als App speichern", installHelpHint:"Speichere ButlerFish wie eine App – für schnellen Zugriff und Vollbild.", installIosT:"iPhone / iPad (Safari)", installIos:"In Safari öffnen → unten auf „Teilen“ → „Zum Home-Bildschirm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menü (⋮) oben rechts → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Auf das Installieren-Symbol in der Adressleiste klicken – oder Menü → „Installieren / App installieren“.", feedbackHint:"Feedback, Bug oder Idee? Wir sind in der Beta und freuen uns über jeden Hinweis.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – Beta-Feedback", legalTitle:"Rechtliches", legalLink:"Beta-Hinweis · Datenschutz · Impressum", hideUnconfirmed:"Unbestätigte Fänge ausblenden", unconfirmedByHint:"Von {name} eingetragen – noch nicht vom Angler bestätigt.", unconfirmedOtherHint:"Noch nicht vom Angler bestätigt.", photoLimitTitle:"Zu viele Fotos", photoLimitMsg:"Maximal {n} Fotos pro Fang.", copy:"kopieren", copied:"Code kopiert", confirmTitle:"Bist du sicher?", yesDo:"Ja", confirmLogout:"Möchtest du dich wirklich abmelden?", cancel:"Abbrechen", fieldsAdminTitle:"Fang-Felder · Verein/Gruppe", shareHintGlobal:"Gilt für alle deine Fänge.", adminOnlyTitle:"Nur für Admins", adminOnlyMsg:"Diese Vorgabe legt der Verein-/Gruppen-Admin fest. Deine eigenen Felder wählst du in den persönlichen Einstellungen.", savedToast:"Gespeichert", starReq:"immer erforderlich", starAdmin:"vom Verein/Gruppe als Pflicht gesetzt", leaveClub:"Verein verlassen", leaveGroup:"Gruppe verlassen", deleteClub:"Verein löschen", deleteGroup:"Gruppe löschen", ctxNameTitle:"Name", ctxNameHint:"Nur Admins können das Profil ändern (Name, Standort, Logo). Änderungen gelten für alle Mitglieder.", areaSection:"Profil", logToArea:"Eintragen in", ctxLocTitle:"Standort", fieldsAdminShort:"Fang-Felder", inviteHint:"Lade Angler ein – teile Link und Code.", copyCode:"Code kopieren", inviteShare:"Einladen / Teilen", alsoLoggedIn:"Auch eingetragen in", inviteMsg:"Tritt „{name}“ bei ButlerFish bei!\n{url}\nBeitritts-Code: {code}", feedbackTitle:"Feedback senden", feedbackModalHint:"Bug, Idee oder Hinweis? Schreib uns – danke fürs Testen!", feedbackPh:"Deine Nachricht …", feedbackEmpty:"Bitte etwas eingeben.", feedbackSentTitle:"Danke!", feedbackSentBody:"Dein Feedback ist angekommen. Vielen Dank fürs Testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-Eingang", feedbackNone:"Kein Feedback.", feedbackDone:"Erledigt", appHelpSection:"App & Hilfe", accountSection:"Konto", shareTemplateIntro:"Passe den Text an, den du beim Teilen eines Fangs verschickst. Platzhalter werden automatisch gefüllt; leere Felder fallen weg.", shareEditLabel:"Vorlage", tasksTitle:"Aufgaben", addClub:"Verein hinzufügen", addGroup:"Gruppe hinzufügen", noClubsYet:"Noch kein Verein.", noGroupsYet:"Noch keine Gruppe.", signOutAll:"Von allen Geräten abmelden", leaveShort:"Verlassen", membershipsTitle:"Meine Mitgliedschaften", noMembershipsHint:"Du bist in keinem Verein und keiner Gruppe.", signOutAllHint:"Meldet dich überall ab – nützlich, wenn du dich auf einem fremden Gerät angemeldet hast.", confirmLogoutAll:"Auf allen Geräten abmelden? Andere Sitzungen werden beendet.", requestCode:"Code anfordern", codeLabel2:"Code aus der E-Mail", codeSent:"Wir haben einen Code an {email} geschickt.\nGib ihn hier ein. (Auch Spam prüfen.)", resendCode:"Code erneut senden", changeEmail:"Andere E-Mail", errCode:"Bitte den Code eingeben.", errCodeWrong:"Code ungültig oder abgelaufen. Bitte neu anfordern.", exportTitle:"Exportieren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Format wählen.", exportCsvSub:"Tabelle, nur Daten", exportPdfSub:"Formatiert, mit Fotos", hdrOldest:"Älteste Fänge", hdrLongest:"Längste Fänge", hdrHeaviest:"Schwerste Fänge", hdrSpecies:"Nach Art"});
+Object.assign(I18N.de,{ufHeroHint:"Foto wählen — wird dein Hero"});
 Object.assign(I18N.de,{addCtxBoth:"Verein oder Gruppe hinzufügen"});
 Object.assign(I18N.en, {betaAppSection:"Beta & App", installApp:"Save as app", installHelpHint:"Save ButlerFish like an app – for quick access and full screen.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tap Share → “Add to Home Screen”.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) top right → “Install app” or “Add to Home screen”.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Click the install icon in the address bar – or Menu → “Install”.", feedbackHint:"Feedback, bug or idea? We're in beta and value every note.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – beta feedback", legalTitle:"Legal", legalLink:"Beta notice · Privacy · Imprint", hideUnconfirmed:"Hide unconfirmed catches", unconfirmedByHint:"Logged by {name} – not yet confirmed by the angler.", unconfirmedOtherHint:"Not yet confirmed by the angler.", photoLimitTitle:"Too many photos", photoLimitMsg:"Maximum {n} photos per catch.", copy:"copy", copied:"Code copied", confirmTitle:"Are you sure?", yesDo:"Yes", confirmLogout:"Do you really want to sign out?", cancel:"Cancel", fieldsAdminTitle:"Log fields · club/group", shareHintGlobal:"Applies to all your catches.", adminOnlyTitle:"Admins only", adminOnlyMsg:"This is set by the club/group admin. Pick your own fields in personal settings.", savedToast:"Saved", starReq:"always required", starAdmin:"required by the club/group", leaveClub:"Leave club", leaveGroup:"Leave group", deleteClub:"Delete club", deleteGroup:"Delete group", ctxNameTitle:"Name", ctxNameHint:"Only admins can change the profile (name, location, logo). Changes apply to all members.", areaSection:"Profile", logToArea:"Log to", ctxLocTitle:"Location", fieldsAdminShort:"Log fields", inviteHint:"Invite anglers – share link and code.", copyCode:"Copy code", inviteShare:"Invite / Share", alsoLoggedIn:"Also logged in", inviteMsg:"Join \"{name}\" on ButlerFish!\n{url}\nJoin code: {code}", feedbackTitle:"Send feedback", feedbackModalHint:"Bug, idea or note? Tell us – thanks for testing!", feedbackPh:"Your message …", feedbackEmpty:"Please enter something.", feedbackSentTitle:"Thanks!", feedbackSentBody:"Your feedback was received. Thanks for testing!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback inbox", feedbackNone:"No feedback.", feedbackDone:"Done", appHelpSection:"App & Help", accountSection:"Account", shareTemplateIntro:"Customize the text you send when sharing a catch. Placeholders fill in automatically; empty fields are dropped.", shareEditLabel:"Template", tasksTitle:"Tasks", addClub:"Add club", addGroup:"Add group", noClubsYet:"No club yet.", noGroupsYet:"No group yet.", signOutAll:"Sign out of all devices", leaveShort:"Leave", membershipsTitle:"Your memberships", noMembershipsHint:"You're not in any club or group.", signOutAllHint:"Signs you out everywhere – useful if you signed in on someone else's device.", confirmLogoutAll:"Sign out of all devices? Other sessions will end.", requestCode:"Request code", codeLabel2:"Code from the email", codeSent:"We sent a code to {email}.\nEnter it here. (Check spam too.)", resendCode:"Resend code", changeEmail:"Change email", errCode:"Please enter the code.", errCodeWrong:"Code invalid or expired. Please request a new one.", exportTitle:"Export", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Choose a format.", exportCsvSub:"Spreadsheet, data only", exportPdfSub:"Formatted, with photos", hdrOldest:"Oldest catches", hdrLongest:"Longest catches", hdrHeaviest:"Heaviest catches", hdrSpecies:"By species"});
+Object.assign(I18N.en,{ufHeroHint:"Pick a photo — it becomes your hero"});
 Object.assign(I18N.en,{addCtxBoth:"Add club or group"});
 Object.assign(I18N.nl, {betaAppSection:"Beta & app", installApp:"Opslaan als app", installHelpHint:"Sla ButlerFish op als een app – voor snelle toegang en volledig scherm.", installIosT:"iPhone / iPad (Safari)", installIos:"Open in Safari → tik op Delen → „Zet op beginscherm“.", installAndroidT:"Android (Chrome)", installAndroid:"Menu (⋮) rechtsboven → „App installeren“ of „Toevoegen aan startscherm“.", installDesktopT:"Computer (Chrome / Edge)", installDesktop:"Klik op het installatie-icoon in de adresbalk – of Menu → „Installeren“.", feedbackHint:"Feedback, bug of idee? We zitten in de bèta en horen graag van je.", feedbackBtn:"Feedback", feedbackSubject:"ButlerFish – bèta-feedback", legalTitle:"Juridisch", legalLink:"Bèta-info · Privacy · Colofon", hideUnconfirmed:"Onbevestigde vangsten verbergen", unconfirmedByHint:"Ingevoerd door {name} – nog niet bevestigd door de visser.", unconfirmedOtherHint:"Nog niet bevestigd door de visser.", photoLimitTitle:"Te veel foto's", photoLimitMsg:"Maximaal {n} foto's per vangst.", copy:"kopiëren", copied:"Code gekopieerd", confirmTitle:"Weet je het zeker?", yesDo:"Ja", confirmLogout:"Wil je echt uitloggen?", cancel:"Annuleren", fieldsAdminTitle:"Vangstvelden · vereniging/groep", shareHintGlobal:"Geldt voor al je vangsten.", adminOnlyTitle:"Alleen beheerders", adminOnlyMsg:"Dit stelt de beheerder in. Kies je eigen velden in persoonlijke instellingen.", savedToast:"Opgeslagen", starReq:"altijd vereist", starAdmin:"verplicht door vereniging/groep", leaveClub:"Vereniging verlaten", leaveGroup:"Groep verlaten", deleteClub:"Vereniging verwijderen", deleteGroup:"Groep verwijderen", ctxNameTitle:"Naam", ctxNameHint:"Alleen beheerders kunnen het profiel wijzigen (naam, locatie, logo). Wijzigingen gelden voor alle leden.", areaSection:"Profiel", logToArea:"Vastleggen in", ctxLocTitle:"Locatie", fieldsAdminShort:"Vangstvelden", inviteHint:"Nodig vissers uit – deel link en code.", copyCode:"Code kopiëren", inviteShare:"Uitnodigen / Delen", alsoLoggedIn:"Ook vastgelegd in", inviteMsg:"Word lid van \"{name}\" op ButlerFish!\n{url}\nToetredingscode: {code}", feedbackTitle:"Feedback sturen", feedbackModalHint:"Bug, idee of opmerking? Laat het weten – bedankt voor het testen!", feedbackPh:"Je bericht …", feedbackEmpty:"Voer iets in.", feedbackSentTitle:"Bedankt!", feedbackSentBody:"Je feedback is ontvangen. Bedankt voor het testen!", feedbackInbox:"Feedback", feedbackInboxTitle:"Feedback-inbox", feedbackNone:"Geen feedback.", feedbackDone:"Klaar", appHelpSection:"App & Hulp", accountSection:"Account", shareTemplateIntro:"Pas de tekst aan die je verstuurt bij het delen van een vangst. Plaatshouders worden automatisch ingevuld; lege velden vervallen.", shareEditLabel:"Sjabloon", tasksTitle:"Taken", addClub:"Vereniging toevoegen", addGroup:"Groep toevoegen", noClubsYet:"Nog geen vereniging.", noGroupsYet:"Nog geen groep.", signOutAll:"Overal afmelden", leaveShort:"Verlaten", membershipsTitle:"Je lidmaatschappen", noMembershipsHint:"Je zit in geen enkele vereniging of groep.", signOutAllHint:"Meldt je overal af – handig als je op andermans apparaat bent ingelogd.", confirmLogoutAll:"Op alle apparaten afmelden? Andere sessies worden beëindigd.", requestCode:"Code aanvragen", codeLabel2:"Code uit de e-mail", codeSent:"We hebben een code naar {email} gestuurd.\nVoer die hier in. (Check ook spam.)", resendCode:"Code opnieuw sturen", changeEmail:"Andere e-mail", errCode:"Voer de code in.", errCodeWrong:"Code ongeldig of verlopen. Vraag een nieuwe aan.", exportTitle:"Exporteren", exportBtn:"Export", exportCsvBtn:"CSV", exportPdfBtn:"PDF", exportSub:"Kies een formaat.", exportCsvSub:"Tabel, alleen data", exportPdfSub:"Opgemaakt, met foto's", hdrOldest:"Oudste vangsten", hdrLongest:"Langste vangsten", hdrHeaviest:"Zwaarste vangsten", hdrSpecies:"Op soort"});
+Object.assign(I18N.nl,{ufHeroHint:"Kies een foto — wordt je hero"});
 Object.assign(I18N.nl,{addCtxBoth:"Vereniging of groep toevoegen"});
 Object.assign(I18N.de, {membersTitle:"Mitglieder", membersHint:"Verwalte Rollen und entferne Mitglieder.", membersHintMember:"Mitglieder und ihre Rollen.", manageMembers:"Mitglieder verwalten …", viewMembers:"Mitglieder ansehen", me:"ich", loggedByRow:"Erfasst von", unconfirmed:"Noch nicht bestätigt", unconfShort:"unbestätigt", loggedByHint:"Dieser Fang wurde von {name} für dich eingetragen. Bestätige ihn, wenn er stimmt.", unconfirmedHint:"Dieser Fang wartet auf Bestätigung.", confirmCatch:"Bestätigen", rejectCatch:"Ablehnen", confirmReject:"Diesen Fang ablehnen und löschen?", roleMember:"Mitglied", roleAdmin:"Admin", roleOwner:"Inhaber", transferOwner:"Inhaberschaft übergeben", transferOwnerConfirm:"{name} wird Inhaber, du wirst Admin. Zurückgeben kann das dann nur noch der neue Inhaber.", transferOwnerDone:"{name} ist jetzt Inhaber", removeMember:"Entfernen", ownerMustTransfer:"Als Inhaber kannst du nicht austreten. Übergib erst die Inhaberschaft an ein anderes Mitglied.", confirmRemove:"{name} aus diesem Verein/dieser Gruppe entfernen?", you:"du", roleTapHint:"Tippe eine Rolle an, um sie zu ändern. Nur du als Inhaber kannst Admins ernennen.", openMailbox:"Postfach öffnen", openMailApp:"Mail-App öffnen"});
 Object.assign(I18N.en, {membersTitle:"Members", membersHint:"Manage roles and remove members.", membersHintMember:"Members and their roles.", manageMembers:"Manage members …", viewMembers:"View members", me:"me", loggedByRow:"Logged by", unconfirmed:"Not confirmed yet", unconfShort:"unconfirmed", loggedByHint:"This catch was logged for you by {name}. Confirm it if it's correct.", unconfirmedHint:"This catch is awaiting confirmation.", confirmCatch:"Confirm", rejectCatch:"Reject", confirmReject:"Reject and delete this catch?", roleMember:"Member", roleAdmin:"Admin", roleOwner:"Owner", transferOwner:"Transfer ownership", transferOwnerConfirm:"{name} becomes the owner, you become an admin. Only the new owner can hand it back.", transferOwnerDone:"{name} is now the owner", removeMember:"Remove", ownerMustTransfer:"As the owner you can't leave. Hand ownership to another member first.", confirmRemove:"Remove {name} from this club/group?", you:"you", roleTapHint:"Tap a role to change it. Only you as owner can appoint admins.", openMailbox:"Open mailbox", openMailApp:"Open Mail app"});
@@ -8503,4 +8532,56 @@ initAuth();
    fehlerfrei durchlaufen. */
 </script>
 </body>
+<script>
+/* ==== #15 Stufe 1 — Unified-Form-Schicht (additiv, Flag: localStorage bf_unified='off' schaltet ab).
+   Bewusst NUR Anzeige-Schicht: keine Feld-IDs, kein Speicherpfad, keine formTargets-Logik angefasst. ==== */
+(function(){
+  if(localStorage.getItem('bf_unified')==='off') return;
+  function $(id){ return document.getElementById(id); }
+  function heroUpdate(){
+    const hero=$('uf-hero'); if(!hero) return;
+    const scr=$('s-form'); if(!scr || !scr.classList.contains('active')){ return; }
+    hero.style.display='';
+    const spEl=$('f-species'); const sp=spEl?spEl.value.trim():'';
+    const t1=$('uf-sp'); t1.textContent=sp||(typeof t==='function'?t('speciesPh'):'…'); t1.className=sp?'':'empty';
+    const l=($('f-length')||{}).value||'', w=($('f-weight')||{}).value||'';
+    const cl=$('uf-len'); cl.textContent=l?l+' cm':'— cm'; cl.className='ufchip'+(l?'':' ghost');
+    const cw=$('uf-wt'); cw.textContent=w?w+' kg':'— kg'; cw.className='ufchip'+(w?'':' ghost');
+    const img=document.querySelector('#photo-grid img');
+    if(img && img.src){ hero.style.backgroundImage='url("'+img.src+'")'; hero.classList.add('hasimg'); }
+    else { hero.style.backgroundImage=''; hero.classList.remove('hasimg'); }
+    chipsUpdate(); jumpEnsure();
+  }
+  function chipsUpdate(){
+    const row=$('uf-chiprow'), old=$('area-selector');
+    if(!row) return;
+    if(!(window.state && state.auth==='supabase')){ return; }
+    row.style.display='flex'; if(old) old.style.display='none';
+    const tg=(state.formTargets||[]);
+    let html='<button type="button" class="uf-tchip'+(tg.length?'':' on')+'" onclick="toggleArea(\'solo\')">'+ (typeof t==='function'?t('personal'):'Persönlich') +'</button>';
+    (state.myContexts||[]).forEach(c=>{
+      const on=tg.some(id=>String(id)===String(c.id));
+      html+='<button type="button" class="uf-tchip'+(on?' on':'')+'" onclick="toggleArea(\''+c.id+'\')">'+c.name.replace(/</g,'&lt;')+'</button>';
+    });
+    row.innerHTML=html;
+  }
+  function jumpEnsure(){
+    const scroll=document.querySelector('#s-form .scroll'); if(!scroll || $('uf-jump')) return;
+    const groups=[...scroll.querySelectorAll('.fgroup')];
+    if(!groups.length) return;
+    const bar=document.createElement('div'); bar.id='uf-jump';
+    groups.forEach((g,i)=>{
+      if(!g.id) g.id='ufg-'+i;
+      const b=document.createElement('button'); b.type='button';
+      b.textContent=(g.textContent||'').trim().slice(0,14);
+      b.onclick=()=>{ document.getElementById(g.id).scrollIntoView({behavior:'smooth', block:'start'}); };
+      bar.appendChild(b);
+    });
+    scroll.appendChild(bar);
+  }
+  document.addEventListener('input', e=>{ if(e.target && ['f-species','f-length','f-weight'].includes(e.target.id)) heroUpdate(); });
+  document.addEventListener('change', e=>{ if(e.target && ['f-species','f-length','f-weight'].includes(e.target.id)) heroUpdate(); });
+  setInterval(()=>{ try{ heroUpdate(); }catch(e){} }, 500);
+})();
+</script>
 </html>
