@@ -527,13 +527,13 @@
      White buttons look wrong everywhere else in this app; here they are right. */
   :root{ --map-ink:#0D5164; }
   .leaflet-control-zoom{border:none !important; border-radius:11px !important; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.28) !important;}
-  /* REVIEW S4 (18. Juli): Leaflet-Controls ins Theme geholt — weiß war der Fremdkörper auf jeder Karte. */
-  .leaflet-control-zoom a{background:var(--surface) !important; color:var(--teal) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid var(--border-2) !important; border-bottom:none !important;}
-  .leaflet-control-zoom a:last-child{border-bottom:1px solid var(--border-2) !important;}
-  .leaflet-control-zoom a:hover{background:var(--surface-2) !important; color:var(--teal) !important;}
+  /* S4 REVIDIERT (19. Juli, JC: „sieht scheisse aus … mach das mal wieder wie vorher"): Zoom-Knöpfe
+     zurück auf WEISS — die anderen Karten-Knöpfe (Vollbild etc.) sind weiß, dunkle Zoomer waren der
+     neue Fremdkörper. Weiß ist hier die bewusste Karten-Sprache, kein Versehen. */
+  .leaflet-control-zoom a{background:#fff !important; color:var(--map-ink) !important; width:38px !important; height:38px !important; line-height:36px !important; font-size:1.25rem !important; font-weight:600 !important; border:1px solid rgba(13,81,100,.25) !important; border-bottom:none !important;}
+  .leaflet-control-zoom a:last-child{border-bottom:1px solid rgba(13,81,100,.25) !important;}
+  .leaflet-control-zoom a:hover{background:#eef4f6 !important; color:var(--map-ink) !important;}
   .leaflet-control-zoom a.leaflet-disabled{opacity:.4 !important;}
-  .leaflet-control-attribution{background:rgba(2,27,40,.65) !important; color:var(--muted) !important; font-size:.6rem !important;}
-  .leaflet-control-attribution a{color:var(--teal) !important;}
   /* REVIEW D1: die Detail-Karte war die einzige HELLE Karte der App. Dunkler Schleier über den Kacheln
      (z-index 350: über tilePane 200, unter markerPane 600 — Pin und Marker behalten ihre Farbe). */
   #d-map{position:relative;}
@@ -2366,7 +2366,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-18.21';
+const BUILD = '2026-07-18.22';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
