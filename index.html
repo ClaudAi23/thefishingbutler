@@ -260,6 +260,7 @@
   /* Same treatment. The FAB floats over content, so it keeps a shadow — but a NEUTRAL one that
      reads as elevation, not the teal halo that read as glow. */
   .frow2{display:flex; gap:10px;} .frow2>.field{flex:1; min-width:0;}
+  .selfield.static{pointer-events:none; cursor:default;} .selfield.static .acc-chev{display:none;}
   /* ---- #15 Stufe 1: Unified-Form (Flag bf_unified; 'off' in localStorage schaltet zurück) ---- */
   #uf-hero{position:relative; height:170px; margin:-14px -16px 14px; background:var(--surface-2); background-size:cover; background-position:center; display:flex; align-items:flex-end; padding:12px 16px; overflow:hidden;}
   #uf-hero::after{content:''; position:absolute; inset:auto 0 0 0; height:72%; background:linear-gradient(transparent, rgba(2,27,40,.82)); pointer-events:none;}
@@ -1579,7 +1580,7 @@
           <label><span data-i18n="datetime">Datum &amp; Zeit</span> <span class="req">*</span></label>
           <input id="f-date" type="datetime-local" onchange="previewWeather()" />
         </div>
-        <div class="field">
+        <div class="field" id="ff-angler-wrap">
           <label><span data-i18n="angler">Angler</span> <span class="req">*</span></label>
           <select id="f-angler" onchange="onAnglerChange()" style="display:none;"></select>
           <button type="button" class="selfield" onclick="openSelSheet('f-angler', t('angler'))"><span id="f-angler-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -2395,7 +2396,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-19.8';
+const BUILD = '2026-07-19.9';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6188,17 +6189,25 @@ function buildAnglerOptions(){
     sel.innerHTML=opts; sel.value=`u:${meId}`;
     o.style.display='none'; o.value='';
     syncSelfield('f-angler');
+    /* Anzeigen als geloggt, aber KEINE Auswahl, wenn außer mir niemand wählbar ist (JC, 20. Juli):
+       Feld bleibt sichtbar (zeigt mich), ist aber nicht antippbar. */
+    { const wrap=document.getElementById('ff-angler-wrap'), btn=wrap&&wrap.querySelector('.selfield');
+      if(wrap) wrap.style.display='';
+      if(btn) btn.classList.toggle('static', mems.filter(m=>m.id!==meId).length===0); }
     return;
   }
   const me=state.user||state.soloName||'';
   const names=[];
   if(me) names.push(me);
   [...new Set(state.catches.map(c=>c.angler))].forEach(n=>{ if(n && !names.includes(n)) names.push(n); });
-  sel.innerHTML = names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('')
-    + `<option value="__other__">${t('other')}</option>`;
-  sel.value = me || (names[0]||'__other__');
+  /* Solo: ICH bin der Angler — kein „Andere…", kein Freitext (JC, 20. Juli). Feld zeigt mich, ohne Auswahl. */
+  const soloMe = me || (state.me&&state.me.name) || t('me');
+  sel.innerHTML = `<option value="${(''+soloMe).replace(/"/g,'&quot;')}">${esc(soloMe)}</option>`;
+  sel.value = soloMe;
   o.style.display='none'; o.value='';
   syncSelfield('f-angler');
+  { const wrap=document.getElementById('ff-angler-wrap'), btn=wrap&&wrap.querySelector('.selfield');
+    if(wrap) wrap.style.display=''; if(btn) btn.classList.add('static'); }
 }
 async function loadCtxMembers(){
   /* René-Bug, 2. Anlauf (18. Juli, JC: „funktioniert nicht"): Der alte Wächter `if(!ctxIsDb())` brach ab,
