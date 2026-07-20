@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.23` (21. Juli) — App-Icon auf „gedämpft" umgestellt (Idee 2, mittlerer Zuschnitt).**
+  JC nach dem Mockup: mittlerer Zuschnitt + reduziertes Glühen (gamma 1.4). Alle Icon-Assets aus dem
+  mittig zugeschnittenen Render neu erzeugt (Laterne groß, Schein zurück, Tiefsee dunkler), Cache-Bust
+  `?v=14`→`?v=15`. Ersetzt das „ganze Bild" aus `.22`.
+
 - **🟡 `v 2026-07-21.22` (21. Juli) — App-Icon = Origami-Laterne (Idee 2, ganzes Bild).**
   Alle Icon-Assets neu aus dem leuchtenden Origami-Render (`logo-esca-lit.png`) erzeugt: `apple-touch-icon`
   (180), `icon-192/512`, `icon-maskable-512`, `favicon-16/32/48`, `favicon.png/.ico/.svg`. Cache-Bust
