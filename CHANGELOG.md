@@ -9,7 +9,14 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
-- **🐛 `v 2026-07-21.21` (21. Juli, NOCH NICHT DEPLOYT) — Spot-Sheet zoomt nicht mehr raus.**
+- **🟡 `v 2026-07-21.22` (21. Juli) — App-Icon = Origami-Laterne (Idee 2, ganzes Bild).**
+  Alle Icon-Assets neu aus dem leuchtenden Origami-Render (`logo-esca-lit.png`) erzeugt: `apple-touch-icon`
+  (180), `icon-192/512`, `icon-maskable-512`, `favicon-16/32/48`, `favicon.png/.ico/.svg`. Cache-Bust
+  `?v=13`→`?v=14` in Head + `site.webmanifest`. Ganzes Bild = Stiel oben, Laterne mittig, volles Glühen.
+  Alternative **mittel + gedämpftes Glühen** liegt als `mockup-logo-idee2-mittel.html` zum Vergleich —
+  Umstieg auf JCs Ansage. (Flat-Comic-Icon damit abgelöst; Entscheidung Origami-als-Produkt-Icon noch offen.)
+
+- **✅ `v 2026-07-21.21` (21. Juli, Commit `7b16d96`) — Spot-Sheet zoomt nicht mehr raus. LIVE.**
   JC: „auf unterster Stufe auf die 2 tippen → nach den Fotos zoomt es wieder raus auf 6." Ursache:
   `openSpotSheet` machte `fitBounds{maxZoom:17}`; auf Stufe 19 fiel das auf 17 zurück (rauszoomen), und
   das `zoomend` re-clusterte zurück auf „6". Fix: Zielzoom beim Öffnen **nie unter den aktuellen** —
