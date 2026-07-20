@@ -2396,7 +2396,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-19.10';
+const BUILD = '2026-07-19.11';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4801,6 +4801,7 @@ function ensureFormMap(lat, lon){
     L.tileLayer(TILE,TILE_OPT).addTo(fMap);
     fMap.on('click', e=>setFormPin(e.latlng.lat, e.latlng.lng));
   } else { fMap.setView(center, has?13:fMap.getZoom()); }
+  attachFsBtn('f', fMap);
   setTimeout(()=>{ try{fMap.invalidateSize();}catch(e){} }, 80);
   if(has) setFormPin(lat,lon);
   else { if(fMarker){ fMap.removeLayer(fMarker); fMarker=null; } state.formLat=null; state.formLon=null; document.getElementById('f-coord').textContent=t('tapMap'); }
@@ -4830,6 +4831,7 @@ function ensureDetailMap(lat,lon){
     L.tileLayer(TILE,TILE_OPT).addTo(dMap);
     dMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(dMap);
   } else { try{ dMap.off('click'); dMap.scrollWheelZoom.disable(); }catch(e){} dMap.setView([lat,lon],13); _detailMapDraw(lat,lon); }
+  attachFsBtn('d', dMap);
   setTimeout(()=>{ try{dMap.invalidateSize();}catch(e){} }, 80);
 }
 function _detailMapDraw(lat,lon){
@@ -4842,6 +4844,7 @@ function initDetailEditMap(c){
   const has=(c.lat!=null&&c.lon!=null); const center=has?[c.lat,c.lon]:DEFAULT_CENTER;
   if(!dMap){ dMap=L.map('d-map',{zoomControl:true, attributionControl:false}).setView(center, has?13:6); L.tileLayer(TILE,TILE_OPT).addTo(dMap); }   // credit lives in .msrc under the map
   else { dMap.setView(center, has?13:6); }
+  attachFsBtn('d', dMap);
   try{ dMap.scrollWheelZoom.enable(); }catch(e){}
   if(has) _detailMapDraw(c.lat,c.lon); else if(dMarker){ try{ dMap.removeLayer(dMarker); }catch(e){} dMarker=null; }
   dMap.off('click'); dMap.on('click', e=> setDetailPin(c, e.latlng.lat, e.latlng.lng));
@@ -4890,7 +4893,16 @@ async function persistDetailPhotos(){
    neu braucht (Cluster hängen am Maßstab, nicht an den Daten) — ohne sie müsste `ensureCatchMap` beim
    Zoomen komplett neu laufen und würde per `fitBounds` die Ansicht zurückwerfen. */
 /* `key` = Fingerabdruck der Fänge (ids). Entscheidet, ob neu eingerahmt wird — siehe `ensureCatchMap`. */
-const _mapRef={ stats:{m:null, mk:[], pts:[], key:null}, list:{m:null, mk:[], pts:[], key:null} };
+const _mapRef={ stats:{m:null, mk:[], pts:[], key:null}, list:{m:null, mk:[], pts:[], key:null},
+  d:{m:null, mk:[], pts:[], key:null}, f:{m:null, mk:[], pts:[], key:null} };
+/* Vollbild-Knopf für JEDE Karte (JC, 20. Juli: „alle Karten sollten das haben"). Detail- und Form-Karte
+   laufen über eigene Instanzen (dMap/fMap), nicht über ensureCatchMap — deshalb hier nachrüsten:
+   Instanz in _mapRef spiegeln (mapFsToggle braucht sie für invalidateSize) und den Knopf EINMAL anhängen. */
+function attachFsBtn(kind, mapInstance){
+  const R=_mapRef[kind]; if(R) R.m=mapInstance;
+  const w=document.getElementById(kind+'-map');
+  if(w && !w.querySelector('.map-fs-btn')){ try{ mapFsButton(kind, w); }catch(e){} }
+}
 /* ---- Vollbild-Karte (17. Juli) --------------------------------------------------------------------
    Umgeschaltet wird eine Klasse am KARTEN-Element — die Leaflet-Instanz bleibt dieselbe. Ein Overlay
    mit zweiter Karte hätte Marker, Zoom und Mittelpunkt neu aufbauen müssen; so überlebt alles.
