@@ -2395,7 +2395,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-19.6';
+const BUILD = '2026-07-19.7';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6065,7 +6065,9 @@ function renderAreaSheet(){
   let h='';
   const myName=(state.me&&state.me.name)||t('solo');
   if(match(t('solo'))||match(myName)) h+=`<div class="area-grp">${esc(t('personal'))}</div>`+row('solo', myName, userAvatarHTML(), solo);
-  if(!q){
+  /* Nur wenn die Liste lang genug ist, dass nicht alles auf den Schirm passt (JC) — dieselbe
+     Schwelle wie die Suchleiste. Bei wenigen Kontexten wäre „zuletzt" nur eine Dopplung. */
+  if(!q && ctxs.length>6){
     const mru=_areaMru().map(id=>ctxs.find(x=>x.id===id)).filter(Boolean).slice(0,4);
     if(mru.length){ h+=`<div class="area-grp">${esc(t('recentLabel'))}</div>`; mru.forEach(c=>{ h+=row(c.id, c.name, clubLogoHTML(c), tg.indexOf(c.id)>=0); }); }
   }
@@ -6086,7 +6088,6 @@ function _areaMru(){ try{ return JSON.parse(localStorage.getItem('bf_area_mru')|
 function _areaMruAdd(id){ try{ let a=_areaMru().filter(x=>x!==id); a.unshift(id); a=a.slice(0,6); localStorage.setItem('bf_area_mru', JSON.stringify(a)); }catch(e){} }
 async function toggleArea(key){
   if(_areaMode==='detail') return detailToggleArea(key);
-  if(key && key!=='solo'){ _areaMruAdd(key); }
   let tg=(state.formTargets||[]).slice();
   if(key==='solo'){ tg=[]; }
   else { const i=tg.indexOf(key); if(i>=0) tg.splice(i,1); else tg.push(key); }
@@ -6446,6 +6447,9 @@ function saveCatch(){
     }).join(', ');
     err.style.display='block'; return;
   }
+  /* „Zuletzt ausgewählt" erst JETZT merken (JC, 20. Juli): nach bestandener Prüfung, nicht beim
+     Antippen — sonst springt der eben gewählte Kontakt sofort nach oben. */
+  try{ (state.formTargets||[]).forEach(id=>_areaMruAdd(id)); }catch(e){}
   const w=document.getElementById('f-weight').value, l=document.getElementById('f-length').value;
   const obj={
     id: state.editId || Date.now(), species,
