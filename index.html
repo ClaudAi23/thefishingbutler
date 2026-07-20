@@ -2392,7 +2392,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-19.3';
+const BUILD = '2026-07-19.4';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -8557,7 +8557,8 @@ initAuth();
     if(!row) return;
     /* 19.3: Wächter war state.auth==='supabase' — griff live nie (anderer Wert). Robust: Chips
        zeigen, sobald es Kontexte gibt; ohne Kontexte gäbe es ohnehin nur „Persönlich". */
-    if(!(window.state && (state.myContexts||[]).length)){ return; }
+    /* 19.4: `state` ist const im Script-Scope — window.state existiert NICHT. typeof statt window. */
+    if(!(typeof state!=='undefined' && (state.myContexts||[]).length)){ return; }
     row.style.display='flex'; if(old) old.style.display='none';
     const tg=(state.formTargets||[]);
     let html='<button type="button" class="uf-tchip'+(tg.length?'':' on')+'" onclick="toggleArea(\'solo\')">'+ (typeof t==='function'?t('personal'):'Persönlich') +'</button>';
