@@ -9,6 +9,15 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟢 `v 2026-07-21.67` (21. Juli) — Karten-Knöpfe: ausgegraut bis nutzbar (JC).**
+  Auf allen vier Karten (Fang-Detail, Log/Edit-Formular, Statistik, Gewässer): **Zentrieren / „Auf den Pin" /
+  „Alle Fänge"** ist grau & tot, solange es kein Ziel gibt oder die Karte schon dort steht; sobald man die
+  Karte verschiebt/zoomt, wird es aktiv (danach wieder grau). **Mein Standort** ist grau nur direkt nachdem
+  es dich hingebracht hat; sonst nutzbar. **Vollbild** bleibt immer aktiv. Der Formular-„Auf den Pin"-Knopf
+  ist jetzt immer sichtbar (statt versteckt bis Pin) und einfach ausgegraut, bis ein Pin gesetzt ist —
+  einheitlicher Fluss über alle Knöpfe. Gemeinsame Helfer (`_bfHome`/`_bfLocHome`/`_bfDim`), rein additiv;
+  die getunte Zoom/Fit-Logik ist unangetastet.
+
 - **🐛 `v 2026-07-21.66` (21. Juli) — Suchfeld rutschte beim Tippen unter die Tastatur.**
   Beim Tippen filterte die Liste auf wenige Treffer → das (von unten verankerte) Sheet schrumpfte → der Kopf
   mit dem Suchfeld rutschte nach unten unter die Tastatur. Jetzt hat die Trefferliste eine **feste Höhe

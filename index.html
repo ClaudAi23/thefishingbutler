@@ -566,6 +566,10 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
     box-shadow:0 2px 8px rgba(0,0,0,.28);}
   .map-ctr-btn:hover{background:#eef4f6;}
+  /* „Ausgegraut bis nutzbar" (JC, 21. Juli): Zentrieren/„Auf den Pin"/„Alle Fänge" und Mein Standort sind
+     gedämpft und tot, solange sie nichts täten (kein Ziel, oder Karte steht schon dort); sobald man die
+     Karte verschiebt/zoomt, werden sie aktiv. Vollbild bleibt immer aktiv. */
+  .map-ctr-btn.bf-dim, .map-loc-btn.bf-dim{opacity:.34; pointer-events:none;}
   .map-ctr-btn svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .map.is-fs .map-ctr-btn{
     top:calc(94px + env(safe-area-inset-top));
@@ -1715,7 +1719,7 @@
         <label data-i18n="mapPin">Standort auf Karte</label>
         <div class="map-wrap">
           <div id="f-map" class="map"></div>
-          <button type="button" class="map-ctr-btn" id="f-ctr-btn" onclick="formRecenter()" style="display:none" data-i18n-title="recenterCatch" title="Auf den Pin" aria-label="Auf den Pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.3"/></svg></button>
+          <button type="button" class="map-ctr-btn bf-dim" id="f-ctr-btn" onclick="formRecenter()" data-i18n-title="recenterCatch" title="Auf den Pin" aria-label="Auf den Pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.3"/></svg></button>
           <button type="button" class="map-loc-btn" onclick="useMyLocation()" data-i18n-title="myLocation" title="Mein Standort" aria-label="Mein Standort"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg></button>
         </div>
         <div class="msrc" id="f-msrc"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a></div>
@@ -2497,7 +2501,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.66';
+const BUILD = '2026-07-21.67';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4926,27 +4930,51 @@ function fishPinIcon(){
   return L.divIcon({ className:'fish-pin', iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-30],
     html:`<svg viewBox="0 0 26 34" width="26" height="34"><path d="M13 33.5C13 33.5 24.5 20 24.5 12A11.5 11.5 0 1 0 1.5 12C1.5 20 13 33.5 13 33.5Z" fill="${MAP_INK}" stroke="#fff" stroke-width="2"/><circle cx="13" cy="12" r="3.8" fill="#fff"/></svg>` });
 }
+/* ---- „Ausgegraut bis nutzbar" für die Karten-Knöpfe (JC, 21. Juli) --------------------------------
+   `map._bfHome` = das Ziel (Mittelpunkt+Zoom), auf das „Zentrieren/Auf den Pin/Alle Fänge" bringt. Steht
+   die Karte dort (oder gibt es kein Ziel), ist der Knopf tot → grau. Mein-Standort ist grau NUR, wenn es
+   ein Ziel gibt und die Karte schon dort steht; sonst nutzbar (man will ja hinspringen können). */
+function _bfMapHome(map, c, z){ try{ if(map) map._bfHome={c:[c[0],c[1]], z:z}; }catch(e){} }
+function _bfLocHome(map, c, z){ try{ if(map) map._bfLocHome={c:[c[0],c[1]], z:z}; }catch(e){} }
+function _bfAt(map, h){ try{ if(!h) return false; const cc=map.getCenter(); return (map.distance([cc.lat,cc.lng], h.c)<50) && (Math.abs(map.getZoom()-h.z)<=1); }catch(e){ return false; } }
+function _bfDim(map, wrapId){
+  try{
+    const wrap=(typeof wrapId==='string')?document.getElementById(wrapId):wrapId; if(!map||!wrap) return;
+    const ctr=wrap.querySelector('.map-ctr-btn'), loc=wrap.querySelector('.map-loc-btn');
+    /* Zentrieren/Pin/Alle-Fänge: grau, wenn es kein Ziel gibt ODER die Karte schon dort steht. */
+    if(ctr){ const h=map._bfHome; ctr.classList.toggle('bf-dim', !h || _bfAt(map, h)); }
+    /* Mein Standort: eigenes Ziel (dein zuletzt geholter Standort) — grau nur, wenn die Karte schon dort
+       steht; sonst nutzbar (auch bevor du je geortet hast). */
+    if(loc){ const lh=map._bfLocHome; loc.classList.toggle('bf-dim', !!lh && _bfAt(map, lh)); }
+  }catch(e){}
+}
+function _bfWireDim(map, wrapId){ try{ if(map && !map._bfDimWired){ map._bfDimWired=true; map.on('moveend zoomend', ()=>_bfDim(map, wrapId)); } }catch(e){} }
 function ensureFormMap(lat, lon){
   if(typeof L==='undefined') return;
   const has=(lat!=null&&lon!=null);
   const center=has?[lat,lon]:DEFAULT_CENTER;
+  const _fw=document.querySelector('#ff-mapPin .map-wrap');
   if(!fMap){
     fMap=L.map('f-map',{zoomControl:true, attributionControl:false}).setView(center, has?13:6);
     L.tileLayer(TILE,TILE_OPT).addTo(fMap);
     fMap.on('click', e=>setFormPin(e.latlng.lat, e.latlng.lng));
+    _bfWireDim(fMap, _fw);
   } else { fMap.setView(center, has?13:fMap.getZoom()); }
   attachFsBtn('f', fMap);
   setTimeout(()=>{ try{fMap.invalidateSize();}catch(e){} }, 80);
   if(has) setFormPin(lat,lon);
-  else { if(fMarker){ fMap.removeLayer(fMarker); fMarker=null; } state.formLat=null; state.formLon=null; document.getElementById('f-coord').textContent=t('tapMap');
-    const cb=document.getElementById('f-ctr-btn'); if(cb) cb.style.display='none'; }
+  else { if(fMarker){ fMap.removeLayer(fMarker); fMarker=null; } state.formLat=null; state.formLon=null; document.getElementById('f-coord').textContent=t('tapMap'); fMap._bfHome=null; }
+  try{ _bfDim(fMap, _fw); }catch(e){}
 }
 function setFormPin(lat, lon){
   state.formLat=lat; state.formLon=lon;
   if(!fMarker){ fMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(fMap); }   // form: one spot -> a pin, same as the detail
   else fMarker.setLatLng([lat,lon]);
   document.getElementById('f-coord').textContent = lat.toFixed(5)+', '+lon.toFixed(5);
-  const cb=document.getElementById('f-ctr-btn'); if(cb) cb.style.display='';   // „Auf den Pin" gibt es erst, wenn es einen Pin gibt
+  /* Ziel des „Auf den Pin"-Knopfs = der Pin auf Zoom 13. Knopf ist immer sichtbar, das Dim macht ihn grau,
+     solange die Karte schon dort steht (JC: ausgegraut bis nutzbar). */
+  _bfMapHome(fMap, [lat,lon], 13);
+  try{ _bfDim(fMap, document.querySelector('#ff-mapPin .map-wrap')); }catch(e){}
   previewWeather();
 }
 /* „Auf den Pin zentrieren" (Formular) — dieselbe Geste wie „Auf den Fang" im Detail: zurück auf die
@@ -4962,6 +4990,7 @@ function useMyLocation(){
     const lat=p.coords.latitude, lon=p.coords.longitude;
     if(fMap) fMap.setView([lat,lon],14);
     setFormPin(lat,lon);
+    _bfLocHome(fMap,[lat,lon],14); try{ _bfDim(fMap, document.querySelector('#ff-mapPin .map-wrap')); }catch(e){}
   }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
 }
 function _detailRecenter(){
@@ -4979,6 +5008,7 @@ function _detailMyLocation(){
     const lat=p.coords.latitude, lon=p.coords.longitude;
     try{ dMap.setView([lat,lon],14); }catch(e){}
     if(state.current) setDetailPin(state.current, lat, lon);
+    _bfLocHome(dMap,[lat,lon],14); try{ _bfDim(dMap, 'd-map'); }catch(e){}
     try{ haptic(8); }catch(e){}
   }, ()=>{ if(btn) btn.classList.remove('laedt'); }, {enableHighAccuracy:true, timeout:8000});
 }
@@ -5014,6 +5044,7 @@ function ensureDetailMap(lat,lon){
     dMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(dMap);
   } else { try{ dMap.off('click'); dMap.scrollWheelZoom.disable(); }catch(e){} dMap.setView([lat,lon],13); _detailMapDraw(lat,lon); }
   attachFsBtn('d', dMap); attachDetailBtns(); _detailSetMyLocBtn(false);
+  _bfMapHome(dMap, [lat,lon], 13); _bfWireDim(dMap, 'd-map'); try{ _bfDim(dMap, 'd-map'); }catch(e){}
   setTimeout(()=>{ try{dMap.invalidateSize();}catch(e){} }, 80);
 }
 function _detailMapDraw(lat,lon){
@@ -5126,6 +5157,7 @@ function mapLocButton(kind, wrap){
          beim Zentrieren. Zwei Absender auf einer Leitung, und der Nutzer hat nichts bewegt. */
       _spotSelbstBewegt=true;
       try{ R.m.flyTo([lat,lon], 14, {duration:.6}); }catch(e2){ try{ R.m.setView([lat,lon],14); }catch(e3){} }
+      _bfLocHome(R.m,[lat,lon],14);
       setTimeout(()=>{ _spotSelbstBewegt=false; }, 1100);
       try{ if(_meMk[kind]) R.m.removeLayer(_meMk[kind]); }catch(e2){}
       _meMk[kind]=L.circleMarker([lat,lon],{radius:7,color:'#fff',weight:3,fillColor:'#4C8DF6',fillOpacity:1,
@@ -5174,8 +5206,8 @@ function mapCtrButton(kind, wrap){
     try{
       /* maxZoom 13 → 12 (JC, 18. Juli, Feedback-Mail): „Wenn alle Fische im zoom sind … nimm vom
          jetzigen Wert noch eine Zoom Stufe weiter raus." Gilt für Knopf UND Erst-Aufbau (unten). */
-      if(bounds.length>1){ const _b=L.latLngBounds(bounds); let _z=Math.min(R.m.getBoundsZoom(_b,false,L.point(24,24)),12)-1; R.m.flyTo(_b.getCenter(), Math.max(2,_z), {duration:.6}); }
-      else R.m.flyTo(bounds[0], FOTO_ZOOM, {duration:.6});
+      if(bounds.length>1){ const _b=L.latLngBounds(bounds); let _z=Math.max(2,Math.min(R.m.getBoundsZoom(_b,false,L.point(24,24)),12)-1); R.m.flyTo(_b.getCenter(), _z, {duration:.6}); _bfMapHome(R.m,[_b.getCenter().lat,_b.getCenter().lng],_z); }
+      else { R.m.flyTo(bounds[0], FOTO_ZOOM, {duration:.6}); _bfMapHome(R.m, bounds[0], FOTO_ZOOM); }
     }catch(e2){ try{ if(bounds.length>1){ R.m.fitBounds(bounds,{padding:[24,24], maxZoom:12}); R.m.setZoom(Math.max(2,R.m.getZoom()-1)); } else R.m.setView(bounds[0],FOTO_ZOOM); }catch(e3){} }
     setTimeout(()=>{ _spotSelbstBewegt=false; }, 1100);
     try{ haptic(8); }catch(e2){}
@@ -5266,6 +5298,7 @@ function ensureCatchMap(kind, items){
     try{ mapFsButton(kind, wrap); }catch(e){}
     try{ mapCtrButton(kind, wrap); }catch(e){}
     try{ mapLocButton(kind, wrap); }catch(e){}
+    _bfWireDim(R.m, wrap);
   }
   R.pts=pts;
   drawCatchMarkers(kind);
@@ -5290,9 +5323,10 @@ function ensureCatchMap(kind, items){
     /* Zentrum = Mitte ALLER Punkte (JC, 20. Juli: „center auf einen Punkt statt mittig"). fitBounds
        animiert und ein direkt danach folgendes setZoom(-1) verrechnete sich mit dem laufenden Move —
        das schob die Mitte auf einen Rand-Punkt. Jetzt: Zoom vorab rechnen, in EINEM setView setzen. */
-    if(bounds.length>1){ try{ const _b=L.latLngBounds(bounds); const _z=Math.max(2, Math.min(R.m.getBoundsZoom(_b,false,L.point(24,24)),12)-1); R.m.setView(_b.getCenter(), _z); }catch(e){} }
-    else R.m.setView(bounds[0], FOTO_ZOOM);
+    if(bounds.length>1){ try{ const _b=L.latLngBounds(bounds); const _z=Math.max(2, Math.min(R.m.getBoundsZoom(_b,false,L.point(24,24)),12)-1); R.m.setView(_b.getCenter(), _z); _bfMapHome(R.m,[_b.getCenter().lat,_b.getCenter().lng],_z); }catch(e){} }
+    else { R.m.setView(bounds[0], FOTO_ZOOM); _bfMapHome(R.m, bounds[0], FOTO_ZOOM); }
   }
+  try{ _bfDim(R.m, wrap); }catch(e){}
   setTimeout(()=>{ try{R.m.invalidateSize();}catch(e){} }, 80);
 }
 /* Wer liegt auf dem SCHIRM übereinander? (18. Juli — Korrektur eines Fehlers von derselben Nacht.)
