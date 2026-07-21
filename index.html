@@ -811,8 +811,11 @@
   /* Status-Slot (JC 2b, 21. Juli): sitzt zwischen Byline und der vollen Trennlinie. Ist er LEER
      (bestätigt), trägt er selbst die volle Linie unter der Byline — sonst: dünne Linie oben, Status,
      volle Linie unten. So wandert die Zeile, die vorher unter dem Datum saß, unter den Status. */
-  #d-status-slot{border-bottom:1px solid var(--border);}
-  #d-status-slot:not(:empty){padding:12px 18px; border-top:1px solid color-mix(in srgb, var(--border) 55%, transparent);}
+  #d-status-slot{border-bottom:1px solid var(--border);}   /* volle Linie = Ende des Kopfs (wie unter der Byline zuvor) */
+  #d-status-slot:not(:empty){padding:0 18px 14px;}
+  /* Pause zwischen Byline und Status: KURZE zentrierte Linie (JC) — dieselbe Optik wie vor Wetter/Ort,
+     nicht die volle Kopf-Linie. */
+  #d-status-slot:not(:empty)::before{content:""; display:block; width:75%; height:1px; margin:0 auto 14px; background:var(--border-2);}
   #d-status-slot .d-status{margin-top:0;}
   .d-byline .dt{grid-column:2; grid-row:2; font-size:0.8rem; color:var(--muted);}
   /* The badge belongs to the whole entry, not to the name -> it spans both rows and sits centred,
@@ -1416,7 +1419,7 @@
      Sheet über den oberen Rand und die Suche verschwand. Jetzt: Sheet als Flex-Spalte, Kopf (Titel+Suche)
      und Fuß (Knopf) FEST, nur die Liste scrollt darunter. Höhe folgt dem sichtbaren Viewport (Tastatur) per
      JS (_fitPickerSheets), mit sichtbarem Abstand nach oben. */
-  .modal-box.picker{display:flex; flex-direction:column; overflow:hidden;}
+  .modal-box.picker{display:flex; flex-direction:column; overflow:hidden; max-height:82vh;}
   .modal-box.picker > *{flex:0 0 auto;}
   .modal-box.picker .picker-scroll{flex:1 1 auto; min-height:0; max-height:none!important; overflow:auto; -webkit-overflow-scrolling:touch;}
   .sheet-row{display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:15px; margin-bottom:10px; cursor:pointer; font-family:inherit; color:var(--text);}
@@ -2484,7 +2487,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.53';
+const BUILD = '2026-07-21.54';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6199,6 +6202,14 @@ async function openEditForm(c){
   g('f-title').textContent = t('editCatch');
   try{ applyFieldConfig(); }catch(e){}
   try{ buildAnglerOptions(); }catch(e){}
+  /* Angler auf den ECHTEN Fänger setzen (JC-Bug: beim Bearbeiten eines für René geloggten Fangs stand
+     wieder JC statt René). buildAnglerOptions setzt immer „ich“ vor — erst Mitglieder laden (damit Renés
+     Option existiert), neu bauen, dann auf c.userId (owner_id) stellen. */
+  if(c._db && c.userId){
+    loadCtxMembers().then(()=>{ try{ buildAnglerOptions(); const sel=g('f-angler'); const v='u:'+c.userId;
+      if(sel && [...sel.options].some(o=>o.value===v)){ sel.value=v; syncSelfield('f-angler'); }
+    }catch(e){} });
+  }
   try{ updateAreaSummary(); renderAreaSheet(); }catch(e){}
   try{ renderFormPhotos(); }catch(e){}
   try{ previewWeather(); }catch(e){}
@@ -7431,16 +7442,12 @@ const TA_CFG={
   }
 };
 let _taInput=null, _taCfg=null;
-/* #5 (JC, 21. Juli): Picker-Sheets an den SICHTBAREN Viewport koppeln — Höhe = sichtbare Höhe minus
-   Abstand oben. So ragt nichts über den Rand; und weil die Suche im festen Kopf sitzt (CSS `.picker`),
-   bleibt sie stehen, während nur die Liste darunter scrollt. `visualViewport` fängt die Tastatur ab. */
-function _fitPickerSheets(){
-  try{ const vv=window.visualViewport; const h=vv?vv.height:window.innerHeight; const cap=Math.max(220, Math.round(h-44));
-    ['ta-sheet','sel-sheet','ctxfilter-sheet'].forEach(function(id){ const ov=document.getElementById(id); if(!ov || ov.style.display==='none') return; const box=ov.querySelector('.modal-box'); if(box) box.style.maxHeight=cap+'px'; });
-  }catch(e){}
-}
-function _openedPickerFit(){ _fitPickerSheets(); setTimeout(_fitPickerSheets,120); setTimeout(_fitPickerSheets,350); }
-try{ if(window.visualViewport){ window.visualViewport.addEventListener('resize', _fitPickerSheets); window.visualViewport.addEventListener('scroll', _fitPickerSheets); } }catch(e){}
+/* #5-Nachtrag (JC, 21. Juli): Der visualViewport-Resize-Handler ließ die Picker-Sheets bei JEDER
+   Tastatur-Animation neu rechnen → das Sheet sprang/zitterte (unbenutzbar). Rausgenommen. Die feste
+   CSS-Deckelung (`.modal-box.picker` max-height + fester Kopf) reicht: Suche bleibt oben, nur die Liste
+   scrollt, nichts springt. Funktionen als No-Op belassen, damit die Aufrufer nichts wissen müssen. */
+function _fitPickerSheets(){}
+function _openedPickerFit(){}
 function openTypeahead(inputId){
   _taInput=inputId; _taCfg=TA_CFG[inputId]; if(!_taCfg) return;
   const tt=document.getElementById('ta-title'); if(tt) tt.textContent=_taCfg.title();

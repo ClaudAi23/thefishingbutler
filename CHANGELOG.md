@@ -9,6 +9,14 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.54` (21. Juli) — Sheet-Zittern raus + kurze Linie + Angler im Edit.**
+  **Picker-Zittern behoben:** der `visualViewport`-Resize-Handler (.51) rechnete bei jeder Tastatur-
+  Animation neu → das Sheet sprang (unbenutzbar, JC-Video). Entfernt; feste CSS-Deckelung (`max-height:82vh`
+  + fester Kopf) reicht: Suche bleibt oben, nur die Liste scrollt, nichts springt. **Trennlinie:** die Linie
+  zwischen Byline und „nicht bestätigt" ist jetzt die KURZE zentrierte Pause (wie vor Wetter/Ort), nicht die
+  volle Kopf-Linie. **Angler im Edit:** beim Bearbeiten eines für jemand anderen (René) geloggten Fangs
+  stand wieder „ich" statt René — jetzt wird der echte Fänger (owner_id) nach dem Mitglieder-Laden gesetzt.
+
 - **🟢 `v 2026-07-21.53` (21. Juli) — Statuszeile an ihren Platz (JC 2b).**
   Die „Noch nicht bestätigt"-Zeile sitzt jetzt direkt unter der Byline (Name/Datum) statt am Ende der
   Fang-Zeilen: dünne Linie darüber, der Status, dann die volle Trennlinie (die vorher unter dem Datum saß)
