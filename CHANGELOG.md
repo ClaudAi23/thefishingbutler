@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.66` (21. Juli) — Suchfeld rutschte beim Tippen unter die Tastatur.**
+  Beim Tippen filterte die Liste auf wenige Treffer → das (von unten verankerte) Sheet schrumpfte → der Kopf
+  mit dem Suchfeld rutschte nach unten unter die Tastatur. Jetzt hat die Trefferliste eine **feste Höhe
+  (52vh)**, das Sheet bleibt gleich groß, der Kopf steht still — egal wie viele Treffer.
+
 - **🐛 `v 2026-07-21.65` (21. Juli) — Sheet schließt beim Hochscrollen — behoben.**
   Der Swipe-nach-unten-Dismiss prüfte `sheet.scrollTop` (die **modal-box** — die scrollt nie, die Liste hat
   ihr eigenes Overflow). Also galt der Finger immer als „ganz oben", und jeder Runter-Wisch schloss das

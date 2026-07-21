@@ -2299,7 +2299,7 @@
           <input id="ta-search" type="text" autocomplete="off" oninput="renderTA()" onkeydown="if(event.key==='Enter'){event.preventDefault(); taEnter();}" />
         </div>
       </div>
-      <div id="ta-list" style="max-height:52vh; overflow:auto; margin:10px -2px 0;"></div>
+      <div id="ta-list" style="height:52vh; overflow:auto; margin:10px -2px 0;"></div>
       <button type="button" class="btn secondary" style="margin-top:12px;" onclick="closeModal('ta-sheet')" data-i18n="cancel">Abbrechen</button>
     </div>
   </div>
@@ -2497,7 +2497,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.65';
+const BUILD = '2026-07-21.66';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
