@@ -9,6 +9,16 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.47` (21. Juli) — Log-Feinschliff-Paket (JC-Freigaben).**
+  **#1 Pflichtfeld-Hinweis live & dezent:** zeigt grau, welche Pflichtfelder noch fehlen (Basis UND
+  vom Verein/Gruppe/Klub verlangte), zieht beim Ausfüllen mit, weg wenn komplett; beim gescheiterten
+  Speichern blitzt dieselbe Zeile rot (`_formErrHold` verhindert das Überschreiben → kein roter Blitz).
+  **#2** „vom Verein/Gruppe verlangt"-Legende war bereits kontextsensitiv (nur bei Verein/Gruppe mit
+  Pflichtfeldern) — bestätigt. **#3 Foto-Legende:** immer alle drei, nicht nutzbare **ausgegraut**
+  (Titelbild/Sortieren bei 1 Foto, Pin ohne EXIF), Stern bernsteingold, Pin-Text kurz **„aus Foto"**;
+  **einzelnes Foto bekommt das „Titelbild"-Banner**. **#4 EXIF-Toast:** beim ersten Foto dezente Meldung
+  „… aus dem Foto übernommen"; Rückfrage bleibt nur für den Konflikt-Fall.
+
 - **🐛 `v 2026-07-21.46` (21. Juli) — Fehlermeldung-Bug + B an JCs E-Mail.**
   **Bug (roter Blitz / Hinweis weg):** der Speichern-Klick löste auch `updateSaveReadiness` aus, das
   meine neue Dynamik `#form-err` sofort wieder ausblendete (Basisfelder ja voll) → die Vereins-Pflichtfeld-
