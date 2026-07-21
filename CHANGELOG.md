@@ -9,6 +9,10 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.44` (21. Juli) — Log-Hero: keine Geister-Chips.**
+  Nach #5 kamen die blassen „— cm/— kg"-Platzhalter mit, sobald eine Art gewählt war. Jetzt erscheinen
+  die Maß-Chips erst mit echtem Wert (wie auf der Detailseite) — kein Stilbruch mehr.
+
 - **🟡 `v 2026-07-21.43` (21. Juli) — Log: Pflichtfeld-Hinweis kontextsensitiv + Foto-Legende mit Icons.**
   **#1** Der Pflichtfeld-Hinweis nennt nur noch die WIRKLICH fehlenden Felder („Bitte noch ausfüllen:
   Datum, Angler") und **zieht live mit** (nach Art-Eingabe verschwindet Fischart, bei komplett blendet er

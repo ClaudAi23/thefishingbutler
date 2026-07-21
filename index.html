@@ -2457,7 +2457,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.43';
+const BUILD = '2026-07-21.44';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -8914,8 +8914,9 @@ initAuth();
     // #5 (JC): kein blasser Art-Platzhalter auf dem Hero — Titel erscheint erst, wenn eine Art gewählt ist.
     const tt=hero.querySelector('.uf-tt'); if(tt) tt.style.display = (!sp && !l && !w) ? 'none' : '';
     const t1=$('uf-sp'); t1.textContent=sp||''; t1.className=sp?'':'empty';
-    const cl=$('uf-len'); cl.textContent=l?l+' cm':'— cm'; cl.className='ufchip'+(l?'':' ghost');
-    const cw=$('uf-wt'); cw.textContent=w?w+' kg':'— kg'; cw.className='ufchip'+(w?'':' ghost');
+    // #5-Folge (JC): keine blassen „— cm/— kg"-Geister — Chips erscheinen erst mit echtem Wert (wie Detail).
+    const cl=$('uf-len'); if(cl){ cl.className='ufchip'; cl.textContent=l?l+' cm':''; cl.style.display=l?'':'none'; }
+    const cw=$('uf-wt'); if(cw){ cw.className='ufchip'; cw.textContent=w?w+' kg':''; cw.style.display=w?'':'none'; }
     chipsUpdate(); jumpEnsure(); ufHeroAdorn(cover);
   }
   function chipsUpdate(){
