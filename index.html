@@ -1424,7 +1424,7 @@
      das Sheet steht still. (Die Suche fokussiert beim Öffnen, die Tastatur ist also praktisch immer da.) */
   .modal-box.picker{display:flex; flex-direction:column; overflow:hidden; height:82vh; max-height:82vh;}
   .modal-box.picker > *{flex:0 0 auto;}
-  .modal-box.picker .picker-scroll{flex:1 1 auto; min-height:0; max-height:none!important; overflow:auto; -webkit-overflow-scrolling:touch;}
+  .modal-box.picker .picker-scroll{flex:1 1 auto; min-height:0; max-height:none!important; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;}
   .sheet-row{display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:15px; margin-bottom:10px; cursor:pointer; font-family:inherit; color:var(--text);}
   .sheet-row:active{border-color:var(--teal);}
   .sheet-row .sr-ic{width:44px; height:44px; border-radius:12px; background:var(--teal-tint); color:var(--teal-bright); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
@@ -2490,7 +2490,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.55';
+const BUILD = '2026-07-21.56';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {

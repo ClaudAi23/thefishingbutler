@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.56` (21. Juli) — Picker-Liste: Scroll-Chaining unterbunden.**
+  `overscroll-behavior:contain` auf der scrollenden Liste — verhindert, dass ein Scrollen am Listenende auf
+  die Seite/den Overlay „durchschlägt" (bekannte iOS-Ursache fürs ruckartige Springen). Rute/Rolle nutzen
+  dasselbe feste Sheet wie die Art; Edit und Log verhalten sich identisch (ein Formular, ein Sheet).
+
 - **🐛 `v 2026-07-21.55` (21. Juli) — Picker-Sheet: feste Höhe gegen das Springen.**
   Rest-Zittern (JC-Video .54): das von unten verankerte Sheet wuchs mit der Trefferliste und sprang bei
   jeder Filter-/Höhenänderung nach oben. Jetzt **feste Höhe (82vh)** — nur die Liste scrollt, das Sheet
