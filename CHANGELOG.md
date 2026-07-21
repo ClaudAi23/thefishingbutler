@@ -9,6 +9,17 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.48` (21. Juli) — Log-Nachzügler (JC-Test).**
+  **Bug 2:** Live-Hinweis verschwand erst beim nächsten Feld — Art-Auswahl (`pickSpecies`) setzt den Wert
+  programmatisch und löst kein `input`-Ereignis aus; jetzt triggert sie `updateSaveReadiness` selbst.
+  **Bug 4:** beim erneuten Öffnen der Log-Maske blitzte kurz das letzte Titelbild — das echte Hero-`<img>`
+  behielt seine alte `src` bis zum 500-ms-Poll; wird jetzt in `openForm` sofort entladen (+ `formCrop` reset).
+  **Bug 5:** Foto auf Position 1 zog das immersive Hero-Cover nicht sofort nach — `heroUpdate` ist jetzt von
+  außen aufrufbar und wird nach Umsortieren/Titelbild-Wechsel/Entfernen sofort gerufen. (Der Reorder- und
+  Speicherpfad selbst ist isoliert getestet korrekt — `editPhotos` wird umsortiert, `saveSoloPhotos` schreibt
+  `sort`/`is_cover` daraus.)
+  **1+2:** Pflichtfeld-Meldung hängt den Vereinsnamen nicht mehr an („… sonst wird es künftig zu lang", JC).
+
 - **🟡 `v 2026-07-21.47` (21. Juli) — Log-Feinschliff-Paket (JC-Freigaben).**
   **#1 Pflichtfeld-Hinweis live & dezent:** zeigt grau, welche Pflichtfelder noch fehlen (Basis UND
   vom Verein/Gruppe/Klub verlangte), zieht beim Ausfüllen mit, weg wenn komplett; beim gescheiterten

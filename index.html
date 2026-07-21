@@ -2461,7 +2461,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.47';
+const BUILD = '2026-07-21.48';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6117,7 +6117,13 @@ async function openForm(skipAuto){
   { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none'; }
   state.formLat=null; state.formLon=null; state.formWeather=null;
   { const _wb=document.getElementById('f-weather'); if(_wb) _wb.innerHTML=''; const _ww=document.getElementById('f-weather-wrap'); if(_ww) _ww.style.display='none'; }
-  clearPhoto(); closeSpecies(); populateAreaSelect(); go('form');
+  clearPhoto(); closeSpecies(); populateAreaSelect();
+  /* Hero sofort leeren (JC: „beim erneuten Loggen blitzt kurz das letzte Titelbild auf"). Das echte
+     <img> im uf-Hero behielt seine alte `src`, bis der 500-ms-Poll es überschrieb — genau dieser Blitz.
+     Hier direkt entladen; formCrop mit zurücksetzen, damit kein alter Zuschnitt am nächsten Bild klebt. */
+  try{ const _uh=document.getElementById('uf-hero-img'); if(_uh){ _uh.removeAttribute('src'); _uh.style.display='none'; }
+       const _uw=document.getElementById('uf-hero'); if(_uw) _uw.classList.remove('hasimg'); state.formCrop=null; }catch(e){}
+  go('form');
   ensureFormMap(null,null);
   try{ state.formSnap=formSnapshot(); }catch(e){}
   try{ bindFormReadiness(); updateSaveReadiness(); }catch(e){}
@@ -6693,13 +6699,10 @@ function saveCatch(){
   const cfg=formAdminCfg();
   const missing=CFG_FIELDS.filter(f=>cfg[f.key]==='required' && f.key!=='weather' && !fieldHasValue(f.key));
   if(missing.length){
-    /* Den Verein NENNEN (JC, 17. Juli): Ein Feld kann allein dadurch zur Pflicht werden, dass du einen
-       Verein zu einem bestehenden Fang hinzufügst. „Bitte Pflichtfelder ausfüllen: Entnahme" lässt dich
-       dann raten, woher die Forderung kommt — obwohl du am Fang selbst gar nichts geändert hast. */
-    err.textContent=t('errRequired')+' '+missing.map(f=>{
-      const nm=requiringCtxName(f.key);
-      return nm ? t(f.i18n)+' ('+nm+')' : t(f.i18n);
-    }).join(', ');
+    /* Verein NICHT mehr anhängen (JC, 21. Juli): „den Verein am Ende rauslassen, sonst wird es künftig zu
+       lang." Bei mehreren Pflichtfeldern hängte sich je „(Vereinsname)" an — die Zeile lief über. Jetzt nur
+       die Feldnamen. (Früher, 17. Juli, war der Verein bewusst genannt; das wird hiermit zurückgenommen.) */
+    err.textContent=t('errRequired')+' '+missing.map(f=>t(f.i18n)).join(', ');
     err.style.display='block'; haptic(30);
     /* Zum ersten fehlenden Pflichtfeld scrollen (JC-Bug: Meldung war „begraben", man sah nur einen roten
        Blitz). Vorher fehlte der Scroll hier ganz — anders als beim Art/Datum/Angler-Block darüber. */
@@ -7077,9 +7080,9 @@ function _coverPhotoSrc(){ return (state.editPhotos && state.editPhotos[0]) || n
 async function exifDateFromPhoto(){ const s=_coverPhotoSrc(); if(!s){ toast(t('exifNoPhoto')); return; } await applyExif(s, true, {gps:false, date:true}); }
 async function exifLocFromPhoto(){ const s=_coverPhotoSrc(); if(!s){ toast(t('exifNoPhoto')); return; } await applyExif(s, true, {gps:true, date:false}); }
 async function reExifFromPhoto(i){ const src=state.editPhotos[i]; if(!src) return; await applyExif(src, true); }
-function removeFormPhoto(i){ state.editPhotos.splice(i,1); renderFormPhotos(); }
+function removeFormPhoto(i){ state.editPhotos.splice(i,1); renderFormPhotos(); try{ if(window._ufHeroUpdate) window._ufHeroUpdate(); }catch(e){} }
 function setFormCover(i){ if(i<=0||i>=state.editPhotos.length) return;
-  const [p]=state.editPhotos.splice(i,1); state.editPhotos.unshift(p); renderFormPhotos(); }
+  const [p]=state.editPhotos.splice(i,1); state.editPhotos.unshift(p); renderFormPhotos(); try{ if(window._ufHeroUpdate) window._ufHeroUpdate(); }catch(e){} }
 function renderFormPhotos(){
   const grids=document.querySelectorAll('.pgrid'); if(!grids.length) return;
   const ps=state.editPhotos; const multi=ps.length>1; let h='';
@@ -7126,6 +7129,7 @@ function renderFormPhotos(){
         if(neu.every((v,i)=>v===ps[i])) return;       // unverändert: kein Rendern, kein Speichern
         state.editPhotos=neu;
         renderFormPhotos();
+        try{ if(window._ufHeroUpdate) window._ufHeroUpdate(); }catch(e){}   // Cover im immersiven Hero sofort nachziehen (JC-Bug 5)
         /* NICHT selbst speichern — bewusst. Exakt derselbe Weg wie beim Titelbild: `setFormCover`
            ändert auch nur `state.editPhotos` und rendert. Geschrieben wird an den zwei Stellen, die
            es ohnehin tun: `persistDetailPhotos()` beim Verlassen des Bearbeiten-Modus (dort werden
@@ -7168,7 +7172,10 @@ function renderSpecies(filter){
 }
 function openSpecies(){ renderSpecies(document.getElementById('f-species').value); }
 function filterSpecies(){ state.speciesKey=null; renderSpecies(document.getElementById('f-species').value); }
-function pickSpecies(key, label){ document.getElementById('f-species').value=label; state.speciesKey=key; closeSpecies(); }
+function pickSpecies(key, label){ document.getElementById('f-species').value=label; state.speciesKey=key; closeSpecies();
+  /* Art per Auswahl setzt den Wert programmatisch — das löst KEIN `input`-Ereignis aus, also zog der
+     Live-Hinweis nicht mit (JC: „verschwand erst, als ich noch was anderes eintrug"). Hier nachtriggern. */
+  try{ updateSaveReadiness(); }catch(e){} }
 function closeSpecies(){ const b=document.getElementById('combo-list'); if(b) b.classList.remove('open'); }
 /* --- Vorschläge sind Bestand (17. Juli) -----------------------------------------------------------
    Bis heute lagen Methode/Köder/Rute/Rolle/Boot in `localStorage['bf_suggest']` — **pro Gerät**. Eine
@@ -9045,6 +9052,9 @@ initAuth();
   document.addEventListener('input', e=>{ if(e.target && ['f-species','f-length','f-weight'].includes(e.target.id)) heroUpdate(); });
   document.addEventListener('change', e=>{ if(e.target && ['f-species','f-length','f-weight'].includes(e.target.id)) heroUpdate(); });
   setInterval(()=>{ try{ heroUpdate(); }catch(e){} }, 500);
+  /* Von außen aufrufbar (JC-Bug 5): Foto umsortieren/Titelbild wechseln soll das immersive Hero SOFORT
+     nachziehen, nicht erst beim nächsten 500-ms-Tick. renderFormPhotos ruft das nach jeder Änderung. */
+  window._ufHeroUpdate=function(){ try{ heroUpdate(); }catch(e){} };
 })();
 </script>
 </html>
