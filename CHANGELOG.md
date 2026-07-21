@@ -9,6 +9,13 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.63` (21. Juli) — Picker: Fokus erst nach der Animation (Kopf bleibt sichtbar).**
+  JC noch auf Screenshot 1 (ganzes Sheet über den Rand geschoben, Kopf weg). Ursache: Auto-Fokus feuerte nach
+  60 ms — mitten in der 0,3-s-Aufklapp-Animation, das Suchfeld saß noch unten hinter der kommenden Tastatur,
+  iOS scrollte es „in den Blick" und schob das ganze Sheet nach oben. Jetzt **fokussiert es erst nach 360 ms**
+  (nach der Animation), wenn das Feld schon oben über der Tastatur steht → iOS muss nichts schieben. (Sticky-
+  Kopf aus .62 bleibt als zweite Absicherung.)
+
 - **🟢 `v 2026-07-21.62` (21. Juli) — Picker: Kopf oben gepinnt (Screenshot 2), Tastatur zurück.**
   JCs Ziel (Screenshot 2): Titel + Suche oben FEST, Liste läuft nicht endlos nach oben, Tastatur da. Statt
   das Scroll-Modell umzubauen (das war die Flacker-Ursache), ist der Kopf jetzt **`position:sticky`** — wenn

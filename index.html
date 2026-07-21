@@ -2491,7 +2491,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.62';
+const BUILD = '2026-07-21.63';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -7461,9 +7461,11 @@ function openTypeahead(inputId){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  /* Auto-Fokus wieder an (JC): Tastatur soll direkt da sein. Der Kopf (Titel+Suche) ist jetzt sticky, die
-     Liste rutscht nicht mehr über ihn — genau Screenshot 2. */
-  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
+  /* Fokus ERST NACH der Aufklapp-Animation (0,3 s), nicht nach 60 ms (JC-Screenshot 1): fokussiert man
+     mitten in der Animation, sitzt das Suchfeld noch unten hinter der (kommenden) Tastatur — iOS scrollt
+     es „in den Blick" und schiebt das ganze Sheet über den oberen Rand. Nach der Animation steht das Feld
+     schon oben über der Tastatur → iOS muss nichts schieben, der Kopf bleibt sichtbar (Screenshot 2). */
+  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 360);
 }
 function _taHi(label, q){ const L=''+(label||''); if(!q) return esc(L); const i=L.toLowerCase().indexOf(q); if(i<0) return esc(L); return esc(L.slice(0,i))+'<b>'+esc(L.slice(i,i+q.length))+'</b>'+esc(L.slice(i+q.length)); }
 function _taRow(o, q, cur){
@@ -7523,9 +7525,11 @@ function openTypeaheadCfg(cfg){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  /* Auto-Fokus wieder an (JC): Tastatur soll direkt da sein. Der Kopf (Titel+Suche) ist jetzt sticky, die
-     Liste rutscht nicht mehr über ihn — genau Screenshot 2. */
-  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
+  /* Fokus ERST NACH der Aufklapp-Animation (0,3 s), nicht nach 60 ms (JC-Screenshot 1): fokussiert man
+     mitten in der Animation, sitzt das Suchfeld noch unten hinter der (kommenden) Tastatur — iOS scrollt
+     es „in den Blick" und schiebt das ganze Sheet über den oberen Rand. Nach der Animation steht das Feld
+     schon oben über der Tastatur → iOS muss nichts schieben, der Kopf bleibt sichtbar (Screenshot 2). */
+  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 360);
 }
 function taPick(v, key){ if(_taCfg) _taCfg.onPick(v, key); closeModal('ta-sheet'); }
 function taEnter(){ const q=(document.getElementById('ta-search').value||'').trim(); if(!q||!_taCfg) return; const all=_taCfg.opts()||[]; const ex=all.find(o=>(''+(o.v||'')).toLowerCase()===q.toLowerCase()); if(ex) taPick(ex.v, (ex.key!=null?ex.key:null)); else taPick(q, q); }
