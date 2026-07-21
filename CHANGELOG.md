@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.35` (21. Juli) — #15: Log-Abschnitt „Bedingungen" → Detail-Parität.**
+  JC: „Wasser steht unter Wetter, Wetter-Abschnitt leer." Ursache: `fg-cond` (enthält die
+  Wassertemperatur) wurde „Wetter" genannt. Fix: Überschrift → **„Am Wasser"**; die gefetchte
+  Wetter-Vorschau (`f-weather-wrap`, eigene „Wetter"-Überschrift) rückt darüber und erscheint nur, wenn
+  Wetter da ist — Reihenfolge wie Detail (Wetter · Am Wasser). Nur uf-Layer, keine Feld-IDs.
+
 - **🟡 `v 2026-07-21.34` (21. Juli) — #15 Unified, Stufe 1: „leise Felder" im Log-Formular.**
   Eingabe-Stil des Log-Formulars von lauten Boxen auf **„leise Felder"** (JC-Wahl): ruhige Fläche
   (`rgba(13,81,100,.22)`) statt Rahmen, zarter Teal-Unterstrich bei Fokus, Radius oben rund/unten flach.
