@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.26` (21. Juli) — App-Icon Fix: enger Halo statt Schein-Flut.**
+  `.25` sah im Dock matschig aus (großer Schein flutete die Kachel beige, Navy weg). Neu (Variante B):
+  Laterne größer (Logo 150 %, Raute weiter mittig), Schein nur noch ein **enger Halo** (58 % / 42 %),
+  **exakt aufs Faltkreuz zentriert** (Tile-Mitte). Navy bleibt satt dunkel, Laterne ist der Fokus —
+  „Licht im Dunkeln". Cache-Bust `?v=17`→`?v=18`.
+
 - **🟡 `v 2026-07-21.25` (21. Juli) — App-Icon: Laterne + Stiel, Raute exakt mittig (JCs Werte).**
   Aus getrennten Ebenen komponiert (Laterne+Stiel `logo-lantern-stalk.png` · Schein `logo-glow-layer.png`)
   nach JCs interaktiven Werten: Grund Navy `#021B28`, Logo 120 % bei X −42,84 / Y −13,32 (Faltkreuz der
