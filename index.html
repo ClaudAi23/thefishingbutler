@@ -755,6 +755,12 @@
   .photo-add.empty span{font-size:0.9375rem; font-weight:600; color:var(--text);}
   .photo-add.empty small{font-size:0.72rem; color:var(--muted); text-align:center; max-width:230px; line-height:1.35;}
   .photo-hint{font-size:0.75rem; color:var(--muted); margin-top:6px;}
+  /* Foto-Legende (JC): echte Icons statt Wörter, schön in einer Reihe. */
+  .photo-legend{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:9px;}
+  .photo-legend span{display:inline-flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--muted);}
+  .photo-legend svg{width:14px; height:14px; flex:0 0 auto;}
+  .photo-legend .l-star{fill:var(--amber); stroke:none;}
+  .photo-legend .l-ic{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .detail-strip{display:flex; gap:8px; overflow-x:auto; padding:10px 18px 16px; -webkit-overflow-scrolling:touch;}
   .detail-strip img{width:64px; height:64px; object-fit:cover; border-radius:8px; flex:0 0 auto;
     cursor:pointer; opacity:.65; transition:opacity .15s;}
@@ -2451,7 +2457,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.42';
+const BUILD = '2026-07-21.43';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2477,7 +2483,7 @@ const I18N = {
     signIn:"Anmelden", email:"E-Mail", emailPh:"name@beispiel.de", password:"Passwort", loginHint:"Demo: beliebige E-Mail und beliebiges Passwort funktionieren. Konten werden vom Vereinsadmin angelegt.",
     solo:"Solo", withoutClub:"Ohne Verein", yourName:"Dein Name", namePh:"z. B. Johannes", next:"Weiter", errName:"Bitte gib deinen Namen ein.", soloHint:"Im Solo-Modus dokumentierst du deine Fänge privat — ohne Verein, ohne Login.",
     catches:"Fänge", ttFilter:"Filter", ttSettings:"Einstellungen", ttLogout:"Abmelden", addCatch:"Fang eintragen", recent:"Neueste Fänge", filtered:"Gefilterte Fänge", total:"Fänge gesamt", hits:"Treffer", longestStat:"Längster Fang", heaviestStat:"Schwerster Fang", emptyNone:"Noch keine Fänge.<br>Trag deinen ersten Fang ein!", emptyFilter:"Keine Fänge für diesen Filter.",
-    logCatch:"Fang eintragen", newCatch:"Neuer Fang", photo:"Foto", addPhoto:"Foto hinzufügen", species:"Fischart", speciesPh:"Art wählen oder eingeben", lengthCm:"Länge (cm)", weightKg:"Gewicht (kg)", lengthPh:"z. B. 38", weightPh:"z. B. 5,5", water:"Gewässer / Platz", waterPh:"z. B. Vereinsteich, Platz 4", datetime:"Datum & Zeit", angler:"Angler", anglerOtherPh:"Name eingeben", notes:"Notizen", notesPh:"z. B. Drill, Wetter, Stimmung …", saveCatch:"Fang speichern", errFields:"Bitte Fischart, Datum und Angler ausfüllen.", errFuture:"Das Datum darf nicht in der Zukunft liegen.", nfLength:"Länge", nfWeight:"Gewicht", nfTrolling:"Schleppgeschwindigkeit", nfWatertemp:"Wassertemperatur", errNumNaN:"{f}: bitte eine Zahl eingeben.", errNumInt:"{f}: nur ganze Zahlen.", errNumDec:"{f}: höchstens {d} Nachkommastellen.", errNumRange:"{f}: nur {min} bis {max} {u}.", other:"Andere…", speciesNew:"neue Art hinzufügen", editMoreFields:"Gruppe / Verein ändern", clearField:"Feld leeren", forgetEntry:"Aus Vorschlägen entfernen",
+    logCatch:"Fang eintragen", newCatch:"Neuer Fang", photo:"Foto", addPhoto:"Foto hinzufügen", species:"Fischart", speciesPh:"Art wählen oder eingeben", lengthCm:"Länge (cm)", weightKg:"Gewicht (kg)", lengthPh:"z. B. 38", weightPh:"z. B. 5,5", water:"Gewässer / Platz", waterPh:"z. B. Vereinsteich, Platz 4", datetime:"Datum & Zeit", angler:"Angler", anglerOtherPh:"Name eingeben", notes:"Notizen", notesPh:"z. B. Drill, Wetter, Stimmung …", saveCatch:"Fang speichern", errFields:"Bitte Fischart, Datum und Angler ausfüllen.", errFillIn:"Bitte noch ausfüllen:", legendCover:"Titelbild", legendSort:"Sortieren", legendExif:"Datum & Ort", errFuture:"Das Datum darf nicht in der Zukunft liegen.", nfLength:"Länge", nfWeight:"Gewicht", nfTrolling:"Schleppgeschwindigkeit", nfWatertemp:"Wassertemperatur", errNumNaN:"{f}: bitte eine Zahl eingeben.", errNumInt:"{f}: nur ganze Zahlen.", errNumDec:"{f}: höchstens {d} Nachkommastellen.", errNumRange:"{f}: nur {min} bis {max} {u}.", other:"Andere…", speciesNew:"neue Art hinzufügen", editMoreFields:"Gruppe / Verein ändern", clearField:"Feld leeren", forgetEntry:"Aus Vorschlägen entfernen",
     details:"Fang-Details", dAngler:"Angler", dWater:"Gewässer", dLength:"Länge", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Keine Maße erfasst", ttShare:"Teilen",
     settings:"Einstellungen", display:"Darstellung", appearance:"Design", themeLight:"Hell", themeDark:"Dunkel", themeSystem:"System", themeHint:"„System\" folgt automatisch der Hell/Dunkel-Einstellung deines Geräts.", measureLabel:"Standard-Maß in Übersicht & Statistik", mLength:"Länge", mWeight:"Gewicht", measureHint:"Bestimmt, welches Maß in der Fangliste angezeigt wird, wonach der größte Fang berechnet wird und welcher Fang deinen persönlichen Rekord (Krone) hält.", language:"Sprache", clubLogoAdmin:"Logo", currentLogo:"Aktuelles Logo", uploadLogo:"Logo hochladen", logoHint:"Nur Admins können das Logo ändern. Es gilt für alle Mitglieder.", myImage:"Mein Bild", initialsDefault:"Standard: deine Initialen", uploadImage:"Bild hochladen",
     filter:"Filter", narrow:"Fänge eingrenzen", ttReset:"Zurücksetzen", period:"Zeitraum", year:"Jahr", month:"Monat", from:"Von", to:"Bis", periodHint:"Entweder Jahr/Monat <em>oder</em> Von–Bis — sie schließen sich gegenseitig aus.", properties:"Eigenschaften", fltCatch:"Fang", fltSize:"Maße", locationContains:"Ort / Gewässer enthält", locationPh:"z. B. Vereinsteich", lengthFrom:"Länge von (cm)", lengthTo:"Länge bis (cm)", weightFrom:"Gewicht von (kg)", weightTo:"Gewicht bis (kg)", minPh:"min", maxPh:"max", applyFilter:"Anwenden", reset:"Zurücksetzen", all:"Alle",
@@ -2494,7 +2500,7 @@ whereYouFish:"Orte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"Voll
     signIn:"Sign in", email:"Email", emailPh:"name@example.com", password:"Password", loginHint:"Demo: any email and password work. Accounts are created by the club admin.",
     solo:"Solo", withoutClub:"Without a club", yourName:"Your name", namePh:"e.g. John", next:"Continue", errName:"Please enter your name.", soloHint:"In solo mode you log your catches privately — no club, no login.",
     catches:"Catches", ttFilter:"Filter", ttSettings:"Settings", ttLogout:"Sign out", addCatch:"Log a catch", recent:"Latest catches", filtered:"Filtered catches", total:"Total catches", hits:"Matches", longestStat:"Longest catch", heaviestStat:"Heaviest catch", emptyNone:"No catches yet.<br>Log your first catch!", emptyFilter:"No catches for this filter.",
-    logCatch:"Log a catch", newCatch:"New catch", photo:"Photo", addPhoto:"Add photo", species:"Species", speciesPh:"Choose or type a species", lengthCm:"Length (cm)", weightKg:"Weight (kg)", lengthPh:"e.g. 38", weightPh:"e.g. 5.5", water:"Water / spot", waterPh:"e.g. Club pond, peg 4", datetime:"Date & time", angler:"Angler", anglerOtherPh:"Enter name", notes:"Notes", notesPh:"e.g. the fight, weather, mood …", saveCatch:"Save catch", errFields:"Please fill in species, date and angler.", errFuture:"The date can't be in the future.", nfLength:"Length", nfWeight:"Weight", nfTrolling:"Trolling speed", nfWatertemp:"Water temperature", errNumNaN:"{f}: please enter a number.", errNumInt:"{f}: whole numbers only.", errNumDec:"{f}: at most {d} decimal places.", errNumRange:"{f}: only {min} to {max} {u}.", other:"Other…", speciesNew:"add new species", editMoreFields:"Change group / club", clearField:"Clear field", forgetEntry:"Remove from suggestions",
+    logCatch:"Log a catch", newCatch:"New catch", photo:"Photo", addPhoto:"Add photo", species:"Species", speciesPh:"Choose or type a species", lengthCm:"Length (cm)", weightKg:"Weight (kg)", lengthPh:"e.g. 38", weightPh:"e.g. 5.5", water:"Water / spot", waterPh:"e.g. Club pond, peg 4", datetime:"Date & time", angler:"Angler", anglerOtherPh:"Enter name", notes:"Notes", notesPh:"e.g. the fight, weather, mood …", saveCatch:"Save catch", errFields:"Please fill in species, date and angler.", errFillIn:"Still needed:", legendCover:"Cover", legendSort:"Reorder", legendExif:"Date & location", errFuture:"The date can't be in the future.", nfLength:"Length", nfWeight:"Weight", nfTrolling:"Trolling speed", nfWatertemp:"Water temperature", errNumNaN:"{f}: please enter a number.", errNumInt:"{f}: whole numbers only.", errNumDec:"{f}: at most {d} decimal places.", errNumRange:"{f}: only {min} to {max} {u}.", other:"Other…", speciesNew:"add new species", editMoreFields:"Change group / club", clearField:"Clear field", forgetEntry:"Remove from suggestions",
     details:"Catch details", dAngler:"Angler", dWater:"Water", dLength:"Length", dWeight:"Weight", dDate:"Date", noMeasures:"No measurements", ttShare:"Share",
     settings:"Settings", display:"Display", appearance:"Theme", themeLight:"Light", themeDark:"Dark", themeSystem:"System", themeHint:"\"System\" follows your device's light/dark setting.", measureLabel:"Default measure in list & stats", mLength:"Length", mWeight:"Weight", measureHint:"Sets which measure shows in the catch list, how the biggest catch is determined, and which catch holds your personal best (crown).", language:"Language", clubLogoAdmin:"Logo", currentLogo:"Current logo", uploadLogo:"Upload logo", logoHint:"Only admins can change the logo. It applies to all members.", myImage:"My picture", initialsDefault:"Default: your initials", uploadImage:"Upload picture",
     filter:"Filter", narrow:"Narrow down catches", ttReset:"Reset", period:"Period", year:"Year", month:"Month", from:"From", to:"To", periodHint:"Either year/month <em>or</em> from–to — they're mutually exclusive.", properties:"Properties", fltCatch:"Catch", fltSize:"Measurements", locationContains:"Location / water contains", locationPh:"e.g. Club pond", lengthFrom:"Length from (cm)", lengthTo:"Length to (cm)", weightFrom:"Weight from (kg)", weightTo:"Weight to (kg)", minPh:"min", maxPh:"max", applyFilter:"Apply", reset:"Reset", all:"All",
@@ -2507,7 +2513,7 @@ whereYouFish:"Orte", mapFullscreen:"Karte vergrößern", mapExitFullscreen:"Voll
     signIn:"Inloggen", email:"E-mail", emailPh:"naam@voorbeeld.nl", password:"Wachtwoord", loginHint:"Demo: elke e-mail en elk wachtwoord werken. Accounts worden aangemaakt door de verenigingsbeheerder.",
     solo:"Solo", withoutClub:"Zonder vereniging", yourName:"Je naam", namePh:"bijv. Jan", next:"Verder", errName:"Voer je naam in.", soloHint:"In solomodus leg je je vangsten privé vast — zonder vereniging, zonder inloggen.",
     catches:"Vangsten", ttFilter:"Filter", ttSettings:"Instellingen", ttLogout:"Uitloggen", addCatch:"Vangst toevoegen", recent:"Laatste vangsten", filtered:"Gefilterde vangsten", total:"Totaal vangsten", hits:"Treffers", longestStat:"Langste vangst", heaviestStat:"Zwaarste vangst", emptyNone:"Nog geen vangsten.<br>Voeg je eerste vangst toe!", emptyFilter:"Geen vangsten voor dit filter.",
-    logCatch:"Vangst toevoegen", newCatch:"Nieuwe vangst", photo:"Foto", addPhoto:"Foto toevoegen", species:"Vissoort", speciesPh:"Soort kiezen of typen", lengthCm:"Lengte (cm)", weightKg:"Gewicht (kg)", lengthPh:"bijv. 38", weightPh:"bijv. 5,5", water:"Water / plek", waterPh:"bijv. Verenigingsvijver, plek 4", datetime:"Datum & tijd", angler:"Visser", anglerOtherPh:"Naam invoeren", notes:"Notities", notesPh:"bijv. dril, weer, sfeer …", saveCatch:"Vangst opslaan", errFields:"Vul vissoort, datum en visser in.", errFuture:"De datum mag niet in de toekomst liggen.", nfLength:"Lengte", nfWeight:"Gewicht", nfTrolling:"Sleepsnelheid", nfWatertemp:"Watertemperatuur", errNumNaN:"{f}: voer een getal in.", errNumInt:"{f}: alleen hele getallen.", errNumDec:"{f}: maximaal {d} decimalen.", errNumRange:"{f}: alleen {min} tot {max} {u}.", other:"Andere…", speciesNew:"nieuwe soort toevoegen", editMoreFields:"Groep / club wijzigen", clearField:"Veld leegmaken", forgetEntry:"Uit suggesties verwijderen",
+    logCatch:"Vangst toevoegen", newCatch:"Nieuwe vangst", photo:"Foto", addPhoto:"Foto toevoegen", species:"Vissoort", speciesPh:"Soort kiezen of typen", lengthCm:"Lengte (cm)", weightKg:"Gewicht (kg)", lengthPh:"bijv. 38", weightPh:"bijv. 5,5", water:"Water / plek", waterPh:"bijv. Verenigingsvijver, plek 4", datetime:"Datum & tijd", angler:"Visser", anglerOtherPh:"Naam invoeren", notes:"Notities", notesPh:"bijv. dril, weer, sfeer …", saveCatch:"Vangst opslaan", errFields:"Vul vissoort, datum en visser in.", errFillIn:"Nog invullen:", legendCover:"Omslag", legendSort:"Sorteren", legendExif:"Datum & locatie", errFuture:"De datum mag niet in de toekomst liggen.", nfLength:"Lengte", nfWeight:"Gewicht", nfTrolling:"Sleepsnelheid", nfWatertemp:"Watertemperatuur", errNumNaN:"{f}: voer een getal in.", errNumInt:"{f}: alleen hele getallen.", errNumDec:"{f}: maximaal {d} decimalen.", errNumRange:"{f}: alleen {min} tot {max} {u}.", other:"Andere…", speciesNew:"nieuwe soort toevoegen", editMoreFields:"Groep / club wijzigen", clearField:"Veld leegmaken", forgetEntry:"Uit suggesties verwijderen",
     details:"Vangstdetails", dAngler:"Visser", dWater:"Water", dLength:"Lengte", dWeight:"Gewicht", dDate:"Datum", noMeasures:"Geen maten", ttShare:"Delen",
     settings:"Instellingen", display:"Weergave", appearance:"Thema", themeLight:"Licht", themeDark:"Donker", themeSystem:"Systeem", themeHint:"\"Systeem\" volgt de licht/donker-instelling van je apparaat.", measureLabel:"Standaardmaat in lijst & statistiek", mLength:"Lengte", mWeight:"Gewicht", measureHint:"Bepaalt welke maat in de vangstlijst staat, hoe de grootste vangst wordt bepaald en welke vangst je persoonlijk record (kroon) heeft.", language:"Taal", clubLogoAdmin:"Logo", currentLogo:"Huidig logo", uploadLogo:"Logo uploaden", logoHint:"Alleen beheerders kunnen het logo wijzigen. Het geldt voor alle leden.", myImage:"Mijn foto", initialsDefault:"Standaard: je initialen", uploadImage:"Foto uploaden",
     filter:"Filter", narrow:"Vangsten filteren", ttReset:"Resetten", period:"Periode", year:"Jaar", month:"Maand", from:"Van", to:"Tot", periodHint:"Of jaar/maand <em>of</em> van–tot — ze sluiten elkaar uit.", properties:"Eigenschappen", fltCatch:"Vangst", fltSize:"Maten", locationContains:"Plek / water bevat", locationPh:"bijv. Verenigingsvijver", lengthFrom:"Lengte van (cm)", lengthTo:"Lengte tot (cm)", weightFrom:"Gewicht van (kg)", weightTo:"Gewicht tot (kg)", minPh:"min", maxPh:"max", applyFilter:"Toepassen", reset:"Resetten", all:"Alle",
@@ -6528,7 +6534,18 @@ function formReady(){
     return true;
   }catch(e){ return true; }
 }
-function updateSaveReadiness(){ try{ const b=document.querySelector('#s-form .form-actions .btn'); if(b) b.classList.toggle('not-ready', !formReady()); }catch(e){} }
+function _missingBaseFields(){
+  const species=(state.speciesKey!=null && state.speciesKey!=='') ? state.speciesKey : (document.getElementById('f-species')||{}).value.trim();
+  const date=(document.getElementById('f-date')||{}).value;
+  const angler=selectedAngler();
+  const m=[]; if(!species) m.push(t('species')); if(!date) m.push(t('datetime')); if(!angler) m.push(t('angler'));
+  return m;
+}
+function updateSaveReadiness(){ try{ const b=document.querySelector('#s-form .form-actions .btn'); if(b) b.classList.toggle('not-ready', !formReady());
+  // Pflichtfeld-Hinweis zieht live mit (JC): nur noch die FEHLENDEN Felder nennen, ausblenden wenn komplett.
+  const err=document.getElementById('form-err');
+  if(err && err.style.display!=='none'){ const miss=_missingBaseFields(); if(!miss.length) err.style.display='none'; else err.textContent=t('errFillIn')+' '+miss.join(', '); }
+}catch(e){} }
 function bindFormReadiness(){
   const f=document.getElementById('s-form'); if(!f||f._readyBound) return; f._readyBound=true;
   const h=function(){ setTimeout(updateSaveReadiness,0); };
@@ -6594,7 +6611,7 @@ function saveCatch(){
     if(!species){ const e=markInvalid('f-species'); first=first||e; }
     if(!date){ const e=markInvalid('f-date'); first=first||e; }
     if(!angler){ const e=markInvalid('f-angler'); first=first||e; }
-    err.textContent=t('errFields'); err.style.display='block'; haptic(30);
+    { const miss=_missingBaseFields(); err.textContent=miss.length?(t('errFillIn')+' '+miss.join(', ')):t('errFields'); } err.style.display='block'; haptic(30);
     if(first){ try{ first.scrollIntoView({behavior:'smooth', block:'center'}); first.focus(); }catch(_e){} }
     return;
   }
@@ -7059,7 +7076,14 @@ function renderFormPhotos(){
       }
     });
   });
-  const hint=document.getElementById('photo-hint'); if(hint) hint.style.display=ps.length?'block':'none';
+  const hint=document.getElementById('photo-hint');
+  if(hint){ hint.style.display=ps.length?'block':'none';
+    if(ps.length){ hint.innerHTML=`<div class="photo-legend">`+
+      (multi?`<span><svg class="l-star" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9z"/></svg>${esc(t('legendCover'))}</span>`:``)+
+      (multi?`<span><svg class="l-ic" viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>${esc(t('legendSort'))}</span>`:``)+
+      `<span><svg class="l-ic" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${esc(t('legendExif'))}</span>`+
+      `</div>`;
+    } }
 }
 function clearPhoto(){ state.editPhotos=[]; const fp=document.getElementById('f-photo'); if(fp) fp.value=''; renderFormPhotos(); }
 
