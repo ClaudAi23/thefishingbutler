@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.36` (21. Juli) — #15: Log-Überschriften ohne Icon (wie Detail).**
+  JC nach Mockup-Vergleich (`mockup-header-styles.html`): Icons raus. Die Sektions-Überschriften im
+  Log-Formular (`.fgroup` + „Fotos"-Label) verlieren ihr führendes Icon → schlicht wie die Detailseite
+  (Wort + Trennlinie). Behebt auch das falsche Wolken-Icon an „Am Wasser". Werte-Icons (Thermometer,
+  Wind, Mond) bleiben. Gescoped `.bf-unified #s-form`.
+
 - **🟡 `v 2026-07-21.35` (21. Juli) — #15: Log-Abschnitt „Bedingungen" → Detail-Parität.**
   JC: „Wasser steht unter Wetter, Wetter-Abschnitt leer." Ursache: `fg-cond` (enthält die
   Wassertemperatur) wurde „Wetter" genannt. Fix: Überschrift → **„Am Wasser"**; die gefetchte

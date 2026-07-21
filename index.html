@@ -301,6 +301,11 @@
   }
   /* Der Combo-Chevron sitzt im selben ruhigen Feld — Trennlinie weg, er schwebt einfach rechts. */
   html.bf-unified #s-form .combo .combo-chev{background:none;}
+  /* Icons von den Abschnitts-Überschriften weg (JC, 21. Juli): schlicht wie die Detailseite — nur Wort
+     + Trennlinie, kein Icon davor. Betrifft die Sektions-Header (.fgroup) und das „Fotos"-Label. Die
+     kleinen Icons an den WERTEN (Thermometer, Wind, Mond) bleiben — die hat Detail auch. */
+  html.bf-unified #s-form .fgroup > svg,
+  html.bf-unified #s-form .field.secfield > label > svg{ display:none; }
   .fab{position:fixed; right:max(18px, calc(50% - 192px)); bottom:calc(18px + env(safe-area-inset-bottom)); z-index:50;
     width:60px; height:60px; border-radius:50%; border:none; background:var(--btn-fill); color:var(--on-btn);
     box-shadow:0 6px 16px rgba(2,27,40,.30); cursor:pointer; transition:background .16s ease;
@@ -2429,7 +2434,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.35';
+const BUILD = '2026-07-21.36';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
