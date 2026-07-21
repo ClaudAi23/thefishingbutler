@@ -9,6 +9,16 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.45` (21. Juli) — #15 Weg B (Stufe 1): Bearbeiten öffnet das Log-Formular — HINTER FLAG.**
+  Neuer `openEditForm(c)`: füllt das Log-Formular aus dem Fang (Art, Datum, Maße, Entnahme, Technik,
+  Wasser, Ort+Karte, Notizen, Fotos, Wetter, Ziele) und setzt `state.editId` — der Update-Pfad in
+  `saveCatch` (DB + lokal) war intakt, nur der Einstieg fehlte seit dem `openEdit`-Rückbau. Der
+  Bearbeiten-Knopf routet **nur bei `localStorage bf_editForm='on'`** hierher; sonst bleibt Inline-Edit
+  Standard (nichts an Live geändert). So kann JC B testen: `localStorage.setItem('bf_editForm','on')`,
+  neu laden, einen Fang öffnen → Bearbeiten. **Zu prüfen (v. a. Vereins-Fänge):** Angler-Auswahl &
+  Kontext/Ziele nach dem Öffnen, und dass Speichern den richtigen Fang aktualisiert. Detailseite (Lesen)
+  unberührt.
+
 - **🟡 `v 2026-07-21.44` (21. Juli) — Log-Hero: keine Geister-Chips.**
   Nach #5 kamen die blassen „— cm/— kg"-Platzhalter mit, sobald eine Art gewählt war. Jetzt erscheinen
   die Maß-Chips erst mit echtem Wert (wie auf der Detailseite) — kein Stilbruch mehr.
