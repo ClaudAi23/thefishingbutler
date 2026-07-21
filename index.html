@@ -1454,6 +1454,12 @@
   .ta-searchwrap .ta-searchic{position:absolute; left:12px; top:12px; width:18px; height:18px; stroke:var(--muted); fill:none;}
   #ta-search{width:100%; border:1.5px solid var(--teal-bright); border-radius:11px; background:var(--surface); padding:11px 12px 11px 38px; font-size:1rem; color:var(--text); box-shadow:0 0 0 2px rgba(30,116,135,.14);}
   .ta-opt{display:flex; align-items:center; gap:11px; padding:12px; border-radius:11px; font-size:0.96rem; cursor:pointer;}
+  /* Lange Namen KÜRZEN statt seitwärts überlaufen (JC: „komisches Seitwärts-Scrolling", und das X wurde
+     rausgeschoben). Das Label ist das erste <span>; es bekommt Ellipsis, das X bleibt so immer sichtbar. */
+  .ta-opt > span:first-child{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  /* Scroll-Chaining unterbinden (JC: „einmal runtergescrollt, dann schließt sich das Fenster beim
+     Hochscrollen"): das Ziehen am Listenende soll nicht auf Hintergrund/Seite durchschlagen. */
+  #ta-list, #sel-sheet-list, #ctxfilter-list, #area-sheet-list{overscroll-behavior:contain;}
   .ta-opt:hover,.ta-opt:active{background:var(--surface-2);}
   .ta-opt .ta-tick{margin-left:auto;}
   .ta-opt .ta-tick svg{width:18px; height:18px; stroke:var(--teal); fill:none; stroke-width:2.4;}
@@ -2491,7 +2497,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.63';
+const BUILD = '2026-07-21.64';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {

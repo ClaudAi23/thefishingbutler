@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.64` (21. Juli) — Picker-Liste: lange Namen kürzen + Scroll-Chaining aus.**
+  Species-Kopf bleibt jetzt (JC ✓). Zwei Nachzügler: (1) sehr lange Namen liefen seitwärts über und schoben
+  das ×-Knöpfchen aus dem Bild — Zeilen kürzen jetzt mit Ellipsis, × bleibt sichtbar. (2) „einmal
+  runtergescrollt, dann schließt sich das Fenster beim Hochscrollen": `overscroll-behavior:contain` auf den
+  Listen, damit das Ziehen am Listenende nicht auf den Hintergrund durchschlägt.
+
 - **🐛 `v 2026-07-21.63` (21. Juli) — Picker: Fokus erst nach der Animation (Kopf bleibt sichtbar).**
   JC noch auf Screenshot 1 (ganzes Sheet über den Rand geschoben, Kopf weg). Ursache: Auto-Fokus feuerte nach
   60 ms — mitten in der 0,3-s-Aufklapp-Animation, das Suchfeld saß noch unten hinter der kommenden Tastatur,
