@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.69` (21. Juli) — Formular-Karten-Knopf setzte Pin unter sich (Folge von .68).**
+  Durch das Umhängen in die Karte (.68) fiel der Klick auf Pin-/Standort-Knopf auf die Leaflet-Karte durch →
+  `fMap.on('click')` setzte den Pin unter den Knopf. Jetzt `L.DomEvent.disableClickPropagation` auf beide
+  Knöpfe — Klick bleibt am Knopf.
+
 - **🐛 `v 2026-07-21.68` (21. Juli) — Karten-Regel: Nachbesserungen (JC-Test).**
   (1) „Alle Fänge" war bei MEHREREN Fängen nach dem Laden nicht grau, bei EINEM schon — der „am Ziel"-Check
   maß in Metern (50 m ist rausgezoomt fast nichts, ein Mini-Versatz nach `invalidateSize` galt als „bewegt").

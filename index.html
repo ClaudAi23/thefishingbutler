@@ -2501,7 +2501,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.68';
+const BUILD = '2026-07-21.69';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4976,7 +4976,12 @@ function ensureFormMap(lat, lon){
     /* Pin- und Standort-Knopf IN die Karte hängen (JC): im Vollbild wandert nur das Karten-Element ans
        <body>; als Geschwister blieben die Knöpfe zurück (nur Zoom + Vollbild-Schließen sichtbar). Als
        Kinder von #f-map reisen sie mit. */
-    try{ const fm=document.getElementById('f-map'); const cb=document.getElementById('f-ctr-btn'); const lb=_fw&&_fw.querySelector('.map-loc-btn'); if(fm){ if(cb) fm.appendChild(cb); if(lb) fm.appendChild(lb); } }catch(e){}
+    try{ const fm=document.getElementById('f-map'); const cb=document.getElementById('f-ctr-btn'); const lb=_fw&&_fw.querySelector('.map-loc-btn');
+      if(fm){ if(cb) fm.appendChild(cb); if(lb) fm.appendChild(lb);
+        /* WICHTIG: In der Leaflet-Karte muss der Klick auf die Knöpfe gestoppt werden, sonst fällt er auf
+           die Karte durch → `fMap.on('click')` setzt den Pin unter den Knopf (JC-Bug). */
+        try{ if(cb) L.DomEvent.disableClickPropagation(cb); if(lb) L.DomEvent.disableClickPropagation(lb); }catch(_e){}
+      } }catch(e){}
   } else { fMap.setView(center, has?13:fMap.getZoom()); }
   attachFsBtn('f', fMap);
   setTimeout(()=>{ try{fMap.invalidateSize();}catch(e){} try{ _bfDim(fMap, 'f-map'); }catch(e){} }, 80);
