@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.61` (21. Juli) — Picker öffnet ohne Auto-Fokus (ruhiger).**
+  Der Typeahead-Picker (Art/Methode/Köder/…) fokussierte beim Öffnen sofort die Suche → Tastatur ploppte auf,
+  schnitt die Liste ab, wirkte unruhig. Jetzt **öffnet er ruhig mit voller Liste**; die Tastatur kommt erst,
+  wenn man ins Suchfeld tippt (aus der Liste wählen = ein Tipp; neu schreiben = ein Tipp mehr). Test-Wunsch JC.
+
 - **🐛 `v 2026-07-21.60` (21. Juli) — Picker: Hintergrund-Timer pausiert, solange offen.**
   Messung am JC-Video: vereinzelte 1-Frame-Tastatur-Aussetzer. Ursache: der `heroUpdate`-500-ms-Timer
   fasste das Formular-DOM auch dann an, wenn im Picker-Sheet die Suche fokussiert war → Reflow/Fokus-Störung.

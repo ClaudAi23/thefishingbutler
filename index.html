@@ -2488,7 +2488,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.60';
+const BUILD = '2026-07-21.61';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -7458,7 +7458,9 @@ function openTypeahead(inputId){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
+  /* KEIN Auto-Fokus mehr (JC, 21. Juli): der Picker öffnete sonst sofort mit Tastatur, die die Liste
+     abschnitt und unruhig wirkte. Jetzt öffnet er ruhig mit voller Liste; die Tastatur kommt erst, wenn
+     der Nutzer ins Suchfeld tippt. */
 }
 function _taHi(label, q){ const L=''+(label||''); if(!q) return esc(L); const i=L.toLowerCase().indexOf(q); if(i<0) return esc(L); return esc(L.slice(0,i))+'<b>'+esc(L.slice(i,i+q.length))+'</b>'+esc(L.slice(i+q.length)); }
 function _taRow(o, q, cur){
@@ -7518,7 +7520,9 @@ function openTypeaheadCfg(cfg){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
+  /* KEIN Auto-Fokus mehr (JC, 21. Juli): der Picker öffnete sonst sofort mit Tastatur, die die Liste
+     abschnitt und unruhig wirkte. Jetzt öffnet er ruhig mit voller Liste; die Tastatur kommt erst, wenn
+     der Nutzer ins Suchfeld tippt. */
 }
 function taPick(v, key){ if(_taCfg) _taCfg.onPick(v, key); closeModal('ta-sheet'); }
 function taEnter(){ const q=(document.getElementById('ta-search').value||'').trim(); if(!q||!_taCfg) return; const all=_taCfg.opts()||[]; const ex=all.find(o=>(''+(o.v||'')).toLowerCase()===q.toLowerCase()); if(ex) taPick(ex.v, (ex.key!=null?ex.key:null)); else taPick(q, q); }
