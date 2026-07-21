@@ -9,6 +9,9 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.30` (21. Juli) — App-Icon: hellere Glow-Fassung (`vorne.png`, JC-Wahl „Bild 2").**
+  1:1 übernommen, nur skaliert. Cache-Bust `?v=21`→`?v=22`.
+
 - **🟡 `v 2026-07-21.29` (21. Juli) — App-Icon final (JCs endgültige Fassung).**
   Neueste Version von JC (`lastlast.png`) 1:1 übernommen, nur skaliert. Cache-Bust `?v=20`→`?v=21`.
 
