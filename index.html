@@ -2488,7 +2488,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.58';
+const BUILD = '2026-07-21.59';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6171,6 +6171,11 @@ async function openForm(skipAuto){
   try{ const _uh=document.getElementById('uf-hero-img'); if(_uh){ _uh.removeAttribute('src'); _uh.style.display='none'; }
        const _uw=document.getElementById('uf-hero'); if(_uw) _uw.classList.remove('hasimg'); state.formCrop=null; }catch(e){}
   go('form');
+  /* Abschnitte SOFORT umsortieren + Sprung-Leiste bauen (JC-Video: das Formular sprang beim Öffnen, weil
+     `ufReorder`/`jumpEnsure` erst am 500-ms-`heroUpdate`-Tick liefen — die Abschnitte schichteten sich
+     sichtbar um. Nach einer Validierung war `_ufReordered` schon gesetzt, daher kein Sprung → genau der
+     Hinweis. Jetzt synchron beim Öffnen, bevor der Nutzer es sieht. */
+  try{ if(window._ufHeroUpdate) window._ufHeroUpdate(); }catch(e){}
   ensureFormMap(null,null);
   try{ state.formSnap=formSnapshot(); }catch(e){}
   try{ bindFormReadiness(); updateSaveReadiness(); }catch(e){}

@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.59` (21. Juli) — Formular-Sprung beim Öffnen behoben.**
+  Der eigentliche Sprung (JC-Video, „nicht nach einer Validierung"): `ufReorder`/`jumpEnsure` sortierten die
+  Abschnitte + bauten die Sprung-Leiste erst am 500-ms-`heroUpdate`-Tick — sichtbar ~½ s nach dem Öffnen
+  schichtete sich das Formular um. Nach einer Validierung war `_ufReordered` schon gesetzt, daher kein Sprung
+  (genau JCs Beobachtung). Jetzt läuft das **synchron beim Öffnen**, bevor der Nutzer es sieht.
+
 - **🐛 `v 2026-07-21.58` (21. Juli) — Sheet-Springen: Frozen-Search zurückgebaut + Delete als Kopf-Icon.**
   **Springen (endgültig):** Das Video zeigte die eigentliche Ursache — eine **Tastatur-Auf/Ab-Schleife**.
   Mein Frozen-Search-Umbau (ab .51: feste Höhe, fester Kopf im `position:fixed`-Sheet) provozierte sie auf
