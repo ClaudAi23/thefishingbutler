@@ -1429,6 +1429,8 @@
   #share-hero-prev .share-hero{position:relative; border-radius:14px; overflow:hidden; width:100%; background:var(--surface-2);}
   #share-hero-prev .share-hero img{width:100%; display:block;}
   #share-hero-prev .share-load{height:180px; display:flex; align-items:center; justify-content:center; color:var(--muted); background:var(--surface-2); border-radius:14px;}
+  .share-note{width:100%; margin-top:12px; background:var(--surface-2); border:1.5px solid var(--border-2); border-radius:12px; padding:11px 13px; font-family:inherit; font-size:0.9rem; color:var(--text); resize:vertical;}
+  .share-note:focus{outline:none; border-color:var(--teal-bright);}
   .share-msg{margin-top:12px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:0.86rem; white-space:pre-line; color:var(--text);}
   .share-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
   .share-th{position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:var(--surface-2); cursor:pointer; border:0; padding:0;}
@@ -2324,6 +2326,7 @@
     <div class="modal-box">
       <h2 style="font-size:1.25rem; margin:0 0 12px;" data-i18n="shareSheetTitle">Fang teilen</h2>
       <div id="share-hero-prev"></div>
+      <textarea id="share-note" class="share-note" rows="2" oninput="onShareNoteInput()" data-i18n-ph="shareNotePh" placeholder="Notiz hinzufügen …"></textarea>
       <div id="share-msg-prev" class="share-msg"></div>
       <p class="hint" id="share-photos-lbl" style="margin:15px 0 7px; display:none;" data-i18n="sharePhotosLabel">Fotos mitschicken</p>
       <div id="share-photo-grid" class="share-grid" style="display:none;"></div>
@@ -2525,7 +2528,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.72';
+const BUILD = '2026-07-22.428';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2630,9 +2633,9 @@ Object.assign(I18N.de, {method:"Angelmethode", bait:"Köder", rod:"Rute", boat:"
 Object.assign(I18N.en, {demoHint:"Demo: fields are pre-filled — just tap Sign in.", photos:"Photos", cover:"Cover", setCover:"Set as cover", photoHint:"Up to 10 photos. Star = cover · drag to reorder · the pin icon pulls date & location from the photo."});
 Object.assign(I18N.en, {method:"Method", bait:"Bait / lure", rod:"Rod", boat:"Boat", watertemp:"Water", watertempPh:"e.g. 18 °C", trolling:"Trolling speed", trollingPh:"e.g. 3.2", releasedLabel:"Kept / Released", releasedNone:"—", releasedKept:"Kept", releasedReleased:"Released", methodPh:"e.g. Spin fishing", baitPh:"e.g. 12 cm soft lure", rodPh:"e.g. 2.70 m / 40 g", reel:"Reel", reelPh:"e.g. 4000 spinning reel", boatPh:"e.g. dinghy", fieldsTitle:"Log fields", fieldsHint:"Choose which fields are required when logging. All fields are always shown.", fieldsHintAdmin:"As admin you can make fields required. Every field is always shown — hiding is not possible.", fieldsHintMember:"Which fields are required is set by the admin (read-only).", stRequired:"Required", stNotRequired:"Not required", moreFields:"More fields", errRequired:"Please fill the required fields:", shareTitle:"Sharing", shareModeFields:"Fields", shareModeTemplate:"Custom template", sharePreview:"Preview", shareLink:"App link", shareHint:"Applies to this area (Solo / group / club).", sharePhHint:"Placeholders: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Export as CSV", exportPdf:"Export as PDF (with photos)", exportEmpty:"No catches to export.", exportPdfErr:"Couldn't load PDF export (internet required)."});
 Object.assign(I18N.nl, {demoHint:"Demo: velden zijn al ingevuld — tik gewoon op Inloggen.", photos:"Foto's", cover:"Omslag", setCover:"Als omslag", photoHint:"Tot 10 foto's. Ster = omslag · sleep om te ordenen · het pin-icoon haalt datum & locatie uit de foto."});
-Object.assign(I18N.de, {shareSheetTitle:"Fang teilen", sharePhotosLabel:"Fotos mitschicken", shareGo:"Teilen"});
-Object.assign(I18N.en, {shareSheetTitle:"Share catch", sharePhotosLabel:"Include photos", shareGo:"Share"});
-Object.assign(I18N.nl, {shareSheetTitle:"Vangst delen", sharePhotosLabel:"Foto's meesturen", shareGo:"Delen"});
+Object.assign(I18N.de, {shareSheetTitle:"Fang teilen", sharePhotosLabel:"Fotos mitschicken", shareGo:"Teilen", shareNotePh:"Notiz hinzufügen …"});
+Object.assign(I18N.en, {shareSheetTitle:"Share catch", sharePhotosLabel:"Include photos", shareGo:"Share", shareNotePh:"Add a note …"});
+Object.assign(I18N.nl, {shareSheetTitle:"Vangst delen", sharePhotosLabel:"Foto's meesturen", shareGo:"Delen", shareNotePh:"Notitie toevoegen …"});
 /* Pflichtwert beim Verein-Tap (JC, 17. Juli). Der Verein wird GENANNT: Ein Feld wird hier allein dadurch
    zur Pflicht, dass man einen Verein hinzufügt — „Bitte Pflichtfelder ausfüllen" ließe einen raten,
    woher die Forderung kommt, obwohl man am Fang selbst nichts geändert hat. Dieselbe Überlegung wie bei
@@ -8675,9 +8678,13 @@ function openShareSheet(){
   const mine = !c._db || (state.me && (c.userId===state.me.id || (c.loggedBy===state.me.id && c.confirmed===false)));
   if(!mine) return;
   _shareSel=new Set([0]);   // Cover ist immer dabei (= das Hero), weitere Fotos wählt man dazu
+  { const nt=document.getElementById('share-note'); if(nt) nt.value=''; }   // Notiz ist pro Teilen, nicht gespeichert
   renderShareSheet();
   const sh=document.getElementById('share-sheet'); if(sh) sh.style.display='flex';
 }
+/* Optionale Notiz-Zeile (JC): kommt VOR die Template-Nachricht. Pro Teilen, nicht gespeichert. */
+function _shareText(c){ const el=document.getElementById('share-note'); const note=el?el.value.trim():''; const base=catchText(c); return note ? (note+'\n\n'+base) : base; }
+function onShareNoteInput(){ const c=state.current; if(!c) return; const m=document.getElementById('share-msg-prev'); if(m) m.textContent=_shareText(c); }
 function toggleSharePhoto(i){
   if(i===0) return;                         // Cover/Hero immer dabei
   if(_shareSel.has(i)) _shareSel.delete(i); else _shareSel.add(i);
@@ -8686,7 +8693,7 @@ function toggleSharePhoto(i){
 }
 async function renderShareSheet(){
   const c=state.current; if(!c) return;
-  { const m=document.getElementById('share-msg-prev'); if(m) m.textContent=catchText(c); }
+  { const m=document.getElementById('share-msg-prev'); if(m) m.textContent=_shareText(c); }
   const hp=document.getElementById('share-hero-prev');
   if(hp){ hp.innerHTML='<div class="share-load">…</div>';
     try{ const h=await _composeShareHero(c); const src=(h&&h.url)?h.url:(coverOf(c)||'');
@@ -8759,7 +8766,7 @@ async function doShareCatch(){
   const ps=photosOf(c);
   const extra=[..._shareSel].filter(function(i){return i>0;}).sort(function(a,b){return a-b;});
   for(const i of extra){ try{ const blob=await (await fetch(ps[i])).blob(); files.push(new File([blob],base+'-'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'})); }catch(e){} }
-  const text=catchText(c);
+  const text=_shareText(c);
   try{ closeModal('share-sheet'); }catch(e){}
   try{
     let data={text};

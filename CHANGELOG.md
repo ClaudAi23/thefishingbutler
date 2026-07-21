@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟢 `v 2026-07-22.428` (22. Juli) — Teilen: optionale Notiz-Zeile + Versionsnummer auf echte Commit-Zahl.**
+  Im Teilen-Sheet gibt es jetzt ein optionales Feld **„Notiz hinzufügen …"** — ein persönlicher Satz pro
+  Teilen (z. B. „Größter des Jahres!"), der VOR die Template-Nachricht kommt; nicht gespeichert, Vorschau
+  zieht live mit. **Versionsnummer:** ab jetzt = **echte GitHub-Commit-Zahl** (Repo steht bei 427; dieser
+  Bau ist Commit #428). Der alte `.72`-Zähler war willkürlich; die Nummer bleibt monoton (.428 > .72).
+
 - **🐛 `v 2026-07-22.72` (22. Juli) — Teilen Spur A: Wasserzeichen + Dateinamen (JC-Test).**
   Wasserzeichen ist jetzt **„butler.fish"** und sitzt **unten rechts** (Position finalisieren wir beim
   Brand-Pass). Geteilte Dateien heißen sprechend + sprach-neutral: **`ButlerFish-Pike-99cm-2026-01-28.jpg`**
