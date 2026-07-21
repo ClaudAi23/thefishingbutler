@@ -9,6 +9,10 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.31` (21. Juli) — App-Icon FINAL (JCs richtige Fassung, Navy-Grund).**
+  `meinlogo.png` 1:1 übernommen: leuchtende Laterne mittig, weicher Schein, Navy `#021B28`. Ersetzt die
+  versehentlich schwarze `vorne.png`-Fassung. Cache-Bust `?v=22`→`?v=23`.
+
 - **🟡 `v 2026-07-21.30` (21. Juli) — App-Icon: hellere Glow-Fassung (`vorne.png`, JC-Wahl „Bild 2").**
   1:1 übernommen, nur skaliert. Cache-Bust `?v=21`→`?v=22`.
 
