@@ -306,6 +306,17 @@
      kleinen Icons an den WERTEN (Thermometer, Wind, Mond) bleiben — die hat Detail auch. */
   html.bf-unified #s-form .fgroup > svg,
   html.bf-unified #s-form .field.secfield > label > svg{ display:none; }
+  /* #15 Stufe 2 (JC „A+"): Sichtbarkeit der Hero-Justierung im Edit — dezente Pille (immer) + einmalige
+     Einblendung (erstes Bearbeiten). Beide pointer-events:none, damit sie das Ziehen nicht blockieren. */
+  .d-hero-adjust{position:absolute; top:10px; left:10px; z-index:4; display:inline-flex; align-items:center;
+    gap:6px; background:rgba(2,27,40,.72); border:1px solid rgba(255,255,255,.16); color:#dff;
+    font-size:.68rem; border-radius:999px; padding:5px 10px; pointer-events:none;}
+  .d-hero-adjust svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2;}
+  .d-hero-hint1{position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+  .d-hero-hint1 span{background:rgba(2,27,40,.82); color:#eef; font-size:.82rem; padding:8px 14px;
+    border-radius:999px; border:1px solid rgba(255,255,255,.14); animation:heroHint1 2.8s ease forwards;}
+  @keyframes heroHint1{0%{opacity:0; transform:translateY(6px);} 14%{opacity:1; transform:none;} 78%{opacity:1;} 100%{opacity:0;}}
+  @media(prefers-reduced-motion:reduce){ .d-hero-hint1 span{animation:none; opacity:0;} }
   .fab{position:fixed; right:max(18px, calc(50% - 192px)); bottom:calc(18px + env(safe-area-inset-bottom)); z-index:50;
     width:60px; height:60px; border-radius:50%; border:none; background:var(--btn-fill); color:var(--on-btn);
     box-shadow:0 6px 16px rgba(2,27,40,.30); cursor:pointer; transition:background .16s ease;
@@ -2434,7 +2445,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.37';
+const BUILD = '2026-07-21.38';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -7771,7 +7782,15 @@ function openDetailObj(c, from, keepEdit){
     { const _cover=(state.editPhotos||[])[0];
       if(_cover){ const _oi=ps.indexOf(_cover);
         hero.style.display='flex'; hero.className='hero';
-        hero.innerHTML=coverImg(c, _cover, 'id="d-hero-img"', _oi>=0?_oi:0);
+        const _lang=(typeof curLang==='function'?curLang():'de');
+        const _pill=_lang==='en'?'Drag · zoom':_lang==='nl'?'Sleep · zoom':'Ziehen · Zoom';
+        let _adorn='<div class="d-hero-adjust"><svg viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>'+_pill+'</div>';
+        if(!localStorage.getItem('bf_heroHintSeen')){
+          const _h1=_lang==='en'?'Drag to reposition · pinch to zoom':_lang==='nl'?'Sleep om uit te lijnen · knijp om te zoomen':'Ziehen zum Ausrichten · Pinch zum Zoomen';
+          _adorn+='<div class="d-hero-hint1"><span>'+_h1+'</span></div>';
+          try{ localStorage.setItem('bf_heroHintSeen','1'); }catch(e){}
+        }
+        hero.innerHTML=coverImg(c, _cover, 'id="d-hero-img"', _oi>=0?_oi:0)+_adorn;
         try{ bindHeroRepos(c); }catch(e){}
       } else { hero.style.display='none'; hero.innerHTML=''; }
     }

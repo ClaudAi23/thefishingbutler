@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.38` (21. Juli) — #15 Stufe 2: Hero-Justierung sichtbar machen (JC „A+").**
+  Edit-Hero bekommt eine dezente **Hinweis-Pille** oben links („Ziehen · Zoom", i18n) und beim ERSTEN
+  Bearbeiten eine **einmalige Einblendung** („Ziehen zum Ausrichten · Pinch zum Zoomen", `bf_heroHintSeen`
+  in localStorage). Beide `pointer-events:none`, blockieren das Ziehen nicht. Reduced-motion respektiert.
+
 - **🟡 `v 2026-07-21.37` (21. Juli) — #15 Stufe 2: Hero im Edit justierbar (datensicher).**
   Im Catch-Edit wird der Hero jetzt angezeigt UND ist justierbar (ziehen = Fokus, pinch/Rad = Zoom),
   statt versteckt. `bindHeroRepos` ist edit-aware: der Zuschnitt wird über den **Original-Index** des
