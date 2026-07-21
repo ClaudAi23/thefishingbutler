@@ -9,6 +9,12 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟢 `v 2026-07-21.50` (21. Juli) — Weg B (Bearbeiten = Log-Formular) für ALLE.**
+  Nach JCs Test auf seiner E-Mail („funktioniert") jetzt global: Bearbeiten öffnet überall das vorbefüllte
+  Log-Formular (create = edit = ein Screen), inkl. justierbarem Hero und EXIF-Nachfrage im Edit. Aus-Schalter
+  bleibt (`localStorage bf_editForm='off'` → alter Inline-Edit). Der alte `state.editId`-Update-Pfad ist damit
+  wieder der reguläre Bearbeiten-Weg (Tracker-Eintrag „tote Zweige" richtiggestellt).
+
 - **🟢 `v 2026-07-21.49` (21. Juli) — Filter & Sortierung pro Kontext + „Zuletzt hinzugefügt" (JC #3).**
   **Filter und Sortierung sind jetzt pro Kontext** (Verein/Gruppe/Solo/„Meine Fänge") — jeder Bereich merkt
   sich seinen eigenen Stand innerhalb der Session und stellt ihn beim Zurückkommen wieder her; bei
