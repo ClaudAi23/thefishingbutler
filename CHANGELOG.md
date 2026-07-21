@@ -9,6 +9,13 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.37` (21. Juli) — #15 Stufe 2: Hero im Edit justierbar (datensicher).**
+  Im Catch-Edit wird der Hero jetzt angezeigt UND ist justierbar (ziehen = Fokus, pinch/Rad = Zoom),
+  statt versteckt. `bindHeroRepos` ist edit-aware: der Zuschnitt wird über den **Original-Index** des
+  angezeigten Titelbilds (editPhotos[0] → `photoPaths`) gespeichert — Umsortieren im Raster vertauscht
+  nichts (crop wandert per URL via `persistDetailPhotos`). Frisch hinzugefügtes Foto ohne Pfad:
+  commit überspringt (das Foto ist eh noch nicht gespeichert). Foto-Raster bleibt zum Verwalten.
+
 - **🟡 `v 2026-07-21.36` (21. Juli) — #15: Log-Überschriften ohne Icon (wie Detail).**
   JC nach Mockup-Vergleich (`mockup-header-styles.html`): Icons raus. Die Sektions-Überschriften im
   Log-Formular (`.fgroup` + „Fotos"-Label) verlieren ihr führendes Icon → schlicht wie die Detailseite

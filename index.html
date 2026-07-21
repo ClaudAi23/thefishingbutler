@@ -2434,7 +2434,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.36';
+const BUILD = '2026-07-21.37';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6770,14 +6770,18 @@ function bindHeroRepos(c){
   let sx=0,sy=0,startX=50,startY=50,drag=false,moved=false;
   // Read the zoom off the picture that is showing, not off the catch — and re-read it on every gesture,
   // because the strip may have switched pictures since this handler was bound.
-  const curIdx=()=>state.detailIdx||0;
-  let zoom=coverZoomOf(cropOf(c, curIdx()).z), pinch=false, pinchD0=0, pinchZ0=1;
+  /* Im EDIT zeigt der Hero das Titelbild editPhotos[0]; sein DB-Zuschnitt hängt am ORIGINAL-Index
+     (→ photoPaths). Deshalb hier den Original-Index des angezeigten Covers nehmen, nicht detailIdx —
+     sonst schriebe ein Zuschnitt nach Umsortieren aufs falsche Foto. -1 = frisch hinzugefügt, noch kein
+     Pfad → commit überspringt (das Foto selbst ist auch noch nicht gespeichert). */
+  const curIdx=()=>{ if(_detailEdit){ return photosOf(c).indexOf((state.editPhotos||[])[0]); } return state.detailIdx||0; };
+  let zoom=coverZoomOf(cropOf(c, Math.max(0,curIdx())).z), pinch=false, pinchD0=0, pinchZ0=1;
   const parse=()=>{ const m=(img.style.objectPosition||'50% 50%').split(/\s+/); return [parseFloat(m[0])||50, parseFloat(m[1])||50]; };
   /* object-position picks WHICH part of a cover-scaled image shows — it cannot zoom, because "cover"
      is already the smallest scale that fills the frame. The zoom is a real scale on top, anchored to
      the same focal point (transform-origin = object-position), so zooming keeps what you pointed at. */
   const apply=(x,y)=>{ const p=x+'% '+y+'%'; img.style.objectPosition=p; img.style.transformOrigin=p; img.style.transform='scale('+zoom+')'; };
-  const commit=()=>{ const q=parse(); saveCoverPos(c, q[0]+'% '+q[1]+'%', zoom, curIdx()); };
+  const commit=()=>{ const ci=curIdx(); if(ci<0) return; const q=parse(); saveCoverPos(c, q[0]+'% '+q[1]+'%', zoom, ci); };
   const dist=t=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
   // The handler is bound once but the strip can switch pictures under it — re-read the zoom of the
   // picture that is actually showing at the start of every gesture, or we would edit it with the
@@ -7756,10 +7760,21 @@ function openDetailObj(c, from, keepEdit){
   const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
   if(_detailEdit){
     // EDIT MODE (unchanged): editable photo grid, plain band with species, no byline
-    hero.style.display='none'; hero.innerHTML=''; strip.style.display='none'; strip.innerHTML='';
+    strip.style.display='none'; strip.innerHTML='';
     if(byl) byl.style.display='none';
     if(band){ band.style.display=''; band.classList.remove('d-hero-band'); }
     if(!Array.isArray(state.editPhotos)) state.editPhotos=ps.slice();
+    /* #15 Stufe 2 (JC, 21. Juli): Hero AUCH im Edit zeigen und JUSTIERBAR machen (ziehen=Fokus, Zoom).
+       Titelbild = editPhotos[0]; sein Zuschnitt wird über den ORIGINAL-Index (→ Pfad) gespeichert
+       (bindHeroRepos ist edit-aware), damit Umsortieren im Raster nichts vertauscht. Das Foto-Raster
+       darunter bleibt zum Verwalten. */
+    { const _cover=(state.editPhotos||[])[0];
+      if(_cover){ const _oi=ps.indexOf(_cover);
+        hero.style.display='flex'; hero.className='hero';
+        hero.innerHTML=coverImg(c, _cover, 'id="d-hero-img"', _oi>=0?_oi:0);
+        try{ bindHeroRepos(c); }catch(e){}
+      } else { hero.style.display='none'; hero.innerHTML=''; }
+    }
     if(pe) pe.style.display='block';
     renderFormPhotos();
     { const dsp=document.getElementById('d-species'); dsp.innerHTML = esc(trSpecies(c.species)) + _bandCrown; }
