@@ -9,6 +9,13 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.65` (21. Juli) — Sheet schließt beim Hochscrollen — behoben.**
+  Der Swipe-nach-unten-Dismiss prüfte `sheet.scrollTop` (die **modal-box** — die scrollt nie, die Liste hat
+  ihr eigenes Overflow). Also galt der Finger immer als „ganz oben", und jeder Runter-Wisch schloss das
+  Sheet — auch beim Hochscrollen einer gescrollten Liste. Jetzt läuft der Handler bis zum echten scrollbaren
+  Vorfahren hoch: ist die Liste gescrollt (`scrollTop>0`), ist es ein **Scroll**, kein Dismiss. Pull-to-dismiss
+  vom Listenanfang bleibt.
+
 - **🐛 `v 2026-07-21.64` (21. Juli) — Picker-Liste: lange Namen kürzen + Scroll-Chaining aus.**
   Species-Kopf bleibt jetzt (JC ✓). Zwei Nachzügler: (1) sehr lange Namen liefen seitwärts über und schoben
   das ×-Knöpfchen aus dem Bild — Zeilen kürzen jetzt mit Ellipsis, × bleibt sichtbar. (2) „einmal

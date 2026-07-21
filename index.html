@@ -2497,7 +2497,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.64';
+const BUILD = '2026-07-21.65';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -3242,7 +3242,17 @@ window.addEventListener('pageshow', function(e){ if(e.persisted) _armBackIfNeede
    document.addEventListener('touchstart',function(e){
      if(e.touches.length!==1){ dragging=false; return; }
      var ov=e.target.closest && e.target.closest('.modal-ov'); if(!ov){ dragging=false; return; }
-     sheet=ov.firstElementChild; if(!sheet || sheet.scrollTop>0){ dragging=false; return; }
+     /* Liegt der Finger in einer scrollbaren Liste, die NICHT ganz oben steht, ist das ein SCROLL, kein
+        Dismiss (JC: „einmal runtergescrollt → Hochscrollen schließt das Fenster"). Der alte Check sah nur
+        `sheet.scrollTop` (die modal-box) — die scrollt aber nie, die Liste hat ihr eigenes overflow. Hier
+        von der Berührung bis zum Overlay hochlaufen und JEDEN scrollbaren Vorfahren prüfen. */
+     var el=e.target;
+     while(el && el!==ov){
+       if(el.scrollHeight - el.clientHeight > 2){ var oy=getComputedStyle(el).overflowY;
+         if((oy==='auto'||oy==='scroll') && el.scrollTop>0){ dragging=false; return; } }
+       el=el.parentElement;
+     }
+     sheet=ov.firstElementChild; if(!sheet){ dragging=false; return; }
      sy=e.touches[0].clientY; dragging=true;
    },{passive:true});
    document.addEventListener('touchmove',function(e){
