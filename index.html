@@ -2525,7 +2525,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.71';
+const BUILD = '2026-07-22.72';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -8732,25 +8732,33 @@ async function _composeShareHero(c){
     // Art groß darüber
     g.textBaseline='alphabetic'; g.font="800 90px 'Barlow Condensed',sans-serif"; g.fillStyle='#fff';
     g.fillText(trSpecies(c.species), pad, chipY-26);
-    // Wasserzeichen
-    g.font="700 30px 'Barlow',system-ui,sans-serif"; g.fillStyle='rgba(220,238,240,0.85)'; g.textAlign='right';
-    g.fillText('butlerfish', W-pad, pad+26); g.textAlign='left';
+    // Wasserzeichen (JC: „butler.fish", unten rechts; Position final beim Brand-Pass festzurren)
+    g.font="700 30px 'Barlow',system-ui,sans-serif"; g.fillStyle='rgba(232,245,247,0.9)'; g.textAlign='right'; g.textBaseline='alphabetic';
+    g.fillText('butler.fish', W-pad, H-pad); g.textAlign='left';
     const url=cv.toDataURL('image/jpeg',0.9);
     const blob=await new Promise(function(res){ cv.toBlob(res,'image/jpeg',0.9); });
     return { url:url, blob:blob };
   } finally { if(objUrl) URL.revokeObjectURL(objUrl); }
 }
 function _rr(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+/* Sprechender, sprach-neutraler Dateiname (JC: airdrop hieß „fangX.jpg", deutsch): Art · Maß · Datum. */
+function _shareBaseName(c){
+  const sp=(((c&&c.species)||'catch')+'').normalize('NFKD').replace(/[^\w]+/g,'-').replace(/^-+|-+$/g,'')||'catch';
+  const len=(c&&c.length!=null)?('-'+c.length+'cm'):'';
+  let d=''; try{ d=new Date(c.date).toISOString().slice(0,10); }catch(e){}
+  return 'ButlerFish-'+sp+len+(d?'-'+d:'');
+}
 async function doShareCatch(){
   const c=state.current; if(!c || !navigator.share) return;
+  const base=_shareBaseName(c);
   const files=[];
-  try{ const h=await _composeShareHero(c); if(h&&h.blob) files.push(new File([h.blob],'fang.jpg',{type:'image/jpeg'})); }catch(e){}
+  try{ const h=await _composeShareHero(c); if(h&&h.blob) files.push(new File([h.blob],base+'.jpg',{type:'image/jpeg'})); }catch(e){}
   if(!files.length){ // Komposit fehlgeschlagen → rohes Cover als erstes Bild
-    try{ const src=coverOf(c); if(src){ const blob=await (await fetch(src)).blob(); files.push(new File([blob],'fang.jpg',{type:blob.type||'image/jpeg'})); } }catch(e){}
+    try{ const src=coverOf(c); if(src){ const blob=await (await fetch(src)).blob(); files.push(new File([blob],base+'.jpg',{type:blob.type||'image/jpeg'})); } }catch(e){}
   }
   const ps=photosOf(c);
   const extra=[..._shareSel].filter(function(i){return i>0;}).sort(function(a,b){return a-b;});
-  for(const i of extra){ try{ const blob=await (await fetch(ps[i])).blob(); files.push(new File([blob],'foto'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'})); }catch(e){} }
+  for(const i of extra){ try{ const blob=await (await fetch(ps[i])).blob(); files.push(new File([blob],base+'-'+(i+1)+'.jpg',{type:blob.type||'image/jpeg'})); }catch(e){} }
   const text=catchText(c);
   try{ closeModal('share-sheet'); }catch(e){}
   try{

@@ -9,6 +9,13 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-22.72` (22. Juli) — Teilen Spur A: Wasserzeichen + Dateinamen (JC-Test).**
+  Wasserzeichen ist jetzt **„butler.fish"** und sitzt **unten rechts** (Position finalisieren wir beim
+  Brand-Pass). Geteilte Dateien heißen sprechend + sprach-neutral: **`ButlerFish-Pike-99cm-2026-01-28.jpg`**
+  (Art · Maß · Datum), statt „fangX.jpg" (airdrop war deutsch). Die übrigen Test-Befunde (WhatsApp-Reihenfolge,
+  iMessage-3-Bubbles, Notes/Slack schlucken Text/Bilder, Ziel-Apps nicht begrenzbar) sind native-Share-Grenzen
+  → lösen wir mit Spur B (gegateter Link + OG-Vorschau).
+
 - **🟢 `v 2026-07-22.71` (22. Juli) — Teilen-Overhaul Spur A: Herofoto mit Daten-Band + Fotoauswahl.**
   „Teilen" öffnet jetzt ein Sheet: das **Herofoto bekommt ein Band ins Bild gerendert** (Art in Barlow
   Condensed + cm/kg-Chips + „butlerfish"-Wasserzeichen, wie die Detail-Seite) — so trägt schon die
