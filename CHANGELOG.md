@@ -9,6 +9,13 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.70` (21. Juli) — Zurück aus Fang öffnet wieder das Spot-Sheet (bestand schon).**
+  Aus dem Spot-Sheet (Foto-Übersicht mehrerer Fänge an einem Ort) einen Fang öffnen → zurück landete auf der
+  Karten-Seite, das Sheet war weg; im Vollbild sogar aus dem Vollbild. Ursache: `openSpotCatch` schloss das
+  Sheet, bevor es das Detail öffnete. Jetzt merkt es Sheet-Kontext + Screen + Vollbild und stellt beim Zurück
+  (Knopf UND Wisch) alles wieder her — man kommt zurück ins Spot-Sheet (ggf. im Vollbild). Kein Eingriff in
+  die getunte Zoom/Cluster-Logik.
+
 - **🐛 `v 2026-07-21.69` (21. Juli) — Formular-Karten-Knopf setzte Pin unter sich (Folge von .68).**
   Durch das Umhängen in die Karte (.68) fiel der Klick auf Pin-/Standort-Knopf auf die Leaflet-Karte durch →
   `fMap.on('click')` setzte den Pin unter den Knopf. Jetzt `L.DomEvent.disableClickPropagation` auf beide

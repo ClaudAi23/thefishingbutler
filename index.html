@@ -2501,7 +2501,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.69';
+const BUILD = '2026-07-21.70';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -3051,7 +3051,7 @@ function appBack(viaGesture){
      Vorwärts-Eintrag zurück. Die Zurück-KNÖPFE navigieren rein in der App, ohne den Verlauf
      anzufassen — dort entsteht kein Vorwärts-Ziel, und ein Eintrag hier wäre ein Screen, den die
      Geste nie ansteuern kann. `_curScreen` vorher festhalten: `go()` überschreibt ihn. */
-  if(_navStack.length){ const _from=_curScreen; go(_navStack.pop(), true, viaGesture); if(viaGesture && _from) _fwdStack.push(_from); return; }
+  if(_navStack.length){ const _from=_curScreen; go(_navStack.pop(), true, viaGesture); if(viaGesture && _from) _fwdStack.push(_from); if(_from==='detail') _reopenSpotIfPending(_curScreen); return; }
   // 5) at a root screen with nothing to go back to → stay open (swallow the gesture)
 }
 /* Der Wisch-zurück-Wächter (JC, 14. Juli: „weißer Ladescreen", 17. Juli: „auf iOS lädt er neu, auf
@@ -5523,11 +5523,27 @@ function closeSpotSheet(){
 function setSpotIdx(i){
   if(!_spot) return; _spot.i=i; renderSpotSheet(true);
 }
+/* Aus dem Spot-Sheet einen Fang öffnen (JC-Bug): früher wurde das Sheet einfach geschlossen — beim Zurück
+   aus dem Detail war es weg und man landete auf der Karten-Seite (im Vollbild sogar aus dem Vollbild). Jetzt
+   merken wir Sheet-Kontext + Screen + Vollbild; `_reopenSpotIfPending` stellt beim Zurück alles wieder her. */
+let _spotBack=null;
 function openSpotCatch(){
   if(!_spot) return;
   const c=_spot.items[_spot.i], kind=_spot.kind;
+  _spotBack={ kind:kind, items:_spot.items.slice(), i:_spot.i, screen:_curScreen, fs:_mapFs||null };
   closeSpotSheet();
   try{ openDetailObj(c, kind); }catch(e){}
+}
+function _reopenSpotIfPending(toScreen){
+  try{
+    const sb=_spotBack; if(!sb) return; _spotBack=null;
+    if(toScreen!==sb.screen) return;   // woanders gelandet → nichts wiederherstellen
+    setTimeout(function(){ try{
+      if(sb.fs){ try{ mapFsToggle(sb.fs, true); }catch(e){} }   // Vollbild zuerst zurück
+      openSpotSheet(sb.kind, sb.items, null);
+      if(_spot){ _spot.i=Math.max(0, Math.min(sb.i, _spot.items.length-1)); try{ renderSpotSheet(true); }catch(e){} }
+    }catch(e){} }, 60);
+  }catch(e){}
 }
 function renderSpotSheet(nurWechsel){
   if(!_spot) return;
@@ -7632,6 +7648,7 @@ function detailBack(){
      was reloaded. Re-render the screen we are returning to. */
   const paint=()=>{ try{ if(to==='list') renderList(); else if(to==='stats') renderStats(); }catch(e){} };
   paint(); go(to, true);
+  _reopenSpotIfPending(to);
 }
 function _detailScroll(){
   const sc=document.querySelector('#s-detail .scroll'); const h=document.getElementById('d-htitle'); if(!sc||!h) return;
