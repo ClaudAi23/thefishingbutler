@@ -9,6 +9,14 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.46` (21. Juli) — Fehlermeldung-Bug + B an JCs E-Mail.**
+  **Bug (roter Blitz / Hinweis weg):** der Speichern-Klick löste auch `updateSaveReadiness` aus, das
+  meine neue Dynamik `#form-err` sofort wieder ausblendete (Basisfelder ja voll) → die Vereins-Pflichtfeld-
+  Meldung verschwand in Millisekunden. Auto-Ausblendung wieder raus. **Dazu:** beim fehlenden Vereins-
+  Pflichtfeld wird jetzt **zum Feld gescrollt** (fehlte ganz, anders als bei Art/Datum/Angler) + Haptik.
+  **B testbar auf JCs Konto:** `_editFormOn()` ist an, wenn Flag `bf_editForm='on'` ODER der eingeloggte
+  Nutzer JC ist (googlemail/gmail) — B läuft damit direkt für JC, für alle anderen bleibt Inline-Edit.
+
 - **🟡 `v 2026-07-21.45` (21. Juli) — #15 Weg B (Stufe 1): Bearbeiten öffnet das Log-Formular — HINTER FLAG.**
   Neuer `openEditForm(c)`: füllt das Log-Formular aus dem Fang (Art, Datum, Maße, Entnahme, Technik,
   Wasser, Ort+Karte, Notizen, Fotos, Wetter, Ziele) und setzt `state.editId` — der Update-Pfad in

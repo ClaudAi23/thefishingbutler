@@ -2457,7 +2457,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.45';
+const BUILD = '2026-07-21.46';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -6119,9 +6119,15 @@ async function openForm(skipAuto){
   try{ bindFormReadiness(); updateSaveReadiness(); }catch(e){}
   // no automatic geolocation on open — the browser prompt should only appear when the user taps "Mein Standort"
 }
+/* B ist an, wenn das Flag gesetzt ist ODER der eingeloggte Nutzer JC ist (JC: „auf meiner E-Mail testbar").
+   googlemail/gmail beide, weil canon_email sie gleichsetzt. */
+function _editFormOn(){ try{ if(localStorage.getItem('bf_editForm')==='on') return true;
+  const em=((state.me&&state.me.email)||'').toLowerCase().trim();
+  return em==='johannesclaudi@googlemail.com' || em==='johannesclaudi@gmail.com';
+}catch(e){ return false; } }
 /* #15 Weg B (JC, 21. Juli): Bearbeiten öffnet das LOG-FORMULAR vorbefüllt (create = edit = ein Screen).
    Baut auf openForm() auf (Reset + Navigieren), füllt dann alle Felder aus dem Fang und setzt state.editId
-   — den Update-Pfad in saveCatch gibt es weiterhin. Hinter Flag `bf_editForm='on'`; sonst bleibt Inline-Edit. */
+   — den Update-Pfad in saveCatch gibt es weiterhin. An über `_editFormOn()`; sonst bleibt Inline-Edit. */
 async function openEditForm(c){
   if(!c) return;
   state.editReturn = state.detailFrom || 'list';
@@ -6571,11 +6577,7 @@ function _missingBaseFields(){
   const m=[]; if(!species) m.push(t('species')); if(!date) m.push(t('datetime')); if(!angler) m.push(t('angler'));
   return m;
 }
-function updateSaveReadiness(){ try{ const b=document.querySelector('#s-form .form-actions .btn'); if(b) b.classList.toggle('not-ready', !formReady());
-  // Pflichtfeld-Hinweis zieht live mit (JC): nur noch die FEHLENDEN Felder nennen, ausblenden wenn komplett.
-  const err=document.getElementById('form-err');
-  if(err && err.style.display!=='none'){ const miss=_missingBaseFields(); if(!miss.length) err.style.display='none'; else err.textContent=t('errFillIn')+' '+miss.join(', '); }
-}catch(e){} }
+function updateSaveReadiness(){ try{ const b=document.querySelector('#s-form .form-actions .btn'); if(b) b.classList.toggle('not-ready', !formReady()); }catch(e){} }
 function bindFormReadiness(){
   const f=document.getElementById('s-form'); if(!f||f._readyBound) return; f._readyBound=true;
   const h=function(){ setTimeout(updateSaveReadiness,0); };
@@ -6678,7 +6680,11 @@ function saveCatch(){
       const nm=requiringCtxName(f.key);
       return nm ? t(f.i18n)+' ('+nm+')' : t(f.i18n);
     }).join(', ');
-    err.style.display='block'; return;
+    err.style.display='block'; haptic(30);
+    /* Zum ersten fehlenden Pflichtfeld scrollen (JC-Bug: Meldung war „begraben", man sah nur einen roten
+       Blitz). Vorher fehlte der Scroll hier ganz — anders als beim Art/Datum/Angler-Block darüber. */
+    const _box=document.getElementById('ff-'+missing[0].key); if(_box){ try{ _box.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_e){} }
+    return;
   }
   /* „Zuletzt ausgewählt" erst JETZT merken (JC, 20. Juli): nach bestandener Prüfung, nicht beim
      Antippen — sonst springt der eben gewählte Kontakt sofort nach oben. */
@@ -7645,7 +7651,7 @@ async function toggleDetailEdit(){
     if(state.current) openDetailObj(state.current, state.detailFrom, false);
   } else { // turning ON → seed the photo editor with this catch's photos
     // #15 Weg B (JC): hinterm Flag öffnet Bearbeiten das vorbefüllte Log-Formular statt Inline-Edit.
-    if(localStorage.getItem('bf_editForm')==='on' && state.current){ try{ await openEditForm(state.current); }catch(e){} return; }
+    if(_editFormOn() && state.current){ try{ await openEditForm(state.current); }catch(e){} return; }
     _detailEdit=true;
     if(state.current) state.editPhotos = photosOf(state.current).slice();
     if(state.current) openDetailObj(state.current, state.detailFrom, true);
