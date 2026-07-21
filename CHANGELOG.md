@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.27` (21. Juli) — App-Icon = JCs finale Komposition (exakt übernommen).**
+  JC hat die fertige Fassung selbst geliefert (`logo-icon-final.png`): Navy-Radial, weicher Schein,
+  leuchtende Laterne mittig, Stiel oben. 1:1 übernommen, nur auf alle Icon-Formate skaliert (kein
+  Umkomponieren). Ersetzt meine Halo-Variante `.26`. Cache-Bust `?v=18`→`?v=19`.
+
 - **🟡 `v 2026-07-21.26` (21. Juli) — App-Icon Fix: enger Halo statt Schein-Flut.**
   `.25` sah im Dock matschig aus (großer Schein flutete die Kachel beige, Navy weg). Neu (Variante B):
   Laterne größer (Logo 150 %, Raute weiter mittig), Schein nur noch ein **enger Halo** (58 % / 42 %),
