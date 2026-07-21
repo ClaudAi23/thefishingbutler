@@ -503,24 +503,26 @@
     right:calc(12px + env(safe-area-inset-right));
   }
   /* --- Overlay-Toolbar: drei FESTE Slots (JC, 21. Juli — Vereinheitlichung) ------------------------
-     Ein Icon = eine Bedeutung, dieselbe Reihenfolge auf ALLEN Karten:
+     Ein Icon = eine Bedeutung, dieselbe Reihenfolge auf ALLEN Karten (JC, 21. Juli: Standort in die MITTE):
        top 8  Vollbild       (.map-fs-btn)
-       top 50 Zentrieren     (.map-ctr-btn) — Übersicht: „Alle Fänge" (vier Punkte → fit) ·
+       top 50 Mein Standort  (.map-loc-btn) — Fadenkreuz → Zoom 14; fehlt nur in der Detail-ANSICHT.
+       top 92 Zentrieren     (.map-ctr-btn) — Übersicht: „Alle Fänge" (vier Punkte → fit) ·
                               Punktkarte: „Auf den Fang/Pin" (Pin → Start-Zoom 13)
-       top 92 Mein Standort  (.map-loc-btn) — Fadenkreuz → Zoom 14; fehlt nur in der Detail-ANSICHT.
-     Standort ist der einzige je fehlende Knopf und sitzt zuunterst → keine Lücke im Stapel. Vorher hieß
-     derselbe Slot je nach Karte etwas anderes (Fadenkreuz mal Standort, mal Zentrieren) — das ist weg. */
-  .map-ctr-btn{position:absolute; top:50px; right:8px; z-index:401; width:34px; height:34px; border-radius:9px;
+     Fehlt Standort (Detail-Ansicht), rückt Zentrieren per `.ctr-up` auf den mittleren Slot — keine Lücke. */
+  .map-ctr-btn{position:absolute; top:92px; right:8px; z-index:401; width:34px; height:34px; border-radius:9px;
     border:1px solid rgba(13,81,100,.25); background:#fff; color:var(--map-ink);
     display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
     box-shadow:0 2px 8px rgba(0,0,0,.28);}
   .map-ctr-btn:hover{background:#eef4f6;}
   .map-ctr-btn svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
   .map.is-fs .map-ctr-btn{
-    top:calc(52px + env(safe-area-inset-top));
+    top:calc(94px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
   }
-  .map-loc-btn{position:absolute; top:92px; right:8px; z-index:401; width:34px; height:34px; border-radius:9px;
+  /* Detail-Ansicht ohne Standort: Zentrieren rückt in den mittleren Slot, sonst klaffte oben eine Lücke */
+  .map.ctr-up .map-ctr-btn{ top:50px; }
+  .map.is-fs.ctr-up .map-ctr-btn{ top:calc(52px + env(safe-area-inset-top)); }
+  .map-loc-btn{position:absolute; top:50px; right:8px; z-index:401; width:34px; height:34px; border-radius:9px;
     border:1px solid rgba(13,81,100,.25); background:#fff; color:var(--map-ink);
     display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
     box-shadow:0 2px 8px rgba(0,0,0,.28);}
@@ -532,7 +534,7 @@
   @keyframes meSpin{to{transform:rotate(360deg);}}
   @media(prefers-reduced-motion:reduce){ .map-loc-btn.laedt svg{animation:none;} }
   .map.is-fs .map-loc-btn{
-    top:calc(94px + env(safe-area-inset-top));
+    top:calc(52px + env(safe-area-inset-top));
     right:calc(12px + env(safe-area-inset-right));
   }
   .map.is-fs .leaflet-top{ padding-top:env(safe-area-inset-top); }
@@ -2408,7 +2410,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.31';
+const BUILD = '2026-07-21.32';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4879,7 +4881,8 @@ function attachDetailBtns(){
     w.appendChild(b2);
   }
 }
-function _detailSetMyLocBtn(show){ const b=document.querySelector('#d-map .map-loc-btn'); if(b) b.style.display= show ? '' : 'none'; }
+function _detailSetMyLocBtn(show){ const b=document.querySelector('#d-map .map-loc-btn'); if(b) b.style.display= show ? '' : 'none';
+  const w=document.getElementById('d-map'); if(w) w.classList.toggle('ctr-up', !show); }   // ohne Standort: Zentrieren in den mittleren Slot
 function ensureDetailMap(lat,lon){
   if(typeof L==='undefined'||lat==null) return;
   if(!dMap){

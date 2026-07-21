@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟡 `v 2026-07-21.32` (21. Juli) — Karten-Toolbar: Mein Standort in die Mitte (JC).**
+  Neue Reihenfolge auf allen vier Karten: Vollbild → **Mein Standort** (Mitte, Slot 50) → Zentrieren
+  (unten, Slot 92). In der Detail-ANSICHT (kein Standort) rückt Zentrieren per `.ctr-up` in den mittleren
+  Slot, damit oben keine Lücke bleibt.
+
 - **🟡 `v 2026-07-21.31` (21. Juli) — App-Icon FINAL (JCs richtige Fassung, Navy-Grund).**
   `meinlogo.png` 1:1 übernommen: leuchtende Laterne mittig, weicher Schein, Navy `#021B28`. Ersetzt die
   versehentlich schwarze `vorne.png`-Fassung. Cache-Bust `?v=22`→`?v=23`.
