@@ -9,6 +9,11 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🟢 `v 2026-07-21.57` (21. Juli) — Statuszeile: Uhr am Avatar-Platz, einzeilig, kleiner.**
+  Die „nicht bestätigt"-Zeile ohne Kachel: Uhr sitzt in der Avatar-Spalte (linksbündig mit dem Avatar),
+  Text daneben unter „René", einzeilig, **0,80rem** = gleiche Größe wie das Datum darüber (Hierarchie:
+  Name 0,9 · Datum/Status 0,8). Bestätigen/Ablehnen (für den Inhaber) sitzt darunter, unter dem Text.
+
 - **🐛 `v 2026-07-21.56` (21. Juli) — Picker-Liste: Scroll-Chaining unterbunden.**
   `overscroll-behavior:contain` auf der scrollenden Liste — verhindert, dass ein Scrollen am Listenende auf
   die Seite/den Overlay „durchschlägt" (bekannte iOS-Ursache fürs ruckartige Springen). Rute/Rolle nutzen

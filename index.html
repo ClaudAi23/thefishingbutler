@@ -223,13 +223,15 @@
      primären Knöpfe (SAVE CATCH …) tragen auch keins. danger-Anteil themensicher über color-mix. */
   .del-link{background:transparent; border:1px solid color-mix(in srgb, var(--danger) 55%, transparent); color:var(--danger); font-size:0.9rem; font-weight:600; padding:11px 24px; cursor:pointer; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; gap:7px;}
   .del-link:hover{background:color-mix(in srgb, var(--danger) 8%, transparent);} .del-link:active{background:color-mix(in srgb, var(--danger) 16%, transparent);}
-  /* A1 (JC, 21. Juli): dezente „nicht bestätigt"-Statuszeile statt großer Box */
-  .d-status{display:flex; align-items:flex-start; gap:10px; margin-top:12px;}
-  .d-status-ic{width:28px; height:28px; border-radius:8px; background:var(--teal-tint); color:var(--teal-bright); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
-  .d-status-ic svg{width:16px; height:16px;}
-  .d-status-tx{display:flex; flex-direction:column; line-height:1.32; min-width:0;}
-  .d-status-tx b{font-weight:600; font-size:0.95rem;}
-  .d-status-sub{color:var(--muted); font-size:0.82rem;}
+  /* „nicht bestätigt"-Statuszeile (JC, v5): Uhr am AVATAR-Platz (26px-Spalte, KEINE Kachel), Text daneben
+     unter „René“, einzeilig, 0.80rem = gleiche Größe wie das Datum darüber. Eine Hierarchie: Name 0.9 ·
+     Datum/Status 0.8. */
+  .d-status{display:grid; grid-template-columns:26px 1fr; column-gap:9px; align-items:start;}
+  .d-status-ic{width:26px; display:flex; justify-content:center; color:var(--teal-bright); padding-top:1px;}
+  .d-status-ic svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2;}
+  .d-status-tx{font-size:0.80rem; line-height:1.4; min-width:0;}
+  .d-status-tx b{color:var(--text); font-weight:600;}
+  .d-status-sub{color:var(--muted);}
   .d-status-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
 
   .topbar{
@@ -2490,7 +2492,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.56';
+const BUILD = '2026-07-21.57';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -8071,8 +8073,8 @@ function openDetailObj(c, from, keepEdit){
       : (c.loggedByName ? esc(t('loggedByRow')+' '+c.loggedByName) : t('unconfirmedOtherHint'));
     statusLine = `<div class="d-status">
       <span class="d-status-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
-      <span class="d-status-tx"><b>${esc(t('unconfirmed'))}</b><span class="d-status-sub">${sub}</span></span>
-    </div>${iAmOwner ? `<div class="d-status-actions"><button type="button" class="btn sm" onclick="confirmCatch('${c.id}')">${esc(t('confirmCatch'))}</button><button type="button" class="btn secondary sm" onclick="rejectCatch('${c.id}')">${esc(t('rejectCatch'))}</button></div>` : ''}`;
+      <div class="d-status-body"><div class="d-status-tx"><b>${esc(t('unconfirmed'))}</b>${sub?` · <span class="d-status-sub">${sub}</span>`:''}</div>${iAmOwner ? `<div class="d-status-actions"><button type="button" class="btn sm" onclick="confirmCatch('${c.id}')">${esc(t('confirmCatch'))}</button><button type="button" class="btn secondary sm" onclick="rejectCatch('${c.id}')">${esc(t('rejectCatch'))}</button></div>` : ''}</div>
+    </div>`;
   }
   { const _ss=document.getElementById('d-status-slot'); if(_ss) _ss.innerHTML = editing ? '' : statusLine; }
   let banner='';
