@@ -1417,16 +1417,9 @@
   .modal-box{background:var(--surface); border:1px solid var(--border-2); border-bottom:none; border-top-left-radius:22px; border-top-right-radius:22px;
     padding:12px 20px calc(20px + env(safe-area-inset-bottom)); width:100%; max-width:420px; max-height:88vh; overflow:auto; animation:sheetup .3s cubic-bezier(.2,.85,.25,1);}
   .modal-box::before{content:""; display:block; width:40px; height:4px; border-radius:999px; background:var(--border-2); margin:2px auto 16px;}
-  /* Picker-Sheets (Art/Methode/… , Auswahl, Kontext-Filter) — JC, 21. Juli: bei langer Liste ragte das
-     Sheet über den oberen Rand und die Suche verschwand. Jetzt: Sheet als Flex-Spalte, Kopf (Titel+Suche)
-     und Fuß (Knopf) FEST, nur die Liste scrollt darunter. Höhe folgt dem sichtbaren Viewport (Tastatur) per
-     JS (_fitPickerSheets), mit sichtbarem Abstand nach oben. */
-  /* FESTE Höhe, nicht nur max (JC-Video .54): ein von unten verankertes Sheet, dessen Höhe dem Inhalt
-     folgt, springt bei jeder Änderung der Trefferliste nach oben. Fixe Höhe → nur die Liste scrollt,
-     das Sheet steht still. (Die Suche fokussiert beim Öffnen, die Tastatur ist also praktisch immer da.) */
-  .modal-box.picker{display:flex; flex-direction:column; overflow:hidden; height:82vh; max-height:82vh;}
-  .modal-box.picker > *{flex:0 0 auto;}
-  .modal-box.picker .picker-scroll{flex:1 1 auto; min-height:0; max-height:none!important; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;}
+  /* (#5-Frozen-Search-Versuch entfernt — er verursachte auf iOS eine Tastatur-Auf/Ab-Schleife und damit
+     das Springen. Die Sheets sind wieder der stabile Stand: modal-box scrollt als Ganzes, Liste mit
+     eigenem max-height. Suche-oben-fixieren braucht einen anderen Weg, falls wir es nochmal angehen.) */
   .sheet-row{display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:15px; margin-bottom:10px; cursor:pointer; font-family:inherit; color:var(--text);}
   .sheet-row:active{border-color:var(--teal);}
   .sheet-row .sr-ic{width:44px; height:44px; border-radius:12px; background:var(--teal-tint); color:var(--teal-bright); display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
@@ -1635,7 +1628,10 @@
   <section id="s-form" class="screen">
     <div class="topbar">
       <button class="iconbtn" onclick="formBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div><h1 id="f-title" data-i18n="logCatch">Fang eintragen</h1></div>
+      <div style="flex:1; min-width:0;"><h1 id="f-title" data-i18n="logCatch">Fang eintragen</h1></div>
+      <!-- Löschen als Kopf-Aktion (JC): Icon wie Zurück/Stift/Teilen, gedämpft (nicht rot), nur im Bearbeiten.
+           Der Confirm-Flow in deleteCatch trägt die Sicherheit. -->
+      <button id="form-del-hdr" class="iconbtn" onclick="deleteCatch(state.editId, state.editReturn)" data-i18n-title="del" title="Löschen" aria-label="Löschen" style="display:none;"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6 7l1 12h10l1-12"/></svg></button>
     </div>
     <div class="scroll pad">
       <!-- #15 Stufe 1 (19. Juli, Flag bf_unified): Live-Hero — das Formular ist die leere Detailseite. -->
@@ -2264,25 +2260,25 @@
   </div>
 
   <div id="ctxfilter-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeCtxFilterSheet()">
-    <div class="modal-box picker">
+    <div class="modal-box">
       <h2 style="font-size:1.25rem; margin:0 0 4px;" data-i18n="showCatchesFrom">Fänge aus</h2>
       <p class="hint" style="margin:0 0 8px;" data-i18n="showCatchesFromHint">Mehrere möglich. Nichts ausgewählt = alle.</p>
       <input id="ctxfilter-search" type="text" data-i18n-ph="areaSearch" placeholder="Suchen…" oninput="renderCtxFilterSheet()" style="margin-bottom:8px; display:none;">
-      <div id="ctxfilter-list" class="picker-scroll" style="margin:0 -2px;"></div>
+      <div id="ctxfilter-list" style="max-height:56vh; overflow:auto; margin:0 -2px;"></div>
       <button type="button" class="btn" style="margin-top:12px;" onclick="closeCtxFilterSheet()" data-i18n="areaDone">Fertig</button>
     </div>
   </div>
   <div id="sel-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('sel-sheet')">
-    <div class="modal-box picker">
+    <div class="modal-box">
       <h2 id="sel-sheet-title" style="font-size:1.25rem; margin:0 0 10px;">—</h2>
       <input id="sel-search" type="text" data-i18n-ph="areaSearch" placeholder="Suchen…" oninput="renderSelSheet()" style="margin-bottom:8px; display:none;">
-      <div id="sel-sheet-list" class="picker-scroll" style="margin:0 -2px;"></div>
+      <div id="sel-sheet-list" style="max-height:56vh; overflow:auto; margin:0 -2px;"></div>
       <button type="button" class="btn secondary" style="margin-top:12px;" onclick="closeModal('sel-sheet')" data-i18n="cancel">Abbrechen</button>
     </div>
   </div>
   <!-- Unified typeahead sheet (Fischart, Methode, Köder, Rute, Boot, Ort) -->
   <div id="ta-sheet" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeModal('ta-sheet')">
-    <div class="modal-box picker">
+    <div class="modal-box">
       <div style="display:flex; align-items:center; gap:10px; margin:0 0 10px;">
         <h2 id="ta-title" style="font-size:1.25rem; margin:0; flex:1; min-width:0;">—</h2>
         <button type="button" id="ta-clear" class="ta-clearbtn" onclick="taClear()" style="display:none;">
@@ -2294,7 +2290,7 @@
         <svg class="ta-searchic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3 -4.3"/></svg>
         <input id="ta-search" type="text" autocomplete="off" oninput="renderTA()" onkeydown="if(event.key==='Enter'){event.preventDefault(); taEnter();}" />
       </div>
-      <div id="ta-list" class="picker-scroll" style="margin:10px -2px 0;"></div>
+      <div id="ta-list" style="max-height:52vh; overflow:auto; margin:10px -2px 0;"></div>
       <button type="button" class="btn secondary" style="margin-top:12px;" onclick="closeModal('ta-sheet')" data-i18n="cancel">Abbrechen</button>
     </div>
   </div>
@@ -2492,7 +2488,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-21.57';
+const BUILD = '2026-07-21.58';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -3427,7 +3423,7 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;
 function closeModal(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
 // ---- reusable single-select bottom sheet (replaces native <select> UI; the hidden <select> stays the source of truth) ----
 let _selSheetId=null;
-function openSelSheet(selectId, title){ _selSheetId=selectId; const s=document.getElementById('sel-search'); if(s) s.value=''; const tt=document.getElementById('sel-sheet-title'); if(tt) tt.textContent=title||''; renderSelSheet(); const sh=document.getElementById('sel-sheet'); if(sh){ sh.style.display='flex'; _openedPickerFit(); } }
+function openSelSheet(selectId, title){ _selSheetId=selectId; const s=document.getElementById('sel-search'); if(s) s.value=''; const tt=document.getElementById('sel-sheet-title'); if(tt) tt.textContent=title||''; renderSelSheet(); const sh=document.getElementById('sel-sheet'); if(sh) sh.style.display='flex'; }
 function renderSelSheet(){
   const sel=document.getElementById(_selSheetId); if(!sel) return;
   const box=document.getElementById('sel-sheet-list'); if(!box) return;
@@ -6164,7 +6160,8 @@ async function openForm(skipAuto){
   buildAnglerOptions(); syncSelfield('f-released');
   if(ctxIsDb()){ const keep=state.editId; loadCtxMembers().then(()=>{ const sel=document.getElementById('f-angler'); if(state.editId===keep && sel && sel.value===`u:${state.me.id}`) buildAnglerOptions(); }); }
   document.getElementById('form-err').style.display='none';
-  { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none'; }
+  { const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none';
+    const _dh=document.getElementById('form-del-hdr'); if(_dh) _dh.style.display='none'; }
   state.formLat=null; state.formLon=null; state.formWeather=null;
   { const _wb=document.getElementById('f-weather'); if(_wb) _wb.innerHTML=''; const _ww=document.getElementById('f-weather-wrap'); if(_ww) _ww.style.display='none'; }
   clearPhoto(); closeSpecies(); populateAreaSelect();
@@ -6219,7 +6216,9 @@ async function openEditForm(c){
   try{ renderFormPhotos(); }catch(e){}
   try{ previewWeather(); }catch(e){}
   try{ updateSaveReadiness(); }catch(e){}
-  const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='';
+  /* Löschen jetzt als Kopf-Icon (JC): unten ausblenden, oben rechts einblenden. */
+  const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none';
+  const _dh=document.getElementById('form-del-hdr'); if(_dh) _dh.style.display='';
 }
 function updateAreaSummary(){
   const el=document.getElementById('area-summary'); if(!el) return;
@@ -7447,12 +7446,6 @@ const TA_CFG={
   }
 };
 let _taInput=null, _taCfg=null;
-/* #5-Nachtrag (JC, 21. Juli): Der visualViewport-Resize-Handler ließ die Picker-Sheets bei JEDER
-   Tastatur-Animation neu rechnen → das Sheet sprang/zitterte (unbenutzbar). Rausgenommen. Die feste
-   CSS-Deckelung (`.modal-box.picker` max-height + fester Kopf) reicht: Suche bleibt oben, nur die Liste
-   scrollt, nichts springt. Funktionen als No-Op belassen, damit die Aufrufer nichts wissen müssen. */
-function _fitPickerSheets(){}
-function _openedPickerFit(){}
 function openTypeahead(inputId){
   _taInput=inputId; _taCfg=TA_CFG[inputId]; if(!_taCfg) return;
   const tt=document.getElementById('ta-title'); if(tt) tt.textContent=_taCfg.title();
@@ -7460,7 +7453,6 @@ function openTypeahead(inputId){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  _openedPickerFit();
   setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
 }
 function _taHi(label, q){ const L=''+(label||''); if(!q) return esc(L); const i=L.toLowerCase().indexOf(q); if(i<0) return esc(L); return esc(L.slice(0,i))+'<b>'+esc(L.slice(i,i+q.length))+'</b>'+esc(L.slice(i+q.length)); }
@@ -7521,7 +7513,6 @@ function openTypeaheadCfg(cfg){
   const s=document.getElementById('ta-search'); if(s){ s.value=''; s.placeholder=t('taSearchPh'); }
   renderTA();
   const sh=document.getElementById('ta-sheet'); if(sh) sh.style.display='flex';
-  _openedPickerFit();
   setTimeout(function(){ try{ s.focus(); }catch(e){} }, 60);
 }
 function taPick(v, key){ if(_taCfg) _taCfg.onPick(v, key); closeModal('ta-sheet'); }
@@ -8874,7 +8865,7 @@ function _updateCtxSummary(){
   else if(_fltCtxSel.length===1){ const k=_fltCtxSel[0]; el.textContent = k==='__solo__'? t('solo') : k; }
   else { el.textContent = _fltCtxSel.length+' '+t('selectedN'); }
 }
-function openCtxFilterSheet(){ const s=document.getElementById('ctxfilter-search'); if(s) s.value=''; renderCtxFilterSheet(); const m=document.getElementById('ctxfilter-sheet'); if(m){ m.style.display='flex'; _openedPickerFit(); } }
+function openCtxFilterSheet(){ const s=document.getElementById('ctxfilter-search'); if(s) s.value=''; renderCtxFilterSheet(); const m=document.getElementById('ctxfilter-sheet'); if(m) m.style.display='flex'; }
 function closeCtxFilterSheet(){ const m=document.getElementById('ctxfilter-sheet'); if(m) m.style.display='none'; _updateCtxSummary(); }
 function toggleCtxFilterSel(key){
   if(key===''){ _fltCtxSel=[]; }

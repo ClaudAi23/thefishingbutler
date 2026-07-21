@@ -9,6 +9,14 @@ Stand: 12. Juli 2026. Legende: ✅ live · 🟡 gebaut, noch nicht deployed · �
 ## 📋 CHANGELOG (ab Commit 56 — JC testet erst am Ende)
 Alles, was wir ab hier fixen, kommt hier rein (mit Commit-Nr. beim Deploy).
 
+- **🐛 `v 2026-07-21.58` (21. Juli) — Sheet-Springen: Frozen-Search zurückgebaut + Delete als Kopf-Icon.**
+  **Springen (endgültig):** Das Video zeigte die eigentliche Ursache — eine **Tastatur-Auf/Ab-Schleife**.
+  Mein Frozen-Search-Umbau (ab .51: feste Höhe, fester Kopf im `position:fixed`-Sheet) provozierte sie auf
+  iOS. **Komplett zurückgebaut** auf den stabilen Stand vor .51 (Sheet scrollt als Ganzes, Liste mit eigenem
+  max-height) — kein Flackern mehr. Die #5-Idee (Suche fest oben) braucht später einen anderen Weg.
+  **Delete-Button:** vom Formular-Ende in die **Kopfzeile** (oben rechts) als Icon wie Zurück/Stift/Teilen,
+  **gedämpft, nicht rot** (JC); nur im Bearbeiten sichtbar, Confirm-Flow trägt die Sicherheit.
+
 - **🟢 `v 2026-07-21.57` (21. Juli) — Statuszeile: Uhr am Avatar-Platz, einzeilig, kleiner.**
   Die „nicht bestätigt"-Zeile ohne Kachel: Uhr sitzt in der Avatar-Spalte (linksbündig mit dem Avatar),
   Text daneben unter „René", einzeilig, **0,80rem** = gleiche Größe wie das Datum darüber (Hierarchie:
