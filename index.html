@@ -2589,7 +2589,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.434';
+const BUILD = '2026-07-22.435';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4205,6 +4205,7 @@ function rpcRowToCatch(o, signedMap, nameById){
   const isExact=o.loc_tier==='exact', isArea=o.loc_tier==='area';
   const lat= isExact? (o.lat!=null?Number(o.lat):null) : (isArea&&o.area? Number(o.area.lat):null);
   const lon= isExact? (o.lon!=null?Number(o.lon):null) : (isArea&&o.area? Number(o.area.lon):null);
+  const own=(nameById&&nameById[o.owner_id])||null;
   return {
     id:o.id, species:o.species, length:o.length_cm!=null?o.length_cm:null, weight:o.weight_kg!=null?Number(o.weight_kg):null,
     method:o.method||'', bait:o.bait||'', rod:o.rod||'', reel:o.reel||'', boat:o.boat||'',
@@ -4212,7 +4213,7 @@ function rpcRowToCatch(o, signedMap, nameById){
     released:(typeof o.released==='boolean')?o.released:null,
     location: isExact?(o.location||''):'', lat:lat, lon:lon, locTier:o.loc_tier||null, locApprox:isArea, areaRadius:(isArea&&o.area)?o.area.radius_m:null,
     date:o.caught_at, createdAt:null, notes:o.notes||'', moon:o.moon||null, weather:o.weather||null,
-    angler:(nameById&&nameById[o.owner_id])||'', userId:o.owner_id, loggedBy:null, loggedByName:null, confirmed:true,
+    angler:(own?own.name:''), anglerAvatar:(own?own.avatar:null), anglerStyle:(own?own.style:null), userId:o.owner_id, loggedBy:null, loggedByName:null, confirmed:true,
     _db:true, _ctxId:null, _ctxIds:null, _filtered:(o.owner_id!==(state.me&&state.me.id)),
     crops:crops, photoPaths:paths, pbLen:o.pb_length===true, pbWt:o.pb_weight===true, pbOptout:false,
     photos:urls, photo:urls[0]||null, thumbs:thumbs.length?thumbs:urls, shareFollowers:null, locOverride:null
