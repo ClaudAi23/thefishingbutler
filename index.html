@@ -877,6 +877,19 @@
   .prof-gate-lock svg{width:24px;height:24px;}
   .prof-gate-t{font-weight:700;font-size:1.02rem;margin:0 0 6px;}
   .prof-gate-s{color:var(--muted);font-size:.86rem;margin:0;max-width:280px;margin-inline:auto;}
+  .fl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;width:100%;}
+  .fl-tap{cursor:pointer;text-align:left;}
+  .fl-who{display:flex;align-items:center;gap:11px;flex:1 1 58%;min-width:0;background:none;border:none;padding:0;text-align:left;cursor:pointer;font-family:inherit;color:var(--text);}
+  .fl-av{width:42px;height:42px;border-radius:50%;flex:0 0 auto;overflow:hidden;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--teal-bright);font-weight:700;}
+  .fl-av img{width:100%;height:100%;object-fit:cover;}
+  .fl-nm{font-weight:600;font-size:.92rem;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .fl-s{display:block;font-size:.74rem;color:var(--muted);font-weight:400;}
+  .fl-btns{display:flex;gap:6px;flex:1 1 auto;justify-content:flex-end;}
+  .fl-b{border-radius:9px;padding:7px 11px;font-weight:700;font-size:.78rem;border:1px solid transparent;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .fl-b.ok{background:var(--teal);color:#04222a;}
+  .fl-b.no{background:transparent;border-color:var(--border-2);color:var(--muted);}
+  .fl-b.block{background:transparent;border-color:#e5736b;color:#e5736b;}
+  .fl-row svg{width:18px;height:18px;color:var(--muted);flex:0 0 auto;}
   /* M3: the method is a STATEMENT, not a card — no box, no field label ("METHODE" over "ANGELMETHODE"
      said the word twice). It is the headline of the gear tiles below it, so it is set like a heading.
      baseline alignment keeps the qualifiers sitting on the method's baseline, not floating mid-cap. */
@@ -2005,6 +2018,23 @@
     </div>
   </section>
 
+  <!-- ============ FOLLOWS (Aufgaben: Follower) ============ -->
+  <section id="s-follows" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" onclick="appBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div style="flex:1; min-width:0;"><h1 data-i18n="followTitle">Follower</h1></div>
+    </div>
+    <div class="tabrow"><div class="seg" id="follows-tabs">
+      <button type="button" class="on" data-ft="req" onclick="setFollowsTab('req')" data-i18n="followReqTab">Anfragen</button>
+      <button type="button" data-ft="fol" onclick="setFollowsTab('fol')" data-i18n="followFollowersTab">Follower</button>
+      <button type="button" data-ft="ing" onclick="setFollowsTab('ing')" data-i18n="followFollowingTab">Ich folge</button>
+    </div></div>
+    <div class="scroll pad">
+      <div id="follows-body"></div>
+      <div style="height:60px"></div>
+    </div>
+  </section>
+
   <!-- ============ SETTINGS ============ -->
   <section id="s-settings" class="screen">
     <div class="topbar">
@@ -2669,7 +2699,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.439';
+const BUILD = '2026-07-22.440';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2809,10 +2839,13 @@ Object.assign(I18N.de, {visDefAudience:"Standard-Publikum", visShareFollowersDef
 Object.assign(I18N.en, {visDefAudience:"Default audience", visShareFollowersDefault:"Share with followers by default", visShareFollowersHint:"Off — new catches are first seen only by your clubs/groups.", visDefWhat:"What I share by default", visWhatMandatory:"Only required", visWhatSome:"Some", visWhatAll:"All", visDefLoc:"Default location", visClubWins:"Club rules always win. You can adjust the location per catch.", visSharingHeading:"Sharing", visShareWithFollowers:"Share with followers", visLocThisCatch:"Location (this catch)", visLocThisCatchHint:"Prefilled from your default. Protect the spot on a single catch here.", visSpotHidden:"Spot hidden"});
 Object.assign(I18N.nl, {visDefAudience:"Standaardpubliek", visShareFollowersDefault:"Standaard met volgers delen", visShareFollowersHint:"Uit — nieuwe vangsten zien eerst alleen je verenigingen/groepen.", visDefWhat:"Wat ik standaard deel", visWhatMandatory:"Alleen verplicht", visWhatSome:"Sommige", visWhatAll:"Alles", visDefLoc:"Standaardlocatie", visClubWins:"Verenigingsregels winnen altijd. De locatie kun je per vangst aanpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Met volgers delen", visLocThisCatch:"Locatie (deze vangst)", visLocThisCatchHint:"Vooraf ingevuld met je standaard. Bescherm hier de stek bij één vangst.", visSpotHidden:"Stek verborgen"});
 Object.assign(I18N.de, {profSharedCatches:"geteilte Fänge", profFollow:"Folgen", profFollowing:"Folge ich", profRequested:"Angefragt", profBlocked:"Blockiert", profUnavailable:"Nicht verfügbar", profNoCatches:"Noch keine geteilten Fänge.", profRecords:"Rekorde", profCatches:"Fänge", profUnfollow:"Nicht mehr folgen", profBlockAction:"Blockieren", profUnblockAction:"Blockierung aufheben", profRequestSent:"Anfrage gesendet", allSpecies:"Alle Arten", loadingWord:"Lädt …", cancelWord:"Abbrechen", filterSpecies:"Art", latestCatches:"Neueste Fänge", profGateTitle:"Folge {name}, um die Fänge zu sehen", profGateSub:"Nur Follower sehen die geteilten Fänge dieses Anglers — auch außerhalb eurer gemeinsamen Gruppen & Vereine."});
+Object.assign(I18N.de, {followTitle:"Follower", followReqTab:"Anfragen", followFollowersTab:"Follower", followFollowingTab:"Ich folge", followTasksRow:"Follower", followNoReq:"Keine offenen Anfragen.", followNoFollowers:"Noch keine Follower.", followNoFollowing:"Du folgst noch niemandem.", followWantsToFollow:"möchte dir folgen", followFollowsYou:"folgt dir", accept:"Annehmen", decline:"Ablehnen", remove:"Entfernen"});
 Object.assign(I18N.de, {visApproxArea:"Ungefähre Gegend", visLockOnlyMe:"Nur ich", visSumOnlyMe:"Nur ich", visSumFollowers:"Follower", visSumClubsFollowers:"Vereine + Follower", visSumClubsOnly:"Nur Vereine/Gruppen", visNoFollowersYet:"Du hast noch keine Follower — das legt fest, was sie sehen, sobald du welche hast."});
 Object.assign(I18N.en, {profSharedCatches:"shared catches", profFollow:"Follow", profFollowing:"Following", profRequested:"Requested", profBlocked:"Blocked", profUnavailable:"Unavailable", profNoCatches:"No shared catches yet.", profRecords:"Records", profCatches:"Catches", profUnfollow:"Unfollow", profBlockAction:"Block", profUnblockAction:"Unblock", profRequestSent:"Request sent", allSpecies:"All species", loadingWord:"Loading …", cancelWord:"Cancel", filterSpecies:"Species", latestCatches:"Latest catches", profGateTitle:"Follow {name} to see their catches", profGateSub:"Only followers see this angler's shared catches — including outside your shared clubs & groups."});
+Object.assign(I18N.en, {followTitle:"Followers", followReqTab:"Requests", followFollowersTab:"Followers", followFollowingTab:"Following", followTasksRow:"Followers", followNoReq:"No pending requests.", followNoFollowers:"No followers yet.", followNoFollowing:"You're not following anyone yet.", followWantsToFollow:"wants to follow you", followFollowsYou:"follows you", accept:"Accept", decline:"Decline", remove:"Remove"});
 Object.assign(I18N.en, {visApproxArea:"Approximate area", visLockOnlyMe:"Only me", visSumOnlyMe:"Only me", visSumFollowers:"Followers", visSumClubsFollowers:"Clubs + followers", visSumClubsOnly:"Clubs/groups only", visNoFollowersYet:"You don't have followers yet — this sets what they'll see once you do."});
 Object.assign(I18N.nl, {profSharedCatches:"gedeelde vangsten", profFollow:"Volgen", profFollowing:"Volg ik", profRequested:"Aangevraagd", profBlocked:"Geblokkeerd", profUnavailable:"Niet beschikbaar", profNoCatches:"Nog geen gedeelde vangsten.", profRecords:"Records", profCatches:"Vangsten", profUnfollow:"Ontvolgen", profBlockAction:"Blokkeren", profUnblockAction:"Deblokkeren", profRequestSent:"Verzoek verstuurd", allSpecies:"Alle soorten", loadingWord:"Laden …", cancelWord:"Annuleren", filterSpecies:"Soort", latestCatches:"Nieuwste vangsten", profGateTitle:"Volg {name} om de vangsten te zien", profGateSub:"Alleen volgers zien de gedeelde vangsten van deze visser — ook buiten jullie gedeelde verenigingen & groepen."});
+Object.assign(I18N.nl, {followTitle:"Volgers", followReqTab:"Verzoeken", followFollowersTab:"Volgers", followFollowingTab:"Ik volg", followTasksRow:"Volgers", followNoReq:"Geen openstaande verzoeken.", followNoFollowers:"Nog geen volgers.", followNoFollowing:"Je volgt nog niemand.", followWantsToFollow:"wil je volgen", followFollowsYou:"volgt jou", accept:"Accepteren", decline:"Afwijzen", remove:"Verwijderen"});
 Object.assign(I18N.nl, {visApproxArea:"Ongeveer gebied", visLockOnlyMe:"Alleen ik", visSumOnlyMe:"Alleen ik", visSumFollowers:"Volgers", visSumClubsFollowers:"Verenigingen + volgers", visSumClubsOnly:"Alleen verenigingen/groepen", visNoFollowersYet:"Je hebt nog geen volgers — dit bepaalt wat ze straks zien."});
 Object.assign(I18N.de, {visWhatMandatoryHint:"Nur, was deine Vereine verlangen.", visWhatSomeHint:"Dein Zuschnitt — wähle unten.", visWhatAllHint:"Alle Kategorien werden geteilt.", visDefLocHint:"So genau sehen andere deinen Fangort."});
 Object.assign(I18N.en, {visWhatMandatoryHint:"Only what your clubs require.", visWhatSomeHint:"Your selection — choose below.", visWhatAllHint:"All categories are shared.", visDefLocHint:"How precisely others see your spot."});
@@ -3582,17 +3615,22 @@ function renderClubs(){
   const emptyHint=(txt)=>{ const p=document.createElement('p'); p.className='hint'; p.style.margin='2px 4px 0'; p.textContent=txt; return p; };
 
   const supa = state.auth==='supabase';
-  // Aufgaben-Center (nur App-Admin, nur wenn etwas offen)
-  if(supa && state.me && state.me.isAppAdmin){
-    const total=(state.pendingReqs||0)+(state.pendingBetaReqs||0)+(state.pendingFeedback||0);
-    if(total>0){
-      const cat=mkCat('tasks', t('tasksTitle'), {pill:total, defaultOpen:true});
+  // Aufgaben-Center — für ALLE Nutzer: Follower (Anfragen + Verwaltung); Admin-Inboxen nur für Admins.
+  if(supa && state.me){
+    const adminTotal = state.me.isAppAdmin ? ((state.pendingReqs||0)+(state.pendingBetaReqs||0)+(state.pendingFeedback||0)) : 0;
+    const followReqs = state.pendingFollowReqs||0;
+    const total = adminTotal + followReqs;
+    const cat=mkCat('tasks', t('tasksTitle'), {pill: total>0?total:null, defaultOpen: total>0});
+    { const b=document.createElement('button'); b.className='club'; b.onclick=openFollows;
+      b.innerHTML=`<span style="min-width:0; flex:1;"><span class="nm">${esc(t('followTasksRow'))}</span></span>${followReqs>0?`<span class="cat-pill">${followReqs}</span>`:CHEV_IC}`;
+      cat.body.appendChild(b); }
+    if(state.me.isAppAdmin){
       const trow=(label,n,fn)=>{ if(n>0){ const b=document.createElement('button'); b.className='club'; b.innerHTML=`<span style="min-width:0; flex:1;"><span class="nm">${esc(label)}</span></span><span class="cat-pill">${n}</span>`; b.onclick=fn; cat.body.appendChild(b); } };
       trow(t('reqInbox'), state.pendingReqs||0, openReqsInbox);
       trow(t('betaReqInbox'), state.pendingBetaReqs||0, openBetaReqsInbox);
       trow(t('feedbackInbox'), state.pendingFeedback||0, openFeedbackInbox);
-      c.appendChild(cat.wrap);
     }
+    c.appendChild(cat.wrap);
   }
   // Meine Fänge — eigene Karte oben, im selben Stil wie Vereine/Gruppen (Avatar/Initialen des Nutzers)
   const myCard=document.createElement('button'); myCard.className='club mycatches'; myCard.onclick=openStats;
@@ -3634,6 +3672,7 @@ async function goChooser(){
        Zurück auf Home — ohne den Merker wären das drei Abfragen pro Heimkehr, für Daten, die sich in
        der Zwischenzeit nur durch uns selbst ändern (und dann schon lokal stimmen). */
     if(!state._itemsLoaded) jobs.push(loadUserItems().catch(()=>{}));
+    jobs.push(countFollowRequests().then(n=>{ state.pendingFollowReqs=n; }).catch(()=>{ state.pendingFollowReqs=0; }));
     if(state.me && state.me.isAppAdmin){
       jobs.push(countPendingReqs().then(n=>{ state.pendingReqs=n; }).catch(()=>{ state.pendingReqs=0; }));
       jobs.push(countPendingBetaReqs().then(n=>{ state.pendingBetaReqs=n; }).catch(()=>{ state.pendingBetaReqs=0; }));
@@ -4459,6 +4498,40 @@ function openProfileMenu(){
   document.body.appendChild(el);
   el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ const a=b.dataset.act; el.remove(); if(a==='unfollow')profUnfollow(); else if(a==='block')profBlock(); else if(a==='unblock')profUnblock(); });
 }
+// ---------- Follows (Aufgaben-Center: Follower) ----------
+async function countFollowRequests(){ const c=getSB(); if(!c||!state.me) return 0; try{ const { count }=await c.from('follows').select('follower_id',{count:'exact',head:true}).eq('followee_id',state.me.id).eq('status','pending'); return count||0; }catch(e){ return 0; } }
+async function openFollows(){
+  state.follows={ req:[], fol:[], ing:[], loading:true };
+  setFollowsTab('req'); go('follows'); renderFollows();
+  try{
+    const c=getSB();
+    const [req,fol,ing]=await Promise.all([ c.rpc('get_follow_requests'), c.rpc('get_followers'), c.rpc('get_following') ]);
+    state.follows.req=(req&&req.data)||[]; state.follows.fol=(fol&&fol.data)||[]; state.follows.ing=(ing&&ing.data)||[];
+    state.follows.loading=false; state.pendingFollowReqs=state.follows.req.length; renderFollows();
+    try{ renderClubs(); }catch(e){}
+  }catch(e){ if(state.follows){ state.follows.loading=false; renderFollows(); } }
+}
+function _followsTab(){ const b=document.querySelector('#follows-tabs .on'); return b?b.dataset.ft:'req'; }
+function setFollowsTab(tb){ document.querySelectorAll('#follows-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.ft===tb)); renderFollows(); }
+function _flAvatar(u){ return u.avatar?`<img src="${escAttr(u.avatar)}" alt="">`:esc((u.name||'?').slice(0,2).toUpperCase()); }
+function renderFollows(){
+  const host=document.getElementById('follows-body'); if(!host) return; const f=state.follows||{};
+  if(f.loading){ host.innerHTML=`<div class="prof-empty">${esc(t('loadingWord'))}</div>`; return; }
+  const tab=_followsTab();
+  if(tab==='req'){
+    if(!(f.req||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoReq'))}</div>`; return; }
+    host.innerHTML=f.req.map(u=>`<div class="fl-row"><button type="button" class="fl-who" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}<span class="fl-s">${esc(t('followWantsToFollow'))}</span></span></button><span class="fl-btns"><button type="button" class="fl-b ok" onclick="flAccept('${escAttr(u.id)}')">${esc(t('accept'))}</button><button type="button" class="fl-b no" onclick="flRemove('${escAttr(u.id)}')">${esc(t('decline'))}</button><button type="button" class="fl-b block" onclick="flBlock('${escAttr(u.id)}')">${esc(t('profBlockAction'))}</button></span></div>`).join('');
+  } else if(tab==='fol'){
+    if(!(f.fol||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoFollowers'))}</div>`; return; }
+    host.innerHTML=f.fol.map(u=>`<div class="fl-row"><button type="button" class="fl-who" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}<span class="fl-s">${esc(t('followFollowsYou'))}</span></span></button><span class="fl-btns"><button type="button" class="fl-b no" onclick="flRemove('${escAttr(u.id)}')">${esc(t('remove'))}</button><button type="button" class="fl-b block" onclick="flBlock('${escAttr(u.id)}')">${esc(t('profBlockAction'))}</button></span></div>`).join('');
+  } else {
+    if(!(f.ing||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoFollowing'))}</div>`; return; }
+    host.innerHTML=f.ing.map(u=>`<button type="button" class="fl-row fl-tap" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-who"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}</span></span>${CHEV_IC}</button>`).join('');
+  }
+}
+async function flAccept(id){ try{ await getSB().rpc('accept_follow',{p_follower:id}); }catch(e){} openFollows(); }
+async function flRemove(id){ try{ await getSB().rpc('remove_follower',{p_follower:id}); }catch(e){} openFollows(); }
+async function flBlock(id){ try{ await getSB().rpc('block_user',{p_other:id}); }catch(e){} openFollows(); }
 async function loadMyAllCatches(){  // for "Meine Fänge": all of my own catches across every area
   const c=getSB(); if(!c || !state.me) return [];
   const { data: rows } = await c.from('catches').select('*').eq('owner_id', state.me.id).order('caught_at', {ascending:false});
