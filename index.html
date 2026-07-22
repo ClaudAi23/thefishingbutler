@@ -2589,7 +2589,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.433';
+const BUILD = '2026-07-22.434';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -4195,8 +4195,42 @@ async function ownerNameMap(ownerIds){
   }
   return map;
 }
+/* Flip-Schalter (JC): solange 'off', bleibt der bisherige Direkt-Lesepfad. 'on' → gefilterte RPC.
+   So kann der Flip dunkel deployen und gefahrlos verifiziert werden, bevor er scharf geht. */
+function _visEnforceOn(){ try{ return localStorage.getItem('bf_visEnforce')!=='off'; }catch(e){ return true; } }   // default AN; Kill-Switch: localStorage.bf_visEnforce='off'
+function rpcRowToCatch(o, signedMap, nameById){
+  const ph=(o.photos||[]).slice().sort((a,b)=>((b.is_cover?1:0)-(a.is_cover?1:0))||((a.sort||0)-(b.sort||0)));
+  const urls=[], thumbs=[], crops=[], paths=[];
+  ph.forEach(p=>{ const u=signedMap[p.path]||null; if(u){ urls.push(u); paths.push(p.path); thumbs.push(signedMap[p.thumb_path]||u); crops.push({p:p.crop_pos||null, z:p.crop_zoom||null}); } });
+  const isExact=o.loc_tier==='exact', isArea=o.loc_tier==='area';
+  const lat= isExact? (o.lat!=null?Number(o.lat):null) : (isArea&&o.area? Number(o.area.lat):null);
+  const lon= isExact? (o.lon!=null?Number(o.lon):null) : (isArea&&o.area? Number(o.area.lon):null);
+  return {
+    id:o.id, species:o.species, length:o.length_cm!=null?o.length_cm:null, weight:o.weight_kg!=null?Number(o.weight_kg):null,
+    method:o.method||'', bait:o.bait||'', rod:o.rod||'', reel:o.reel||'', boat:o.boat||'',
+    watertemp:o.water_temp_c!=null?Number(o.water_temp_c):null, trolling:o.trolling_speed!=null?Number(o.trolling_speed):null,
+    released:(typeof o.released==='boolean')?o.released:null,
+    location: isExact?(o.location||''):'', lat:lat, lon:lon, locTier:o.loc_tier||null, locApprox:isArea, areaRadius:(isArea&&o.area)?o.area.radius_m:null,
+    date:o.caught_at, createdAt:null, notes:o.notes||'', moon:o.moon||null, weather:o.weather||null,
+    angler:(nameById&&nameById[o.owner_id])||'', userId:o.owner_id, loggedBy:null, loggedByName:null, confirmed:true,
+    _db:true, _ctxId:null, _ctxIds:null, _filtered:(o.owner_id!==(state.me&&state.me.id)),
+    crops:crops, photoPaths:paths, pbLen:o.pb_length===true, pbWt:o.pb_weight===true, pbOptout:false,
+    photos:urls, photo:urls[0]||null, thumbs:thumbs.length?thumbs:urls, shareFollowers:null, locOverride:null
+  };
+}
+async function loadContextCatchesRpc(ctxId){
+  const c=getSB(); if(!c) return [];
+  const { data, error } = await c.rpc('get_catches_for_viewer', { p_context: ctxId });
+  if(error || !data) return [];
+  const need=[], signedMap={}, now=Date.now();
+  data.forEach(o=>{ (o.photos||[]).forEach(p=>{ [p.path, p.thumb_path].forEach(pp=>{ if(!pp) return; const hit=_sigCache[pp]; if(hit&&hit.exp>now){ signedMap[pp]=hit.url; } else if(need.indexOf(pp)<0){ need.push(pp); } }); }); });
+  if(need.length){ try{ const { data:signed }=await c.storage.from('catch-photos').createSignedUrls(need, 60*60*24*7); (signed||[]).forEach(s=>{ if(s&&s.path&&s.signedUrl){ signedMap[s.path]=s.signedUrl; _sigCache[s.path]={url:s.signedUrl, exp:now+6*24*60*60*1000}; } }); }catch(e){} }
+  const nameById = await ownerNameMap([...new Set(data.map(o=>o.owner_id).filter(Boolean))]);
+  return data.map(o=>rpcRowToCatch(o, signedMap, nameById));
+}
 async function loadContextCatches(ctxId){
   await ensurePending();
+  if(_visEnforceOn()){ try{ const rpced=await loadContextCatchesRpc(ctxId); return prependPending(rpced, 'ctx', ctxId); }catch(e){} }
   const c=getSB(); let out=[];
   try{
     const { data: rows } = await c.from('catches').select('*').or('context_id.eq.'+ctxId+',context_ids.cs.{'+ctxId+'}').order('caught_at', {ascending:false});
@@ -8911,7 +8945,7 @@ const VIS_CATS=[
 const VIS_PREFS_SEED={
   shareFollowers:false,
   follower:{cats:{photos:true,technique:true,weather:true,note:false}, loc:'area'},
-  club:{cats:{photos:true,technique:false,weather:true,note:false}, loc:'off'}
+  club:{cats:{photos:true,technique:true,weather:true,note:true}, loc:'area'}
 };
 function _mergeVisPrefs(o){
   o=o||{};
