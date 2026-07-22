@@ -839,6 +839,39 @@
     min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .d-byline .nm-lock{display:inline-flex; vertical-align:middle; margin-left:5px; color:var(--muted);}
   .d-byline .nm-lock svg{width:13px; height:13px;}
+  /* Profile (follower view) */
+  .prof-head-row{display:flex;align-items:center;gap:14px;padding:6px 0 16px;}
+  .prof-av{width:64px;height:64px;border-radius:50%;flex:0 0 auto;overflow:hidden;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--teal-bright);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.5rem;}
+  .prof-av img{width:100%;height:100%;object-fit:cover;}
+  .prof-who{flex:1;min-width:0;}
+  .prof-nm{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.5rem;line-height:1.1;}
+  .prof-cnt{display:block;font-size:.82rem;color:var(--muted);margin-top:2px;}
+  .prof-fbtn{display:inline-flex;align-items:center;gap:6px;border-radius:11px;padding:9px 15px;font-weight:700;font-size:.86rem;border:1px solid transparent;background:var(--teal);color:#04222a;white-space:nowrap;cursor:pointer;font-family:inherit;}
+  .prof-fbtn svg{width:15px;height:15px;}
+  .prof-fbtn.following{background:var(--surface);border-color:var(--border-2);color:var(--teal-bright);}
+  .prof-fbtn.pending{background:transparent;border-color:var(--border-2);color:var(--muted);}
+  .prof-fbtn.blocked{background:transparent;border-color:#e5736b;color:#e5736b;}
+  .prof-fbtn.dis{background:transparent;color:var(--muted);}
+  .prof-empty{text-align:center;color:var(--muted);font-size:.9rem;padding:34px 10px;}
+  .ptile{display:block;width:100%;position:relative;border-radius:16px;overflow:hidden;margin-bottom:13px;height:200px;background:linear-gradient(135deg,#0d3346,#0a4a3f 55%,#123b3a);border:none;padding:0;text-align:left;cursor:pointer;}
+  .ptile.nophoto{height:auto;min-height:96px;}
+  .ptile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .ptile-scrim{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(transparent, rgba(2,20,30,.9));}
+  .ptile.nophoto .ptile-scrim{display:none;}
+  .ptile-band{position:absolute;left:14px;right:14px;bottom:12px;z-index:2;}
+  .ptile.nophoto .ptile-band{position:static;padding:14px;}
+  .ptile-sp{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:2rem;line-height:1;color:var(--text);}
+  .ptile-sz{display:inline-block;margin-top:6px;background:rgba(255,255,255,.16);border-radius:7px;padding:3px 10px;font-weight:600;font-size:.82rem;}
+  .ptile.nophoto .ptile-sz{background:var(--surface-2);}
+  .ptile-dt{display:block;margin-top:7px;font-size:.74rem;color:#cfe;opacity:.85;}
+  .ptile.nophoto .ptile-dt{color:var(--muted);}
+  .ptile-crown{position:absolute;top:11px;right:12px;z-index:2;display:inline-flex;align-items:center;background:rgba(2,20,30,.5);border-radius:8px;padding:4px 7px;color:var(--amber);}
+  .ptile-crown svg{width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:2;}
+  .prof-as-dim{position:fixed;inset:0;background:rgba(2,15,22,.55);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
+  .prof-as{width:100%;max-width:440px;background:var(--sand);border-top-left-radius:18px;border-top-right-radius:18px;padding:8px;}
+  .prof-as-item{display:block;width:100%;background:var(--surface);border:1px solid var(--border-2);border-radius:12px;padding:14px;margin-bottom:8px;font-size:.95rem;font-weight:600;color:var(--text);font-family:inherit;cursor:pointer;}
+  .prof-as-item.danger{color:#e5736b;}
+  .prof-as-item.cancel{background:transparent;border:none;color:var(--muted);margin-bottom:0;}
   /* M3: the method is a STATEMENT, not a card — no box, no field label ("METHODE" over "ANGELMETHODE"
      said the word twice). It is the headline of the gear tiles below it, so it is set like a heading.
      baseline alignment keeps the qualifiers sitting on the method's baseline, not floating mid-cap. */
@@ -1929,6 +1962,44 @@
     </div>
   </section>
 
+  <!-- ============ PROFILE (Follower) ============ -->
+  <section id="s-profile" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" onclick="appBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div style="flex:1; min-width:0;"><h1 id="prof-hdrname" style="opacity:0; transition:opacity .18s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</h1></div>
+      <button class="iconbtn" id="prof-filter-btn" style="display:none; position:relative;" onclick="openProfileFilter()" aria-label="Filter">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg>
+        <span id="prof-filter-count" class="countpill" style="display:none; position:absolute; top:3px; right:1px;">0</span>
+      </button>
+      <button class="iconbtn" id="prof-more-btn" style="display:none;" onclick="openProfileMenu()" aria-label="Mehr">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+      </button>
+      <select id="filter-prof" onchange="setProfileSpecies(this.value)" style="display:none;"></select>
+    </div>
+    <div class="scroll pad" onscroll="_profScroll(this)">
+      <div id="prof-head"></div>
+      <div class="tabrow" style="position:sticky; top:0; z-index:5; margin:0 -16px 12px; background:var(--sand);">
+        <div class="seg" id="prof-tabs">
+          <button type="button" data-pt="ueb" onclick="setProfileTab('ueb')" data-i18n="tabOverview">Übersicht</button>
+          <button type="button" class="on" data-pt="lst" onclick="setProfileTab('lst')" data-i18n="profCatches">Fänge</button>
+        </div>
+      </div>
+      <div id="prof-pane-ueb" style="display:none;">
+        <div id="prof-stats" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;"></div>
+        <div id="prof-records" style="margin-bottom:18px;"></div>
+      </div>
+      <div id="prof-pane-lst">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 12px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <span class="sectionlabel" id="prof-list-label" style="margin:0;" data-i18n="latestCatches">Neueste Fänge</span>
+          <select id="sort-prof" onchange="setProfileSort(this.value)" style="display:none;"></select>
+          <button type="button" class="selfield selfield-sm" onclick="openSelSheet('sort-prof', t('sortTitle'))"><span id="sort-prof-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
+        </div>
+        <div id="prof-gallery"></div>
+        <div style="height:84px"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SETTINGS ============ -->
   <section id="s-settings" class="screen">
     <div class="topbar">
@@ -2593,7 +2664,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.437';
+const BUILD = '2026-07-22.438';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2732,8 +2803,11 @@ Object.assign(I18N.nl, {visTitle:"Privacy & delen", visIntro:"Bepaal wat anderen
 Object.assign(I18N.de, {visDefAudience:"Standard-Publikum", visShareFollowersDefault:"Standardmäßig mit Followern teilen", visShareFollowersHint:"Aus — neue Fänge sehen zuerst nur deine Vereine/Gruppen.", visDefWhat:"Was ich standardmäßig teile", visWhatMandatory:"Nur Pflicht", visWhatSome:"Manches", visWhatAll:"Alles", visDefLoc:"Standard-Ort", visClubWins:"Vereinsregeln gewinnen immer. Den Ort kannst du pro Fang anpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Mit Followern teilen", visLocThisCatch:"Ort (dieser Fang)", visLocThisCatchHint:"Vorbelegt mit deinem Standard. Hier schützt du den Spot bei einem einzelnen Fang.", visSpotHidden:"Spot verborgen"});
 Object.assign(I18N.en, {visDefAudience:"Default audience", visShareFollowersDefault:"Share with followers by default", visShareFollowersHint:"Off — new catches are first seen only by your clubs/groups.", visDefWhat:"What I share by default", visWhatMandatory:"Only required", visWhatSome:"Some", visWhatAll:"All", visDefLoc:"Default location", visClubWins:"Club rules always win. You can adjust the location per catch.", visSharingHeading:"Sharing", visShareWithFollowers:"Share with followers", visLocThisCatch:"Location (this catch)", visLocThisCatchHint:"Prefilled from your default. Protect the spot on a single catch here.", visSpotHidden:"Spot hidden"});
 Object.assign(I18N.nl, {visDefAudience:"Standaardpubliek", visShareFollowersDefault:"Standaard met volgers delen", visShareFollowersHint:"Uit — nieuwe vangsten zien eerst alleen je verenigingen/groepen.", visDefWhat:"Wat ik standaard deel", visWhatMandatory:"Alleen verplicht", visWhatSome:"Sommige", visWhatAll:"Alles", visDefLoc:"Standaardlocatie", visClubWins:"Verenigingsregels winnen altijd. De locatie kun je per vangst aanpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Met volgers delen", visLocThisCatch:"Locatie (deze vangst)", visLocThisCatchHint:"Vooraf ingevuld met je standaard. Bescherm hier de stek bij één vangst.", visSpotHidden:"Stek verborgen"});
+Object.assign(I18N.de, {profSharedCatches:"geteilte Fänge", profFollow:"Folgen", profFollowing:"Folge ich", profRequested:"Angefragt", profBlocked:"Blockiert", profUnavailable:"Nicht verfügbar", profNoCatches:"Noch keine geteilten Fänge.", profRecords:"Rekorde", profCatches:"Fänge", profUnfollow:"Nicht mehr folgen", profBlockAction:"Blockieren", profUnblockAction:"Blockierung aufheben", profRequestSent:"Anfrage gesendet", allSpecies:"Alle Arten", loadingWord:"Lädt …", cancelWord:"Abbrechen", filterSpecies:"Art"});
 Object.assign(I18N.de, {visApproxArea:"Ungefähre Gegend", visLockOnlyMe:"Nur ich", visSumOnlyMe:"Nur ich", visSumFollowers:"Follower", visSumClubsFollowers:"Vereine + Follower", visSumClubsOnly:"Nur Vereine/Gruppen", visNoFollowersYet:"Du hast noch keine Follower — das legt fest, was sie sehen, sobald du welche hast."});
+Object.assign(I18N.en, {profSharedCatches:"shared catches", profFollow:"Follow", profFollowing:"Following", profRequested:"Requested", profBlocked:"Blocked", profUnavailable:"Unavailable", profNoCatches:"No shared catches yet.", profRecords:"Records", profCatches:"Catches", profUnfollow:"Unfollow", profBlockAction:"Block", profUnblockAction:"Unblock", profRequestSent:"Request sent", allSpecies:"All species", loadingWord:"Loading …", cancelWord:"Cancel", filterSpecies:"Species"});
 Object.assign(I18N.en, {visApproxArea:"Approximate area", visLockOnlyMe:"Only me", visSumOnlyMe:"Only me", visSumFollowers:"Followers", visSumClubsFollowers:"Clubs + followers", visSumClubsOnly:"Clubs/groups only", visNoFollowersYet:"You don't have followers yet — this sets what they'll see once you do."});
+Object.assign(I18N.nl, {profSharedCatches:"gedeelde vangsten", profFollow:"Volgen", profFollowing:"Volg ik", profRequested:"Aangevraagd", profBlocked:"Geblokkeerd", profUnavailable:"Niet beschikbaar", profNoCatches:"Nog geen gedeelde vangsten.", profRecords:"Records", profCatches:"Vangsten", profUnfollow:"Ontvolgen", profBlockAction:"Blokkeren", profUnblockAction:"Deblokkeren", profRequestSent:"Verzoek verstuurd", allSpecies:"Alle soorten", loadingWord:"Laden …", cancelWord:"Annuleren", filterSpecies:"Soort"});
 Object.assign(I18N.nl, {visApproxArea:"Ongeveer gebied", visLockOnlyMe:"Alleen ik", visSumOnlyMe:"Alleen ik", visSumFollowers:"Volgers", visSumClubsFollowers:"Verenigingen + volgers", visSumClubsOnly:"Alleen verenigingen/groepen", visNoFollowersYet:"Je hebt nog geen volgers — dit bepaalt wat ze straks zien."});
 Object.assign(I18N.de, {visWhatMandatoryHint:"Nur, was deine Vereine verlangen.", visWhatSomeHint:"Dein Zuschnitt — wähle unten.", visWhatAllHint:"Alle Kategorien werden geteilt.", visDefLocHint:"So genau sehen andere deinen Fangort."});
 Object.assign(I18N.en, {visWhatMandatoryHint:"Only what your clubs require.", visWhatSomeHint:"Your selection — choose below.", visWhatAllHint:"All categories are shared.", visDefLocHint:"How precisely others see your spot."});
@@ -4242,6 +4316,124 @@ async function loadContextCatches(ctxId){
     if(rows){ const nameById = await ownerNameMap([...new Set(rows.flatMap(r=>[r.owner_id, r.logged_by]).filter(Boolean))]); out = await rowsToCatches(rows, nameById); }
   }catch(e){}
   return prependPending(out, 'ctx', ctxId);
+}
+// ---------- Profile (follower view) ----------
+const IC_FOLLOW_ADD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>';
+const IC_CHECK2='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+let _profSort='new';
+async function loadAnglerCatchesRpc(ownerId){
+  const c=getSB(); if(!c) return [];
+  const { data, error } = await c.rpc('get_angler_catches', { p_owner: ownerId });
+  if(error || !data) return [];
+  const need=[], signedMap={}, now=Date.now();
+  data.forEach(o=>{ (o.photos||[]).forEach(p=>{ [p.path, p.thumb_path].forEach(pp=>{ if(!pp) return; const hit=_sigCache[pp]; if(hit&&hit.exp>now){ signedMap[pp]=hit.url; } else if(need.indexOf(pp)<0){ need.push(pp); } }); }); });
+  if(need.length){ try{ const { data:signed }=await c.storage.from('catch-photos').createSignedUrls(need, 60*60*24*7); (signed||[]).forEach(s=>{ if(s&&s.path&&s.signedUrl){ signedMap[s.path]=s.signedUrl; _sigCache[s.path]={url:s.signedUrl, exp:now+6*24*60*60*1000}; } }); }catch(e){} }
+  const nameById = await ownerNameMap([ownerId]);
+  return data.map(o=>rpcRowToCatch(o, signedMap, nameById));
+}
+async function openProfile(userId){
+  if(!userId || state.auth!=='supabase') return;
+  state.profile={ id:userId, meta:null, catches:[], loading:true, filterSpecies:null };
+  _profSort='new';
+  try{ const s=document.getElementById('sort-prof'); if(s){ s.innerHTML=`<option value="new">${esc(t('sortNewest'))}</option><option value="len">${esc(t('sortLongest'))}</option><option value="wt">${esc(t('sortHeaviest'))}</option>`; s.value='new'; } }catch(e){}
+  setProfileTab('lst');
+  go('profile'); renderProfile();
+  try{
+    const c=getSB();
+    const [metaRes, cats]=await Promise.all([ c.rpc('get_profile_meta',{p_owner:userId}), loadAnglerCatchesRpc(userId) ]);
+    if(!state.profile || state.profile.id!==userId) return;
+    state.profile.meta=(metaRes&&metaRes.data)||null;
+    state.profile.catches=cats||[];
+    state.profile.loading=false;
+    renderProfile();
+  }catch(e){ if(state.profile){ state.profile.loading=false; renderProfile(); } }
+}
+function _profCatchesSorted(){
+  const p=state.profile||{}; let arr=(p.catches||[]).slice();
+  if(p.filterSpecies) arr=arr.filter(c=>c.species===p.filterSpecies);
+  if(_profSort==='len') arr.sort((a,b)=>(b.length||0)-(a.length||0));
+  else if(_profSort==='wt') arr.sort((a,b)=>(b.weight||0)-(a.weight||0));
+  else arr.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return arr;
+}
+function renderProfile(){
+  const p=state.profile; if(!p) return;
+  renderProfileHead(); renderProfileTiles(); renderProfileOverview();
+  const hn=document.getElementById('prof-hdrname'); if(hn) hn.textContent=(p.meta&&p.meta.name)||'';
+  const sl=document.getElementById('sort-prof-lbl'); if(sl) sl.textContent=t(_profSort==='len'?'sortLongest':_profSort==='wt'?'sortHeaviest':'sortNewest');
+  const isSelf=p.meta&&p.meta.rel==='self';
+  const mb=document.getElementById('prof-more-btn'); if(mb) mb.style.display=(!isSelf && p.meta && (p.meta.rel==='accepted'||p.meta.rel==='blocked'))?'':'none';
+  const fb=document.getElementById('prof-filter-btn'); if(fb) fb.style.display=(p.catches&&p.catches.length)?'':'none';
+}
+function renderProfileHead(){
+  const p=state.profile, host=document.getElementById('prof-head'); if(!host) return; const m=p.meta||{};
+  const av = m.avatar ? `<img src="${escAttr(m.avatar)}" alt="">` : esc((m.name||'?').slice(0,2).toUpperCase());
+  host.innerHTML=`<div class="prof-head-row"><span class="prof-av">${av}</span><span class="prof-who"><span class="prof-nm">${esc(m.name||'—')}</span><span class="prof-cnt">${(p.catches||[]).length} ${esc(t('profSharedCatches'))}</span></span>${_profFollowBtn(m)}</div>`;
+  const _av=host.querySelector('.prof-av img'); if(_av){ _av.style.cursor='zoom-in'; _av.onclick=()=>{ try{ openLightbox([_av.src],0); }catch(e){} }; }
+}
+function _profFollowBtn(m){
+  if(!m || m.rel==='self') return '';
+  if(m.blockedMe) return `<span class="prof-fbtn dis">${esc(t('profUnavailable'))}</span>`;
+  if(m.rel==='accepted') return `<button type="button" class="prof-fbtn following" onclick="openProfileMenu()">${IC_CHECK2}${esc(t('profFollowing'))}</button>`;
+  if(m.rel==='pending') return `<button type="button" class="prof-fbtn pending" onclick="profCancel()">${esc(t('profRequested'))}</button>`;
+  if(m.rel==='blocked') return `<button type="button" class="prof-fbtn blocked" onclick="profUnblock()">${esc(t('profBlocked'))}</button>`;
+  return `<button type="button" class="prof-fbtn" onclick="profFollow()">${IC_FOLLOW_ADD}${esc(t('profFollow'))}</button>`;
+}
+function renderProfileTiles(){
+  const p=state.profile, host=document.getElementById('prof-gallery'); if(!host) return;
+  if(p.loading){ host.innerHTML=`<div class="prof-empty">${esc(t('loadingWord'))}</div>`; return; }
+  const cats=_profCatchesSorted();
+  if(!cats.length){ host.innerHTML=`<div class="prof-empty">${esc(t('profNoCatches'))}</div>`; return; }
+  host.innerHTML=cats.map(c=>{
+    const photo=c.photo||(c.photos&&c.photos[0])||null;
+    const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
+    const crown=isPb(c)?`<span class="ptile-crown">${CROWN_IC}</span>`:'';
+    return `<button type="button" class="ptile${photo?'':' nophoto'}" onclick="openProfileCatch('${escAttr(String(c.id))}')">${photo?`<img src="${escAttr(photo)}" alt="" loading="lazy">`:''}<span class="ptile-scrim"></span>${crown}<span class="ptile-band"><span class="ptile-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="ptile-sz">${esc(size)}</span>`:''}<span class="ptile-dt">${esc(fmtDate(c.date))}</span></span></button>`;
+  }).join('');
+}
+function renderProfileOverview(){
+  const box=document.getElementById('prof-stats'); if(!box) return;
+  const items=(state.profile&&state.profile.catches)||[];
+  const yr=new Date().getFullYear();
+  const yc=items.filter(c=>{ try{ return new Date(c.date).getFullYear()===yr; }catch(e){ return false; } }).length;
+  const species=new Set(items.map(c=>c.species).filter(Boolean)).size;
+  let bl=null,bw=null; items.forEach(c=>{ if(c.length!=null&&(!bl||c.length>bl.length))bl=c; if(c.weight!=null&&(!bw||Number(c.weight)>Number(bw.weight)))bw=c; });
+  const _kl='font-size:0.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);';
+  const _kv="font-family:'Barlow Condensed',sans-serif;font-size:1.625rem;font-weight:700;line-height:1.1;";
+  const _kc='background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-height:60px;box-sizing:border-box;';
+  const total=`<div style="${_kc} display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div><div style="${_kl}">${esc(t('total'))}</div><div style="${_kv}">${items.length}</div></div><div style="text-align:right;"><div style="${_kl}">${yr}</div><div style="${_kv} font-size:1.125rem;color:var(--muted);">${yc}</div></div></div>`;
+  const kpi=(l,v,rec)=>`<div style="${_kc}"><div style="${_kl}">${l}</div><div style="${_kv}${rec?' color:var(--teal);':''}">${v}</div></div>`;
+  box.innerHTML=total+kpi(t('speciesCount'),species)+kpi(t('longest'),bl?fmtLen(bl.length):'—',true)+kpi(t('heaviest'),bw?fmtWeight(bw.weight):'—',true);
+  const rb=document.getElementById('prof-records'); if(!rb) return;
+  const seen={}, uniq=[]; items.forEach(c=>{ if(isPb(c)&&!c._welcome&&!seen[c.species]){ seen[c.species]=1; uniq.push(c); } });
+  if(!uniq.length){ rb.innerHTML=''; rb.style.display='none'; return; }
+  rb.style.display='';
+  const cards=uniq.map(c=>{ const val=(pbMetric()==='weight')?(c.weight!=null?fmtWeight(c.weight):'—'):(c.length!=null?fmtLen(c.length):'—'); const ph=(c.thumbs&&c.thumbs[0])||c.photo||null; const th=ph?`<span class="rec-thumb"><img src="${escAttr(ph)}" alt="" loading="lazy"></span>`:`<span class="rec-thumb rec-thumb-ph">${FISH_IC}</span>`;
+    return `<button type="button" class="rec-card" onclick="openProfileCatch('${escAttr(String(c.id))}')">${th}<span class="rec-sp">${esc(trSpecies(c.species))}</span><span class="rec-val">${esc(val)}</span></button>`; }).join('');
+  rb.innerHTML=`<div class="rec-head">${CROWN_IC}<span>${esc(t('profRecords'))}</span></div><div class="rec-strip">${cards}</div>`;
+}
+function openProfileCatch(id){ const c=(state.profile&&state.profile.catches||[]).find(x=>String(x.id)===String(id)); if(c) openDetailObj(c,'profile'); }
+function setProfileTab(tb){ document.querySelectorAll('#prof-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.pt===tb)); const u=document.getElementById('prof-pane-ueb'), l=document.getElementById('prof-pane-lst'); if(u)u.style.display=tb==='ueb'?'':'none'; if(l)l.style.display=tb==='lst'?'':'none'; }
+function setProfileSort(v){ _profSort=v; renderProfile(); }
+function setProfileSpecies(v){ if(!state.profile) return; state.profile.filterSpecies=(v==='__all'?null:v); const b=document.getElementById('prof-filter-count'); if(b){ if(state.profile.filterSpecies){ b.style.display=''; b.textContent='1'; } else b.style.display='none'; } renderProfileTiles(); }
+function openProfileFilter(){ const sel=document.getElementById('filter-prof'); if(!sel) return; const sp=[...new Set((state.profile.catches||[]).map(c=>c.species).filter(Boolean))].sort(); sel.innerHTML=`<option value="__all">${esc(t('allSpecies'))}</option>`+sp.map(s=>`<option value="${escAttr(s)}">${esc(trSpecies(s))}</option>`).join(''); sel.value=state.profile.filterSpecies||'__all'; try{ syncSelfield('filter-prof'); }catch(e){} openSelSheet('filter-prof', t('filterSpecies')); }
+function _profScroll(el){ const hn=document.getElementById('prof-hdrname'); if(hn) hn.style.opacity=(el.scrollTop>72)?'1':'0'; }
+async function _profReloadMeta(){ const p=state.profile; if(!p) return; try{ const {data}=await getSB().rpc('get_profile_meta',{p_owner:p.id}); if(state.profile&&state.profile.id===p.id) state.profile.meta=data||p.meta; }catch(e){} renderProfile(); }
+async function profFollow(){ const p=state.profile; if(!p) return; try{ await getSB().rpc('follow_request',{p_other:p.id}); }catch(e){} try{ toast(t('profRequestSent')); }catch(e){} _profReloadMeta(); }
+async function profCancel(){ const p=state.profile; if(!p) return; try{ await getSB().rpc('unfollow',{p_other:p.id}); }catch(e){} _profReloadMeta(); }
+async function profUnfollow(){ const p=state.profile; if(!p) return; try{ await getSB().rpc('unfollow',{p_other:p.id}); }catch(e){} _profReloadMeta(); }
+async function profBlock(){ const p=state.profile; if(!p) return; try{ await getSB().rpc('block_user',{p_other:p.id}); }catch(e){} _profReloadMeta(); }
+async function profUnblock(){ const p=state.profile; if(!p) return; try{ await getSB().rpc('unblock_user',{p_other:p.id}); }catch(e){} _profReloadMeta(); }
+function openProfileMenu(){
+  const p=state.profile; if(!p||!p.meta) return; const rel=p.meta.rel; const items=[];
+  if(rel==='accepted') items.push(['unfollow', t('profUnfollow'), false]);
+  if(rel==='blocked') items.push(['unblock', t('profUnblockAction'), false]); else items.push(['block', t('profBlockAction'), true]);
+  let el=document.getElementById('prof-actionsheet'); if(el) el.remove();
+  el=document.createElement('div'); el.id='prof-actionsheet'; el.className='prof-as-dim';
+  el.innerHTML=`<div class="prof-as">${items.map(it=>`<button type="button" class="prof-as-item${it[2]?' danger':''}" data-act="${it[0]}">${esc(it[1])}</button>`).join('')}<button type="button" class="prof-as-item cancel" data-act="cancel">${esc(t('cancelWord'))}</button></div>`;
+  el.onclick=(e)=>{ if(e.target===el) el.remove(); };
+  document.body.appendChild(el);
+  el.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ const a=b.dataset.act; el.remove(); if(a==='unfollow')profUnfollow(); else if(a==='block')profBlock(); else if(a==='unblock')profUnblock(); });
 }
 async function loadMyAllCatches(){  // for "Meine Fänge": all of my own catches across every area
   const c=getSB(); if(!c || !state.me) return [];
@@ -8279,11 +8471,17 @@ function openDetailObj(c, from, keepEdit){
     if(ps.length>1){ strip.style.display='flex'; strip.innerHTML=ps.map((src,i)=>`<img src="${esc(src)}" class="${i===0?'active':''}" onclick="setHeroPhoto(this,'${i}')" data-src="${i}" alt="">`).join(''); strip._photos=ps; }
     else { strip.style.display='none'; strip.innerHTML=''; }
     if(byl){ byl.style.display='grid'; byl.innerHTML=_anglerByline(c);
-      /* Tap the face to see it full size (JC). Bound here rather than via an inline onclick, because
-         avatars are data: URLs — a whole base64 image inside an HTML attribute. Only when there is a
-         picture: initials have nothing to enlarge. */
-      const _av=byl.querySelector('.av img');
-      if(_av){ _av.style.cursor='zoom-in'; _av.onclick=()=>openLightbox([_av.src],0); }
+      /* Fremder Fang: Avatar/Name öffnen das Profil des Anglers (Einstieg zum Folgen). Eigener Fang:
+         Avatar tippen zeigt ihn groß (Lightbox) — wie bisher. */
+      const _foreign = c.userId && state.me && c.userId!==state.me.id && !c._welcome;
+      if(_foreign){
+        const _open=(e)=>{ try{ e.stopPropagation(); }catch(_e){} openProfile(c.userId); };
+        const _avc=byl.querySelector('.av'); if(_avc){ _avc.style.cursor='pointer'; _avc.onclick=_open; }
+        const _nmc=byl.querySelector('.nm'); if(_nmc){ _nmc.style.cursor='pointer'; _nmc.onclick=_open; }
+      } else {
+        const _av=byl.querySelector('.av img');
+        if(_av){ _av.style.cursor='zoom-in'; _av.onclick=()=>openLightbox([_av.src],0); }
+      }
     }
   }
   // Sticky header (species + measurement · date) fades in once the hero band is scrolled out of view.
