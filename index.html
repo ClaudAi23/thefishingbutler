@@ -1198,7 +1198,15 @@
   .vis-bucket-h .nm{font-weight:600; font-size:.95rem;}
   .vis-bucket-h .s{font-size:.72rem; color:var(--muted);}
   .vis-row{display:flex; align-items:center; gap:10px; margin:7px 0;}
-  .vis-row .lab{flex:1; font-size:.9rem; min-width:0; display:flex; align-items:center; gap:10px;}
+  .vis-row .lab{flex:1; font-size:.9rem; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .vis-flabel{font-size:.66rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:700; margin:16px 0 8px;}
+  .vis-flabel:first-child{margin-top:2px;}
+  .vis-sub2{font-size:.74rem; color:var(--muted); font-weight:400;}
+  .vis-catpick{border:1px solid var(--border); border-radius:11px; padding:2px 12px; margin-top:8px;}
+  .vis-catpick .vis-row{margin:0; padding:9px 0; border-bottom:1px solid var(--border);}
+  .vis-catpick .vis-row:last-child{border-bottom:0;}
+  .d-vis-lock{display:inline-flex; align-items:center; gap:6px; margin:8px 16px 2px; padding:5px 11px; background:var(--surface); border:1px solid var(--border-2); border-radius:16px; font-size:.78rem; font-weight:600; color:var(--amber);}
+  .d-vis-lock svg{width:15px; height:15px;}
   .vis-row .seg{flex:0 0 auto; min-width:128px; padding:3px;}
   .vis-row .seg.loc3{min-width:178px;}
   .vis-row .seg button{font-size:.8rem; padding:5px 6px;}
@@ -1707,6 +1715,10 @@
         <div class="hint" style="margin-top:6px;" data-i18n="logToAreaHint">Mehrere Vereine/Gruppen möglich.</div>
         <div id="uf-chiprow" style="display:none;"></div>
       </div>
+      <div class="field" id="ff-sharing">
+        <label data-i18n="visSharingHeading">Sharing</label>
+        <div id="edit-sharing-body"></div>
+      </div>
       <div class="field secfield" id="ff-photos">
         <label><svg viewBox="0 0 24 24"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg><span data-i18n="grpPhotos">Fotos</span></label>
         <div id="photo-grid" class="photo-grid pgrid"></div>
@@ -1978,7 +1990,6 @@
         <button type="button" class="acchead" onclick="toggleAcc('visibility')"><span data-i18n="visTitle">Privacy &amp; Sharing</span><svg class="acc-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="accbody">
           <p class="hint" style="margin-top:6px;" data-i18n="visIntro">Choose what others see of your catches, and the message you send when sharing. Spots only as precise as you allow.</p>
-          <div class="vis-sub" data-i18n="visSubWho">Who can see your catches</div>
           <div id="vis-settings-body"></div>
           <div class="vis-sub" data-i18n="visSubMsg">Share message</div>
           <div style="position:relative;">
@@ -2576,7 +2587,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.431';
+const BUILD = '2026-07-22.432';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2712,6 +2723,9 @@ Object.assign(I18N.nl, {visSheetPreview:"Voorbeeld — dit werkt nog niet. Echt 
 Object.assign(I18N.de, {visTitle:"Datenschutz & Teilen", visIntro:"Lege fest, was andere von deinen Fängen sehen und welche Nachricht du beim Teilen verschickst. Fangorte nur so genau, wie du erlaubst.", visPreviewNote:"Vorschau — die Sichtbarkeit wirkt noch nicht; echtes Teilen kommt mit dem nächsten Update.", visSubWho:"Wer sieht deine Fänge", visSubMsg:"Teilen-Nachricht"});
 Object.assign(I18N.en, {visTitle:"Privacy & Sharing", visIntro:"Choose what others see of your catches, and the message you send when sharing. Spots only as precise as you allow.", visSubWho:"Who can see your catches", visSubMsg:"Share message"});
 Object.assign(I18N.nl, {visTitle:"Privacy & delen", visIntro:"Bepaal wat anderen van je vangsten zien en welk bericht je bij het delen stuurt. Stekken alleen zo precies als je toestaat.", visPreviewNote:"Voorbeeld — zichtbaarheid werkt nog niet; echt delen komt met de volgende update.", visSubWho:"Wie ziet je vangsten", visSubMsg:"Deelbericht"});
+Object.assign(I18N.de, {visDefAudience:"Standard-Publikum", visShareFollowersDefault:"Standardmäßig mit Followern teilen", visShareFollowersHint:"Aus — neue Fänge sehen zuerst nur deine Vereine/Gruppen.", visDefWhat:"Was ich standardmäßig teile", visWhatMandatory:"Nur Pflicht", visWhatSome:"Manches", visWhatAll:"Alles", visDefLoc:"Standard-Ort", visClubWins:"Vereinsregeln gewinnen immer. Den Ort kannst du pro Fang anpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Mit Followern teilen", visLocThisCatch:"Ort (dieser Fang)", visLocThisCatchHint:"Vorbelegt mit deinem Standard. Hier schützt du den Spot bei einem einzelnen Fang.", visSpotHidden:"Spot verborgen"});
+Object.assign(I18N.en, {visDefAudience:"Default audience", visShareFollowersDefault:"Share with followers by default", visShareFollowersHint:"Off — new catches are first seen only by your clubs/groups.", visDefWhat:"What I share by default", visWhatMandatory:"Only required", visWhatSome:"Some", visWhatAll:"All", visDefLoc:"Default location", visClubWins:"Club rules always win. You can adjust the location per catch.", visSharingHeading:"Sharing", visShareWithFollowers:"Share with followers", visLocThisCatch:"Location (this catch)", visLocThisCatchHint:"Prefilled from your default. Protect the spot on a single catch here.", visSpotHidden:"Spot hidden"});
+Object.assign(I18N.nl, {visDefAudience:"Standaardpubliek", visShareFollowersDefault:"Standaard met volgers delen", visShareFollowersHint:"Uit — nieuwe vangsten zien eerst alleen je verenigingen/groepen.", visDefWhat:"Wat ik standaard deel", visWhatMandatory:"Alleen verplicht", visWhatSome:"Sommige", visWhatAll:"Alles", visDefLoc:"Standaardlocatie", visClubWins:"Verenigingsregels winnen altijd. De locatie kun je per vangst aanpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Met volgers delen", visLocThisCatch:"Locatie (deze vangst)", visLocThisCatchHint:"Vooraf ingevuld met je standaard. Bescherm hier de stek bij één vangst.", visSpotHidden:"Stek verborgen"});
 Object.assign(I18N.nl, {method:"Methode", bait:"Aas", rod:"Hengel", boat:"Boot", watertemp:"Water", watertempPh:"bijv. 18 °C", trolling:"Sleepsnelheid", trollingPh:"bijv. 3,2", releasedLabel:"Meenemen / Terugzetten", releasedNone:"—", releasedKept:"Meegenomen", releasedReleased:"Teruggezet", methodPh:"bijv. Kunstaasvissen", baitPh:"bijv. shad 12 cm", rodPh:"bijv. 2,70 m / 40 g", reel:"Molen", reelPh:"bijv. 4000 werpmolen", boatPh:"bijv. rubberboot", fieldsTitle:"Vangst invoeren", fieldsHint:"Bepaal welke velden verplicht zijn bij het loggen. Alle velden worden altijd getoond.", fieldsHintAdmin:"Als beheerder kun je velden verplicht maken. Alle velden worden altijd getoond — verbergen kan niet.", fieldsHintMember:"Welke velden verplicht zijn stelt de beheerder in (alleen lezen).", stRequired:"Verplicht", stNotRequired:"Niet verplicht", moreFields:"Meer velden", errRequired:"Vul de verplichte velden in:", shareTitle:"Delen", shareModeFields:"Velden", shareModeTemplate:"Eigen sjabloon", sharePreview:"Voorbeeld", shareLink:"App-link", shareHint:"Geldt voor dit gebied (Solo / groep / vereniging).", sharePhHint:"Tijdelijke aanduidingen: {petri} {art} {länge} {gewicht} {maße} {methode} {köder} {rute} {boot} {wassertemp} {schlepp} {entnahme} {ort} {datum} {angler} {wetter} {mond} {notiz} {bereich} {link}", exportCsv:"Exporteren als CSV", exportPdf:"Exporteren als PDF (met foto's)", exportEmpty:"Geen vangsten om te exporteren.", exportPdfErr:"Kon PDF-export niet laden (internet vereist)."});
 Object.assign(I18N.de, {tabPersonal:"Persönlich", tabArea:"Verein/Gruppe", tabAreaClub:"Verein", tabAreaGroup:"Gruppe", emailLabel:"E-Mail", emailFixedHint:"E-Mail-Adresse – derzeit nicht änderbar.", categories:"Kategorien", allGroups:"Alle Gruppen", allClubs:"Alle Vereine", showCatchesFrom:"Fänge aus", showCatchesFromHint:"Mehrere möglich. Nichts ausgewählt = alle.", selectedN:"ausgewählt", areaCtxHint:"Einstellungen für: {ctx}", copyToAreas:"Auf andere Vereine/Gruppen übernehmen …", copySub:"in welche Vereine/Gruppen kopieren?", selectAll:"Alle auswählen", cancel:"Abbrechen", apply:"Übernehmen", copyDone:"Auf {n} Verein(e)/Gruppe(n) übernommen.", shareBereich:"Verein/Gruppe", shareFieldsHint:"Wähle, welche Infos geteilt werden — die Vorschau unten zeigt das Ergebnis.", shareTemplateHint:"Schreibe den Text selbst. Platzhalter werden beim Teilen durch echte Werte ersetzt.", sharePhTapHint:"Tippe einen Platzhalter an, um ihn einzufügen:", exifGps:"Ort aus Foto übernommen", exifDate:"Zeit aus Foto übernommen", exifBoth:"Ort & Zeit aus Foto übernommen", exifNone:"Kein Ort/keine Zeit im Foto gefunden", exifRedo:"Ort & Zeit aus diesem Foto übernehmen", exifNoPhoto:"Kein Foto gewählt", exifDateBtn:"Datum aus Foto", exifLocBtn:"Ort aus Foto", obSkip:"Überspringen", obNext:"Weiter", obBack:"Zurück", obStart:"Los geht's", obFinish:"Fertig – los geht's!", obWelcomeTitle:"Willkommen an Bord", obWelcomeText:"Dein digitales Fang-Logbuch.", obProfileTitle:"Dein Profil", obProfileText:"Name und optional ein Bild – jederzeit in den Einstellungen änderbar.", ctxNamePh:"z. B. ASV Musterstadt", ctxLocPh:"z. B. Musterteich", obTeamHint:"Verein oder Gruppe jederzeit über ＋ auf dem Startbildschirm hinzufügen.", obV1t:"Im Handumdrehen erfasst", obV1d:"Art, Größe und Foto – Ort, Wetter und Mond ergänzen sich von selbst.", obV2t:"Solo oder gemeinsam", obV2d:"Privates Logbuch – oder geteilt mit Verein oder Freundesgruppe.", obV3t:"Deine Bestwerte", obV3d:"Rekorde, Trends und Statistiken über alle Fänge.", obInstallTitle:"Speichere den Butler auf deinem Handy", obInstallText:"Als App gespeichert öffnet sich der Butler im Vollbild und ist schneller griffbereit.", obReplay:"Einführung ansehen"});
 Object.assign(I18N.en, {tabPersonal:"Personal", tabArea:"Club/group", tabAreaClub:"Club", tabAreaGroup:"Group", emailLabel:"Email", emailFixedHint:"Email address – not changeable yet.", categories:"Categories", allGroups:"All groups", allClubs:"All clubs", showCatchesFrom:"Show catches from", showCatchesFromHint:"Pick several. None selected = all.", selectedN:"selected", areaCtxHint:"Settings for: {ctx}", copyToAreas:"Copy to other clubs/groups …", copySub:"copy into which clubs/groups?", selectAll:"Select all", cancel:"Cancel", apply:"Apply", copyDone:"Copied to {n} club(s)/group(s).", shareBereich:"Club/group", shareFieldsHint:"Choose which info gets shared — the preview below shows the result.", shareTemplateHint:"Write the text yourself. Placeholders are replaced with real values when sharing.", sharePhTapHint:"Tap a placeholder to insert it:", exifGps:"Location taken from photo", exifDate:"Time taken from photo", exifBoth:"Location & time taken from photo", exifNone:"No location/time found in photo", exifRedo:"Take location & time from this photo", exifNoPhoto:"No photo selected", exifDateBtn:"Date from photo", exifLocBtn:"Location from photo", obSkip:"Skip", obNext:"Next", obBack:"Back", obStart:"Let's go", obFinish:"Done — let's go!", obWelcomeTitle:"Welcome aboard", obWelcomeText:"Your digital catch log.", obProfileTitle:"Your profile", obProfileText:"A name and optional photo – changeable anytime in settings.", ctxNamePh:"e.g. Springfield Anglers", ctxLocPh:"e.g. Mill Pond", obTeamHint:"Add a club or group anytime with ＋ on the home screen.", obV1t:"Log in seconds", obV1d:"Species, size and a photo — location, weather and moon fill in for you.", obV2t:"Solo or together", obV2d:"A private log, or one you share with your club or a group of friends.", obV3t:"See your best", obV3d:"Records, trends and stats across every catch you land.", obInstallTitle:"Save the Butler to your phone", obInstallText:"Saved as an app, ButlerFish opens full-screen and is quicker to reach.", obReplay:"View intro"});
@@ -6364,6 +6378,7 @@ async function openForm(skipAuto){
   ensureFormMap(null,null);
   try{ state.formSnap=formSnapshot(); }catch(e){}
   try{ bindFormReadiness(); updateSaveReadiness(); }catch(e){}
+  try{ renderEditSharing(); }catch(e){}
   // no automatic geolocation on open — the browser prompt should only appear when the user taps "Mein Standort"
 }
 /* B ist jetzt für ALLE an (JC, 21. Juli: „jetzt für alle" — nach Test auf seiner E-Mail).
@@ -6406,6 +6421,7 @@ async function openEditForm(c){
   try{ renderFormPhotos(); }catch(e){}
   try{ previewWeather(); }catch(e){}
   try{ updateSaveReadiness(); }catch(e){}
+  try{ renderEditSharing(); }catch(e){}
   /* Löschen jetzt als Kopf-Icon (JC): unten ausblenden, oben rechts einblenden. */
   const _dw=document.getElementById('form-del-wrap'); if(_dw) _dw.style.display='none';
   const _dh=document.getElementById('form-del-hdr'); if(_dh) _dh.style.display='';
@@ -8213,7 +8229,7 @@ function openDetailObj(c, from, keepEdit){
   const editing = _detailEdit && _editable;
   /* Sichtbarkeits-Abzeichen: nur am eigenen Fang, im Read-Modus (JC 22. Juli, Frontend-Vorschau). */
   { const vs=document.getElementById('d-vis-slot');
-    if(vs){ if(_isMine && !editing && !c._welcome){ vs.style.display=''; vs.innerHTML=_visBadgeHTML(c); } else { vs.style.display='none'; vs.innerHTML=''; } } }
+    if(vs){ if(_isMine && !editing && !c._welcome){ vs.style.display=''; vs.innerHTML=_visLockHTML(c); } else { vs.style.display='none'; vs.innerHTML=''; } } }
   let rows=[];
   if(editing){
     // EDIT MODE: full field set (all editable inline)
@@ -8866,36 +8882,36 @@ const VIS_CATS=[
   {key:'weather',   lK:'visCatWeather',   ic:IC_WEATHER},
   {key:'note',      lK:'visCatNote',      ic:IC_NOTE}
 ];
-const VIS_DEFAULTS_SEED={
-  follower:{photos:true, technique:true,  weather:true, note:false, loc:'area'},
-  verein:  {photos:true, technique:false, weather:true, note:false, loc:'off'},
-  gruppe:  {photos:true, technique:true,  weather:true, note:false, loc:'area'}
-};
-function loadVisDefaults(){
-  try{ const raw=localStorage.getItem('bf_visDefaults'); if(raw){ const o=JSON.parse(raw);
-    /* mit Seed mergen: neue Kategorien bekommen den Seed-Wert (default-deny wo Seed=false),
-       fehlende Buckets werden aufgefüllt. */
-    const out={}; VIS_BUCKETS.forEach(b=>{ out[b.key]=Object.assign({}, VIS_DEFAULTS_SEED[b.key], o[b.key]||{}); }); return out;
-  } }catch(e){}
-  return JSON.parse(JSON.stringify(VIS_DEFAULTS_SEED));
+/* Finales Modell (JC): Defaults in Settings (WAS-3-Wege + Standard-Publikum + Standard-Ort);
+   pro Fang nur WER (share with followers) + Ort. Frontend-Vorschau (localStorage). */
+const VIS_PREFS_SEED={ shareFollowers:false, what:'some', cats:{photos:true,technique:true,weather:true,note:false}, loc:'area' };
+function loadVisPrefs(){
+  try{ const r=localStorage.getItem('bf_visPrefs'); if(r){ const o=JSON.parse(r);
+    return Object.assign({}, VIS_PREFS_SEED, o, {cats:Object.assign({}, VIS_PREFS_SEED.cats, o.cats||{})}); } }catch(e){}
+  return JSON.parse(JSON.stringify(VIS_PREFS_SEED));
 }
-function saveVisDefaults(){ try{ localStorage.setItem('bf_visDefaults', JSON.stringify(state.visDefaults)); }catch(e){} }
+function saveVisPrefs(){ try{ localStorage.setItem('bf_visPrefs', JSON.stringify(state.visPrefs)); }catch(e){} }
+function _vp(){ if(!state.visPrefs) state.visPrefs=loadVisPrefs(); return state.visPrefs; }
+function _visSeg3(cur,opts,cb){ return `<div class="seg">`+opts.map(o=>`<button type="button" class="${cur===o.v?'on':''}" onclick="${cb}('${o.v}')">${esc(t(o.lK))}</button>`).join('')+`</div>`; }
+const VIS_WHAT_OPTS=[{v:'mandatory',lK:'visWhatMandatory'},{v:'some',lK:'visWhatSome'},{v:'all',lK:'visWhatAll'}];
+const VIS_LOC_OPTS=[{v:'exact',lK:'visLocExact'},{v:'area',lK:'visLocArea'},{v:'off',lK:'visLocOff'}];
 function renderVisSettings(){
   const host=document.getElementById('vis-settings-body'); if(!host) return;
-  if(!state.visDefaults) state.visDefaults=loadVisDefaults();
-  const loc=[{v:'exact',lK:'visLocExact'},{v:'area',lK:'visLocArea'},{v:'off',lK:'visLocOff'}];
-  host.innerHTML=VIS_BUCKETS.map(b=>{
-    const d=state.visDefaults[b.key];
-    const cats=VIS_CATS.map(c=>
-      `<div class="vis-row"><span class="lab">${esc(t(c.lK))}</span>`+
-      `<span class="vis-sw${d[c.key]?' on':''}" role="switch" aria-checked="${d[c.key]?'true':'false'}" onclick="setVisCat('${b.key}','${c.key}',${d[c.key]?'false':'true'})"></span></div>`).join('');
-    const locRow=`<div class="vis-row"><span class="lab">${esc(t('visCatLocation'))}</span>`+
-      `<div class="seg loc3">`+loc.map(o=>`<button type="button" class="${d.loc===o.v?'on':''}" onclick="setVisLoc('${b.key}','${o.v}')">${esc(t(o.lK))}</button>`).join('')+`</div></div>`;
-    return `<div class="vis-bucket"><div class="vis-bucket-h"><span class="ic">${b.ic}</span><span><div class="nm">${esc(t(b.nmK))}</div><div class="s">${esc(t(b.sK))}</div></span></div>${cats}${locRow}</div>`;
-  }).join('');
+  const p=_vp();
+  let html=`<div class="vis-flabel">${esc(t('visDefAudience'))}</div>`;
+  html+=`<div class="vis-row"><span class="lab">${esc(t('visShareFollowersDefault'))}<span class="vis-sub2">${esc(t('visShareFollowersHint'))}</span></span><span class="vis-sw${p.shareFollowers?' on':''}" role="switch" aria-checked="${p.shareFollowers?'true':'false'}" onclick="setVisPref('shareFollowers',${p.shareFollowers?'false':'true'})"></span></div>`;
+  html+=`<div class="vis-flabel">${esc(t('visDefWhat'))}</div>`+_visSeg3(p.what, VIS_WHAT_OPTS, 'setVisWhat');
+  if(p.what==='some'){
+    html+=`<div class="vis-catpick">`+VIS_CATS.map(c=>`<div class="vis-row"><span class="lab">${esc(t(c.lK))}</span><span class="vis-sw${p.cats[c.key]?' on':''}" role="switch" aria-checked="${p.cats[c.key]?'true':'false'}" onclick="setVisWhatCat('${c.key}',${p.cats[c.key]?'false':'true'})"></span></div>`).join('')+`</div>`;
+  }
+  html+=`<div class="vis-flabel">${esc(t('visDefLoc'))}</div>`+_visSeg3(p.loc, VIS_LOC_OPTS, 'setVisPrefLoc');
+  html+=`<p class="hint" style="margin-top:8px;">${esc(t('visClubWins'))}</p>`;
+  host.innerHTML=html;
 }
-function setVisCat(bucket,cat,val){ if(!state.visDefaults) state.visDefaults=loadVisDefaults(); state.visDefaults[bucket][cat]=!!val; saveVisDefaults(); renderVisSettings(); }
-function setVisLoc(bucket,val){ if(!state.visDefaults) state.visDefaults=loadVisDefaults(); state.visDefaults[bucket].loc=val; saveVisDefaults(); renderVisSettings(); }
+function setVisPref(k,v){ _vp()[k]=(v===true||v==='true'); saveVisPrefs(); renderVisSettings(); }
+function setVisWhat(v){ _vp().what=v; saveVisPrefs(); renderVisSettings(); }
+function setVisWhatCat(cat,v){ _vp().cats[cat]=(v===true||v==='true'); saveVisPrefs(); renderVisSettings(); }
+function setVisPrefLoc(v){ _vp().loc=v; saveVisPrefs(); renderVisSettings(); }
 
 /* Per-Fang-Override (lokal). Aufgelöste Sichtbarkeit eines Fangs = Override ?? Follower-Default.
    Frontend-Vorschau: die eigentliche Gate-Prüfung kommt serverseitig. */
@@ -8903,64 +8919,38 @@ function loadVisOverride(){ try{ const r=localStorage.getItem('bf_visOverride');
 function saveVisOverride(){ try{ localStorage.setItem('bf_visOverride', JSON.stringify(state.visOverride||{})); }catch(e){} }
 function _visOv(){ if(!state.visOverride) state.visOverride=loadVisOverride(); return state.visOverride; }
 function catchVis(c){
-  const ov=(_visOv()[c && c.id])||{};
-  if(!state.visDefaults) state.visDefaults=loadVisDefaults();
-  const d=state.visDefaults.follower;
-  return {
-    private: ov.private===true,
-    follower: ov.follower!=null?ov.follower:true,
-    group: ov.group!=null?ov.group:true,
-    loc: ov.loc || d.loc
-  };
+  const ov=(_visOv()[c && c.id])||{}; const p=_vp();
+  return { shareFollowers: ov.shareFollowers!=null?ov.shareFollowers:p.shareFollowers, loc: ov.loc||p.loc };
 }
 function _visLocWord(l){ return l==='exact'?t('visLocExact'):(l==='off'?t('visLocOff'):t('visLocArea')); }
-function _visBadgeParts(c){
-  const v=catchVis(c);
-  if(v.private) return {ic:IC_PRIVATE, txt:t('visPrivate')};
-  if(!v.follower && !v.group) return {ic:IC_PRIVATE, txt:t('visNoOne')};
-  const ic = v.follower ? IC_FOLLOWER : IC_GROUP;
-  const aud = v.follower ? t('visBucketFollower') : t('visBucketVereinGruppe');
-  return {ic, txt: aud+' · '+_visLocWord(v.loc)};
+/* Read-Ansicht: kleines Schloss nur, wenn eingeschränkt (Ort verborgen). */
+function catchRestricted(c){ return catchVis(c).loc==='off'; }
+function _visLockHTML(c){
+  if(!catchRestricted(c)) return '';
+  return `<span class="d-vis-lock" title="${escAttr(t('visSpotHidden'))}">${IC_PRIVATE}<span>${esc(t('visSpotHidden'))}</span></span>`;
 }
-function _visBadgeHTML(c){
-  const p=_visBadgeParts(c);
-  const chev='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;opacity:.6;"><path d="M9 6l6 6-6 6"/></svg>';
-  return `<button type="button" class="d-vis-badge" onclick="openVisSheet('${c.id}')"><span class="dvb-ic">${p.ic}</span><span>${esc(p.txt)}</span>${chev}</button>`;
+/* Per-Fang-Steuerung im Edit-Formular (Abschnitt „Sharing"). Schreibt Override je Fang;
+   bei neuem Fang unter '_new' (nur Vorschau). */
+function _editVisId(){ return (state.editId!=null ? String(state.editId) : '_new'); }
+function editVisState(){ const ov=_visOv(); const cur=ov[_editVisId()]||{}; const p=_vp();
+  return { shareFollowers: cur.shareFollowers!=null?cur.shareFollowers:p.shareFollowers, loc: cur.loc||p.loc }; }
+function renderEditSharing(){
+  const host=document.getElementById('edit-sharing-body'); if(!host) return;
+  const v=editVisState();
+  host.innerHTML=`<div class="vis-row" style="margin-top:12px;"><span class="lab">${esc(t('visShareWithFollowers'))}</span><span class="vis-sw${v.shareFollowers?' on':''}" role="switch" aria-checked="${v.shareFollowers?'true':'false'}" onclick="setEditShareFollowers(${v.shareFollowers?'false':'true'})"></span></div>`+
+    `<div class="vis-flabel">${esc(t('visLocThisCatch'))}</div>`+_visSeg3(v.loc, VIS_LOC_OPTS, 'setEditLoc')+
+    `<p class="hint" style="margin-top:6px;">${esc(t('visLocThisCatchHint'))}</p>`;
 }
-function _refreshVisBadge(){ const c=state.current; if(!c) return; const vs=document.getElementById('d-vis-slot'); if(vs && vs.style.display!=='none'){ vs.innerHTML=_visBadgeHTML(c); } }
-function openVisSheet(id){ state._visSheetId=id; renderVisSheet(); const sh=document.getElementById('vis-sheet'); if(sh) sh.style.display='flex'; }
-function renderVisSheet(){
-  const id=state._visSheetId; const c=(state.catches||[]).find(x=>x.id===id)||state.current; if(!c) return;
-  const sub=document.getElementById('vis-sheet-sub'); if(sub) sub.textContent=[trSpecies(c.species), c.length!=null?fmtLen(c.length):null].filter(Boolean).join(' · ');
-  const host=document.getElementById('vis-sheet-body'); if(!host) return;
-  const v=catchVis(c);
-  if(v.private){
-    host.innerHTML=`<div class="vis-bucket"><div class="vis-bucket-h"><span class="ic">${IC_PRIVATE}</span><span><div class="nm">${esc(t('visPrivateOn'))}</div><div class="s">${esc(t('visPrivateHint'))}</div></span></div></div>`+
-      `<button type="button" class="btn secondary" style="margin-top:2px;" onclick="setCatchPrivate(false)">${esc(t('visUnprivate'))}</button>`;
-    return;
-  }
-  const loc=[{v:'exact',lK:'visLocExact'},{v:'area',lK:'visLocArea'},{v:'off',lK:'visLocOff'}];
-  const audRow=(key,lab,val)=>`<div class="vis-row"><span class="lab">${esc(lab)}</span><span class="vis-sw${val?' on':''}" role="switch" aria-checked="${val?'true':'false'}" onclick="setCatchVisAud('${key}',${val?'false':'true'})"></span></div>`;
-  host.innerHTML=
-    `<div class="vis-bucket">`+
-      audRow('follower',t('visBucketFollower'), v.follower)+
-      audRow('group',t('visBucketVereinGruppe'), v.group)+
-      `<div class="vis-row"><span class="lab">${esc(t('visCatLocation'))}</span><div class="seg loc3">`+loc.map(o=>`<button type="button" class="${v.loc===o.v?'on':''}" onclick="setCatchVisLoc('${o.v}')">${esc(t(o.lK))}</button>`).join('')+`</div></div>`+
-    `</div>`+
-    `<button type="button" onclick="setCatchPrivate(true)" class="btn secondary" style="margin-top:4px; color:var(--danger); border-color:var(--danger); display:flex; align-items:center; justify-content:center; gap:7px;">${IC_PRIVATE}${esc(t('visMakePrivate'))}</button>`;
-}
-function _visUpd(mut){ const id=state._visSheetId; if(!id) return; const ov=_visOv(); ov[id]=Object.assign({}, ov[id]||{}); mut(ov[id]); saveVisOverride(); renderVisSheet(); _refreshVisBadge(); }
-function setCatchVisAud(which,val){ _visUpd(o=>{ o[which]=!!val; }); }
-function setCatchVisLoc(val){ _visUpd(o=>{ o.loc=val; }); }
-function setCatchPrivate(val){ _visUpd(o=>{ o.private=!!val; }); }
+function setEditShareFollowers(val){ const ov=_visOv(); const id=_editVisId(); ov[id]=Object.assign({},ov[id]||{},{shareFollowers:(val===true||val==='true')}); saveVisOverride(); renderEditSharing(); }
+function setEditLoc(val){ const ov=_visOv(); const id=_editVisId(); ov[id]=Object.assign({},ov[id]||{},{loc:val}); saveVisOverride(); renderEditSharing(); }
+/* (Altes Per-Fang-Sheet entfernt — Steuerung lebt jetzt im Edit-„Sharing"-Abschnitt.) */
 
 /* Kontextuelle Sheets (Vorschau, JC 22. Juli): Follower-Defaults bei erster Follow-Anfrage,
    Verein/Gruppe-Defaults beim Beitritt. Inhalt aus den echten Angler-Defaults. */
 function _visSummaryHTML(bucketKey){
-  if(!state.visDefaults) state.visDefaults=loadVisDefaults();
-  const d=state.visDefaults[bucketKey]||state.visDefaults.follower;
+  const p=_vp(); const d=p.cats;
   let rows=VIS_CATS.map(c=>`<div class="ctxv-row"><span>${esc(t(c.lK))}</span><span class="${d[c.key]?'y':'n'}">${esc(d[c.key]?t('visOn'):t('visOff'))}</span></div>`).join('');
-  rows+=`<div class="ctxv-row"><span>${esc(t('visCatLocation'))}</span><span class="y">${esc(_visLocWord(d.loc))}</span></div>`;
+  rows+=`<div class="ctxv-row"><span>${esc(t('visCatLocation'))}</span><span class="y">${esc(_visLocWord(p.loc))}</span></div>`;
   return rows;
 }
 function _showCtxvis(){ const sh=document.getElementById('ctxvis-sheet'); if(sh) sh.style.display='flex'; }
