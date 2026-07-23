@@ -1361,8 +1361,8 @@
   .home-hdr-main{display:flex; align-items:center; gap:9px;}
   .home-puf{width:30px;height:30px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--amber);flex:0 0 auto;} .home-puf svg{width:19px;height:19px;}
   .home-wm{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.5rem;line-height:1;color:var(--text);} .home-wm .hf{color:var(--amber);}
-  .home-beta{background:rgba(235,158,24,.16);color:var(--amber);border:1px solid rgba(235,158,24,.4);border-radius:999px;padding:1px 9px;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;}
-  .home-tag{margin:3px 0 0 39px;font-size:.72rem;color:var(--muted);letter-spacing:.02em;}
+  .home-beta{background:rgba(81,166,160,.16);color:var(--teal-bright);border:1px solid rgba(81,166,160,.45);border-radius:999px;padding:1px 9px;font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;}
+  .home-tag{margin:3px 0 0 2px;font-size:.72rem;color:var(--muted);letter-spacing:.02em;}
   .home-hdr.slim{padding:9px 16px;} .home-hdr.slim .home-puf{display:none;} .home-hdr.slim .home-wm{font-size:1.15rem;} .home-hdr.slim .home-tag{display:none;}
   .home-vtrow{display:flex;align-items:center;justify-content:space-between;margin:12px 0 2px;}
   .home-vt-h{font-size:.66rem;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
@@ -1704,8 +1704,7 @@
   <section id="s-home" class="screen">
     <div id="home-hdr" class="home-hdr">
       <div class="home-hdr-main">
-        <span class="home-puf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12c3-5 9-5 12 0-3 5-9 5-12 0z"/><circle cx="9" cy="12" r="1"/><path d="M18 12c2 0 3 2 3 2s-1 2-3 2"/></svg></span>
-        <span class="home-wm"><span>butler</span><span class="hf">fish</span></span>
+        <span class="home-wm">butler<span class="hf">.fish</span></span>
         <span class="home-beta" data-i18n="betaPill">Beta</span>
       </div>
       <div class="home-tag">Catch. Log. Organize.</div>
@@ -2841,7 +2840,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-23.452';
+const BUILD = '2026-07-23.453';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
