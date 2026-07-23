@@ -2059,17 +2059,12 @@
     </div>
   </section>
 
-  <!-- ============ FOLLOWS (Aufgaben: Follower) ============ -->
+  <!-- ============ AUFGABEN (Follower-Anfragen + Admin-Inboxen) ============ -->
   <section id="s-follows" class="screen">
     <div class="topbar">
       <button class="iconbtn" onclick="appBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div style="flex:1; min-width:0;"><h1 data-i18n="followTitle">Follower</h1></div>
+      <div style="flex:1; min-width:0;"><h1 data-i18n="tasksTitle">Aufgaben</h1></div>
     </div>
-    <div class="tabrow"><div class="seg" id="follows-tabs">
-      <button type="button" class="on" data-ft="req" onclick="setFollowsTab('req')" data-i18n="followReqTab">Anfragen</button>
-      <button type="button" data-ft="fol" onclick="setFollowsTab('fol')" data-i18n="followFollowersTab">Follower</button>
-      <button type="button" data-ft="ing" onclick="setFollowsTab('ing')" data-i18n="followFollowingTab">Ich folge</button>
-    </div></div>
     <div class="scroll pad">
       <div id="follows-body"></div>
       <div style="height:60px"></div>
@@ -2748,7 +2743,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.442';
+const BUILD = '2026-07-22.443';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2888,13 +2883,13 @@ Object.assign(I18N.de, {visDefAudience:"Standard-Publikum", visShareFollowersDef
 Object.assign(I18N.en, {visDefAudience:"Default audience", visShareFollowersDefault:"Share with followers by default", visShareFollowersHint:"Off — new catches are first seen only by your clubs/groups.", visDefWhat:"What I share by default", visWhatMandatory:"Only required", visWhatSome:"Some", visWhatAll:"All", visDefLoc:"Default location", visClubWins:"Club rules always win. You can adjust the location per catch.", visSharingHeading:"Sharing", visShareWithFollowers:"Share with followers", visLocThisCatch:"Location (this catch)", visLocThisCatchHint:"Prefilled from your default. Protect the spot on a single catch here.", visSpotHidden:"Spot hidden"});
 Object.assign(I18N.nl, {visDefAudience:"Standaardpubliek", visShareFollowersDefault:"Standaard met volgers delen", visShareFollowersHint:"Uit — nieuwe vangsten zien eerst alleen je verenigingen/groepen.", visDefWhat:"Wat ik standaard deel", visWhatMandatory:"Alleen verplicht", visWhatSome:"Sommige", visWhatAll:"Alles", visDefLoc:"Standaardlocatie", visClubWins:"Verenigingsregels winnen altijd. De locatie kun je per vangst aanpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Met volgers delen", visLocThisCatch:"Locatie (deze vangst)", visLocThisCatchHint:"Vooraf ingevuld met je standaard. Bescherm hier de stek bij één vangst.", visSpotHidden:"Stek verborgen"});
 Object.assign(I18N.de, {profSharedCatches:"geteilte Fänge", profFollow:"Folgen", profFollowing:"Folge ich", profRequested:"Angefragt", profBlocked:"Blockiert", profUnavailable:"Nicht verfügbar", profNoCatches:"Noch keine geteilten Fänge.", profRecords:"Rekorde", profCatches:"Fänge", profUnfollow:"Nicht mehr folgen", profBlockAction:"Blockieren", profUnblockAction:"Blockierung aufheben", profRequestSent:"Anfrage gesendet", allSpecies:"Alle Arten", loadingWord:"Lädt …", cancelWord:"Abbrechen", filterSpecies:"Art", latestCatches:"Neueste Fänge", profGateTitle:"Folge {name}, um die Fänge zu sehen", profGateSub:"Nur Follower sehen die geteilten Fänge dieses Anglers — auch außerhalb eurer gemeinsamen Gruppen & Vereine."});
-Object.assign(I18N.de, {followTitle:"Follower", followReqTab:"Anfragen", followFollowersTab:"Follower", followFollowingTab:"Ich folge", followTasksRow:"Follower", followNoReq:"Keine offenen Anfragen.", followNoFollowers:"Noch keine Follower.", followNoFollowing:"Du folgst noch niemandem.", followWantsToFollow:"möchte dir folgen", followFollowsYou:"folgt dir", accept:"Annehmen", decline:"Ablehnen", remove:"Entfernen", navHome:"Home", navProfile:"Profil", navTasks:"Aufgaben", navMore:"Mehr", profMapTab:"Karte", profNetTab:"Netzwerk", profTackleTab:"Tacklebox", profTackleSoon:"Deine Ruten, Rollen, Köder & Ausrüstung — mit Fang-Statistik. Kommt bald.", profNoLoc:"Noch keine Fänge mit Ort."});
+Object.assign(I18N.de, {followTitle:"Follower", followReqTab:"Anfragen", followFollowersTab:"Follower", followFollowingTab:"Ich folge", followTasksRow:"Follower", followNoReq:"Keine offenen Anfragen.", followNoFollowers:"Noch keine Follower.", followNoFollowing:"Du folgst noch niemandem.", followWantsToFollow:"möchte dir folgen", followFollowsYou:"folgt dir", accept:"Annehmen", decline:"Ablehnen", remove:"Entfernen", navHome:"Home", navProfile:"Profil", navTasks:"Aufgaben", navMore:"Mehr", profMapTab:"Karte", profNetTab:"Netzwerk", profTackleTab:"Tacklebox", profTackleSoon:"Deine Ruten, Rollen, Köder & Ausrüstung — mit Fang-Statistik. Kommt bald.", profNoLoc:"Noch keine Fänge mit Ort.", tasksAdmin:"Verein-Verwaltung", tasksEmpty:"Keine offenen Aufgaben."});
 Object.assign(I18N.de, {visApproxArea:"Ungefähre Gegend", visLockOnlyMe:"Nur ich", visSumOnlyMe:"Nur ich", visSumFollowers:"Follower", visSumClubsFollowers:"Vereine + Follower", visSumClubsOnly:"Nur Vereine/Gruppen", visNoFollowersYet:"Du hast noch keine Follower — das legt fest, was sie sehen, sobald du welche hast."});
 Object.assign(I18N.en, {profSharedCatches:"shared catches", profFollow:"Follow", profFollowing:"Following", profRequested:"Requested", profBlocked:"Blocked", profUnavailable:"Unavailable", profNoCatches:"No shared catches yet.", profRecords:"Records", profCatches:"Catches", profUnfollow:"Unfollow", profBlockAction:"Block", profUnblockAction:"Unblock", profRequestSent:"Request sent", allSpecies:"All species", loadingWord:"Loading …", cancelWord:"Cancel", filterSpecies:"Species", latestCatches:"Latest catches", profGateTitle:"Follow {name} to see their catches", profGateSub:"Only followers see this angler's shared catches — including outside your shared clubs & groups."});
-Object.assign(I18N.en, {followTitle:"Followers", followReqTab:"Requests", followFollowersTab:"Followers", followFollowingTab:"Following", followTasksRow:"Followers", followNoReq:"No pending requests.", followNoFollowers:"No followers yet.", followNoFollowing:"You're not following anyone yet.", followWantsToFollow:"wants to follow you", followFollowsYou:"follows you", accept:"Accept", decline:"Decline", remove:"Remove", navHome:"Home", navProfile:"Profile", navTasks:"Tasks", navMore:"More", profMapTab:"Map", profNetTab:"Network", profTackleTab:"Tacklebox", profTackleSoon:"Your rods, reels, lures & equipment — with catch stats. Coming soon.", profNoLoc:"No catches with a location yet."});
+Object.assign(I18N.en, {followTitle:"Followers", followReqTab:"Requests", followFollowersTab:"Followers", followFollowingTab:"Following", followTasksRow:"Followers", followNoReq:"No pending requests.", followNoFollowers:"No followers yet.", followNoFollowing:"You're not following anyone yet.", followWantsToFollow:"wants to follow you", followFollowsYou:"follows you", accept:"Accept", decline:"Decline", remove:"Remove", navHome:"Home", navProfile:"Profile", navTasks:"Tasks", navMore:"More", profMapTab:"Map", profNetTab:"Network", profTackleTab:"Tacklebox", profTackleSoon:"Your rods, reels, lures & equipment — with catch stats. Coming soon.", profNoLoc:"No catches with a location yet.", tasksAdmin:"Club admin", tasksEmpty:"No open tasks."});
 Object.assign(I18N.en, {visApproxArea:"Approximate area", visLockOnlyMe:"Only me", visSumOnlyMe:"Only me", visSumFollowers:"Followers", visSumClubsFollowers:"Clubs + followers", visSumClubsOnly:"Clubs/groups only", visNoFollowersYet:"You don't have followers yet — this sets what they'll see once you do."});
 Object.assign(I18N.nl, {profSharedCatches:"gedeelde vangsten", profFollow:"Volgen", profFollowing:"Volg ik", profRequested:"Aangevraagd", profBlocked:"Geblokkeerd", profUnavailable:"Niet beschikbaar", profNoCatches:"Nog geen gedeelde vangsten.", profRecords:"Records", profCatches:"Vangsten", profUnfollow:"Ontvolgen", profBlockAction:"Blokkeren", profUnblockAction:"Deblokkeren", profRequestSent:"Verzoek verstuurd", allSpecies:"Alle soorten", loadingWord:"Laden …", cancelWord:"Annuleren", filterSpecies:"Soort", latestCatches:"Nieuwste vangsten", profGateTitle:"Volg {name} om de vangsten te zien", profGateSub:"Alleen volgers zien de gedeelde vangsten van deze visser — ook buiten jullie gedeelde verenigingen & groepen."});
-Object.assign(I18N.nl, {followTitle:"Volgers", followReqTab:"Verzoeken", followFollowersTab:"Volgers", followFollowingTab:"Ik volg", followTasksRow:"Volgers", followNoReq:"Geen openstaande verzoeken.", followNoFollowers:"Nog geen volgers.", followNoFollowing:"Je volgt nog niemand.", followWantsToFollow:"wil je volgen", followFollowsYou:"volgt jou", accept:"Accepteren", decline:"Afwijzen", remove:"Verwijderen", navHome:"Home", navProfile:"Profiel", navTasks:"Taken", navMore:"Meer", profMapTab:"Kaart", profNetTab:"Netwerk", profTackleTab:"Tacklebox", profTackleSoon:"Je hengels, molens, kunstaas & uitrusting — met vangststatistiek. Binnenkort.", profNoLoc:"Nog geen vangsten met locatie."});
+Object.assign(I18N.nl, {followTitle:"Volgers", followReqTab:"Verzoeken", followFollowersTab:"Volgers", followFollowingTab:"Ik volg", followTasksRow:"Volgers", followNoReq:"Geen openstaande verzoeken.", followNoFollowers:"Nog geen volgers.", followNoFollowing:"Je volgt nog niemand.", followWantsToFollow:"wil je volgen", followFollowsYou:"volgt jou", accept:"Accepteren", decline:"Afwijzen", remove:"Verwijderen", navHome:"Home", navProfile:"Profiel", navTasks:"Taken", navMore:"Meer", profMapTab:"Kaart", profNetTab:"Netwerk", profTackleTab:"Tacklebox", profTackleSoon:"Je hengels, molens, kunstaas & uitrusting — met vangststatistiek. Binnenkort.", profNoLoc:"Nog geen vangsten met locatie.", tasksAdmin:"Verenigingsbeheer", tasksEmpty:"Geen openstaande taken."});
 Object.assign(I18N.nl, {visApproxArea:"Ongeveer gebied", visLockOnlyMe:"Alleen ik", visSumOnlyMe:"Alleen ik", visSumFollowers:"Volgers", visSumClubsFollowers:"Verenigingen + volgers", visSumClubsOnly:"Alleen verenigingen/groepen", visNoFollowersYet:"Je hebt nog geen volgers — dit bepaalt wat ze straks zien."});
 Object.assign(I18N.de, {visWhatMandatoryHint:"Nur, was deine Vereine verlangen.", visWhatSomeHint:"Dein Zuschnitt — wähle unten.", visWhatAllHint:"Alle Kategorien werden geteilt.", visDefLocHint:"So genau sehen andere deinen Fangort."});
 Object.assign(I18N.en, {visWhatMandatoryHint:"Only what your clubs require.", visWhatSomeHint:"Your selection — choose below.", visWhatAllHint:"All categories are shared.", visDefLocHint:"How precisely others see your spot."});
@@ -3665,19 +3660,7 @@ function renderClubs(){
   const emptyHint=(txt)=>{ const p=document.createElement('p'); p.className='hint'; p.style.margin='2px 4px 0'; p.textContent=txt; return p; };
 
   const supa = state.auth==='supabase';
-  // Follower-Anfragen laufen über den Bottom-Nav-Tab „Aufgaben". Diese Home-Karte bleibt vorerst die
-  // Admin-Inbox (Beitritt/Beta/Feedback); Zusammenführung in den Aufgaben-Tab folgt (Phase 2b).
-  if(supa && state.me && state.me.isAppAdmin){
-    const total=(state.pendingReqs||0)+(state.pendingBetaReqs||0)+(state.pendingFeedback||0);
-    if(total>0){
-      const cat=mkCat('tasks', t('tasksTitle'), {pill:total, defaultOpen:true});
-      const trow=(label,n,fn)=>{ if(n>0){ const b=document.createElement('button'); b.className='club'; b.innerHTML=`<span style="min-width:0; flex:1;"><span class="nm">${esc(label)}</span></span><span class="cat-pill">${n}</span>`; b.onclick=fn; cat.body.appendChild(b); } };
-      trow(t('reqInbox'), state.pendingReqs||0, openReqsInbox);
-      trow(t('betaReqInbox'), state.pendingBetaReqs||0, openBetaReqsInbox);
-      trow(t('feedbackInbox'), state.pendingFeedback||0, openFeedbackInbox);
-      c.appendChild(cat.wrap);
-    }
-  }
+  // Aufgaben (Follower-Anfragen + Admin-Inboxen) leben jetzt im Bottom-Nav-Tab „Aufgaben" — keine Home-Karte mehr.
   // „Meine Fänge" lebt jetzt im Profil-Tab (Bottom-Nav) — keine eigene Home-Karte mehr.
 
   const clubs = applyCtxOrder(supa ? (state.myContexts||[]).filter(x=>x.type==='club') : CLUBS, 'club');
@@ -4614,33 +4597,41 @@ function openProfileMenu(){
 // ---------- Follows (Aufgaben-Center: Follower) ----------
 async function countFollowRequests(){ const c=getSB(); if(!c||!state.me) return 0; try{ const { count }=await c.from('follows').select('follower_id',{count:'exact',head:true}).eq('followee_id',state.me.id).eq('status','pending'); return count||0; }catch(e){ return 0; } }
 async function openFollows(){
-  state.follows={ req:[], fol:[], ing:[], loading:true };
-  setFollowsTab('req'); go('follows'); renderFollows();
+  state.follows={ req:[], loading:true };
+  go('follows'); renderFollows();
   try{
     const c=getSB();
-    const [req,fol,ing]=await Promise.all([ c.rpc('get_follow_requests'), c.rpc('get_followers'), c.rpc('get_following') ]);
-    state.follows.req=(req&&req.data)||[]; state.follows.fol=(fol&&fol.data)||[]; state.follows.ing=(ing&&ing.data)||[];
+    const isAdmin = !!(state.me && state.me.isAppAdmin);
+    const jobs=[ c.rpc('get_follow_requests') ];
+    if(isAdmin){ jobs.push(countPendingReqs(), countPendingBetaReqs(), countFeedback()); }
+    const res=await Promise.all(jobs);
+    state.follows.req=(res[0]&&res[0].data)||[];
+    if(isAdmin){ state.pendingReqs=res[1]||0; state.pendingBetaReqs=res[2]||0; state.pendingFeedback=res[3]||0; }
     state.follows.loading=false; state.pendingFollowReqs=state.follows.req.length; renderFollows();
     try{ renderClubs(); }catch(e){} try{ updateBotNav(); }catch(e){}
   }catch(e){ if(state.follows){ state.follows.loading=false; renderFollows(); } }
 }
-function _followsTab(){ const b=document.querySelector('#follows-tabs .on'); return b?b.dataset.ft:'req'; }
-function setFollowsTab(tb){ document.querySelectorAll('#follows-tabs button').forEach(b=>b.classList.toggle('on', b.dataset.ft===tb)); renderFollows(); }
 function _flAvatar(u){ return u.avatar?`<img src="${escAttr(u.avatar)}" alt="">`:esc((u.name||'?').slice(0,2).toUpperCase()); }
 function renderFollows(){
   const host=document.getElementById('follows-body'); if(!host) return; const f=state.follows||{};
   if(f.loading){ host.innerHTML=`<div class="prof-empty">${esc(t('loadingWord'))}</div>`; return; }
-  const tab=_followsTab();
-  if(tab==='req'){
-    if(!(f.req||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoReq'))}</div>`; return; }
-    host.innerHTML=f.req.map(u=>`<div class="fl-row"><button type="button" class="fl-who" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}<span class="fl-s">${esc(t('followWantsToFollow'))}</span></span></button><span class="fl-btns"><button type="button" class="fl-b ok" onclick="flAccept('${escAttr(u.id)}')">${esc(t('accept'))}</button><button type="button" class="fl-b no" onclick="flRemove('${escAttr(u.id)}')">${esc(t('decline'))}</button><button type="button" class="fl-b block" onclick="flBlock('${escAttr(u.id)}')">${esc(t('profBlockAction'))}</button></span></div>`).join('');
-  } else if(tab==='fol'){
-    if(!(f.fol||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoFollowers'))}</div>`; return; }
-    host.innerHTML=f.fol.map(u=>`<div class="fl-row"><button type="button" class="fl-who" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}<span class="fl-s">${esc(t('followFollowsYou'))}</span></span></button><span class="fl-btns"><button type="button" class="fl-b no" onclick="flRemove('${escAttr(u.id)}')">${esc(t('remove'))}</button><button type="button" class="fl-b block" onclick="flBlock('${escAttr(u.id)}')">${esc(t('profBlockAction'))}</button></span></div>`).join('');
-  } else {
-    if(!(f.ing||[]).length){ host.innerHTML=`<div class="prof-empty">${esc(t('followNoFollowing'))}</div>`; return; }
-    host.innerHTML=f.ing.map(u=>`<button type="button" class="fl-row fl-tap" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-who"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}</span></span>${CHEV_IC}</button>`).join('');
+  let html='';
+  const reqs=f.req||[];
+  if(reqs.length){
+    html+=`<div class="sectionlabel" style="margin:2px 0 10px;">${esc(t('followReqTab'))}</div>`;
+    html+=reqs.map(u=>`<div class="fl-row"><button type="button" class="fl-who" onclick="openProfile('${escAttr(u.id)}')"><span class="fl-av">${_flAvatar(u)}</span><span class="fl-nm">${esc(u.name||'—')}<span class="fl-s">${esc(t('followWantsToFollow'))}</span></span></button><span class="fl-btns"><button type="button" class="fl-b ok" onclick="flAccept('${escAttr(u.id)}')">${esc(t('accept'))}</button><button type="button" class="fl-b no" onclick="flRemove('${escAttr(u.id)}')">${esc(t('decline'))}</button><button type="button" class="fl-b block" onclick="flBlock('${escAttr(u.id)}')">${esc(t('profBlockAction'))}</button></span></div>`).join('');
   }
+  if(state.me && state.me.isAppAdmin){
+    const adm=[];
+    if((state.pendingReqs||0)>0) adm.push([t('reqInbox'), state.pendingReqs, 'openReqsInbox']);
+    if((state.pendingBetaReqs||0)>0) adm.push([t('betaReqInbox'), state.pendingBetaReqs, 'openBetaReqsInbox']);
+    if((state.pendingFeedback||0)>0) adm.push([t('feedbackInbox'), state.pendingFeedback, 'openFeedbackInbox']);
+    if(adm.length){
+      html+=`<div class="sectionlabel" style="margin:18px 0 10px;">${esc(t('tasksAdmin'))}</div>`;
+      html+=adm.map(a=>`<button type="button" class="fl-row fl-tap" onclick="${a[2]}()"><span class="fl-who"><span class="fl-nm">${esc(a[0])}</span></span><span class="cat-pill">${a[1]}</span></button>`).join('');
+    }
+  }
+  host.innerHTML = html || `<div class="prof-empty">${esc(t('tasksEmpty'))}</div>`;
 }
 async function flAccept(id){ try{ await getSB().rpc('accept_follow',{p_follower:id}); }catch(e){} openFollows(); }
 async function flRemove(id){ try{ await getSB().rpc('remove_follower',{p_follower:id}); }catch(e){} openFollows(); }
