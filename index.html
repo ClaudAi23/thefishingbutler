@@ -1272,7 +1272,7 @@
 
   /* Tab-Zeile als zweite Zeile der Kopfzeile: gehört optisch zur Topbar (gleicher Grund, gleiche
      Kante unten) und bleibt damit beim Scrollen stehen — der `.scroll` darunter scrollt, sie nicht. */
-  .tabrow{flex:0 0 auto; background:var(--surface); border-bottom:1px solid var(--border); padding:0 16px 12px;}
+  .tabrow{flex:0 0 auto; background:var(--surface); padding:0 16px;}
   .seg{display:flex; background:var(--surface-2); border:1px solid var(--border-2); border-radius:8px; padding:4px; gap:4px;}
   .seg button{flex:1; border:none; background:transparent;
     font-family:'Barlow Condensed',sans-serif; font-size:1.0625rem; font-weight:600;
@@ -1341,6 +1341,11 @@
     color:var(--muted); border-radius:8px; padding:6px 10px; font-size:0.8125rem; font-weight:600; cursor:pointer; white-space:nowrap;}
   .exportbtn svg{width:15px; height:15px;}
   .exportbtn:active{background:var(--teal); color:#fff; border-color:var(--teal);}
+  .viewtog{display:inline-flex; border:1px solid var(--border-2); border-radius:8px; overflow:hidden; flex:0 0 auto;}
+  .viewtog button{width:32px; height:31px; display:flex; align-items:center; justify-content:center; color:var(--muted); background:var(--surface); border:none; cursor:pointer; padding:0;}
+  .viewtog button+button{border-left:1px solid var(--border-2);}
+  .viewtog button svg{width:15px; height:15px;}
+  .viewtog button.on{background:var(--teal); color:#04222a;}
   .chkrow{display:flex; align-items:center; gap:12px; padding:8px 0; font-size:0.875rem; cursor:pointer;}
   .chiprow{display:flex; flex-wrap:wrap; gap:7px; margin:2px 0 6px;}
   .fchip{display:inline-flex; align-items:center; gap:5px; font-size:0.8125rem; padding:6px 12px; border-radius:999px; border:1px solid var(--border-2); background:var(--surface-2); color:var(--muted); cursor:pointer; font-family:inherit;}
@@ -1746,9 +1751,9 @@
          vereine"). Gleiches Bauteil, gleiche Funktion — `setScreenTab` war dafür schon allgemein
          gebaut. Gilt auch für den SOLO-Modus: Der benutzt denselben Screen. -->
     <div class="tabrow">
-      <div class="seg" id="list-tabs">
-        <button type="button" class="on" data-tb="ueb" onclick="setScreenTab('list','ueb')" data-i18n="tabOverview">Übersicht</button>
-        <button type="button" data-tb="lst" onclick="setScreenTab('list','lst')" data-i18n="tabCatchList">Fangliste</button>
+      <div class="utabs" id="list-tabs">
+        <button type="button" class="utab on" data-tb="ueb" onclick="setScreenTab('list','ueb')" data-i18n="tabOverview">Übersicht</button>
+        <button type="button" class="utab" data-tb="lst" onclick="setScreenTab('list','lst')" data-i18n="tabCatchList">Fangliste</button>
       </div>
     </div>
     <div class="scroll pad">
@@ -1769,7 +1774,13 @@
       </div>
       <div data-tabpane="list:lst" style="display:none;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin:4px 4px 12px; gap:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-          <span class="sectionlabel" id="list-label" style="margin:0;">Neueste Fänge</span>
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <div class="viewtog" id="list-viewtog">
+              <button type="button" data-vm="mixed" onclick="setListView('list','mixed')" data-i18n-title="viewMixed" title="Kacheln" aria-label="Kacheln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="14" width="18" height="3" rx="1.5"/><rect x="3" y="19" width="18" height="2" rx="1"/></svg></button>
+              <button type="button" data-vm="list" onclick="setListView('list','list')" data-i18n-title="viewList" title="Liste" aria-label="Liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.3"/><circle cx="3.5" cy="12" r="1.3"/><circle cx="3.5" cy="18" r="1.3"/></svg></button>
+            </div>
+            <span class="sectionlabel" id="list-label" style="margin:0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Neueste Fänge</span>
+          </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <button type="button" class="exportbtn" onclick="openExportMenu('list')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
             <select id="sort-list" onchange="setSort(this.value)" style="display:none;"></select>
@@ -2023,10 +2034,6 @@
       <button class="iconbtn" onclick="appBack()" aria-label="Zurück"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span class="prof-tav" id="prof-topav" onclick="_profAvTap()"></span>
       <div style="flex:1; min-width:0;"><h1 id="prof-hdrname" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Barlow Condensed',sans-serif;">—</h1></div>
-      <button class="iconbtn" id="prof-filter-btn" style="display:none; position:relative;" onclick="openProfileFilter()" aria-label="Filter">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg>
-        <span id="prof-filter-count" class="countpill" style="display:none; position:absolute; top:3px; right:1px;">0</span>
-      </button>
       <button class="iconbtn" id="prof-action-btn" style="display:none;" aria-label="Aktion"></button>
       <select id="filter-prof" onchange="setProfileSpecies(this.value)" style="display:none;"></select>
     </div>
@@ -2045,9 +2052,16 @@
       </div>
       <div id="prof-pane-lst" style="margin-top:14px;">
         <div id="prof-lst-hdr" style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 12px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-          <span class="sectionlabel" id="prof-list-label" style="margin:0;" data-i18n="latestCatches">Neueste Fänge</span>
-          <select id="sort-prof" onchange="setProfileSort(this.value)" style="display:none;"></select>
-          <button type="button" class="selfield selfield-sm" onclick="openSelSheet('sort-prof', t('sortTitle'))"><span id="sort-prof-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="viewtog" id="prof-viewtog">
+            <button type="button" data-vm="mixed" onclick="setListView('profile','mixed')" data-i18n-title="viewMixed" title="Kacheln" aria-label="Kacheln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="14" width="18" height="3" rx="1.5"/><rect x="3" y="19" width="18" height="2" rx="1"/></svg></button>
+            <button type="button" data-vm="list" onclick="setListView('profile','list')" data-i18n-title="viewList" title="Liste" aria-label="Liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.3"/><circle cx="3.5" cy="12" r="1.3"/><circle cx="3.5" cy="18" r="1.3"/></svg></button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="exportbtn" id="prof-filter-btn" style="display:none; position:relative;" onclick="openProfileFilter()" data-i18n-title="ttFilter" title="Filter" aria-label="Filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg><span id="prof-filter-count" class="countpill" style="display:none; position:absolute; top:-5px; right:-5px;">0</span></button>
+            <button type="button" class="exportbtn" onclick="openExportMenu('profile')" data-i18n-title="exportTitle" title="Exportieren" aria-label="Exportieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg></button>
+            <select id="sort-prof" onchange="setProfileSort(this.value)" style="display:none;"></select>
+            <button type="button" class="selfield selfield-sm" onclick="openSelSheet('sort-prof', t('sortTitle'))"><span id="sort-prof-lbl">—</span><svg class="acc-chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6"/></svg></button>
+          </div>
         </div>
         <div id="prof-gallery"></div>
         <div style="height:84px"></div>
@@ -2704,12 +2718,12 @@
          dieser Screen hat einen Zurück-Pfeil, ist also keine.
          Das `.seg` ist kein neues Bauteil — es sind die Tabs aus den Einstellungen. -->
     <div class="tabrow">
-      <div class="seg" id="stats-tabs">
+      <div class="utabs" id="stats-tabs">
         <!-- `on` steht fest im Markup: Der Screen startet auf Übersicht, auch bevor je jemand
              `setScreenTab` gerufen hat. Ohne das wäre beim ersten Laden KEIN Tab markiert, während
              unten trotzdem die Übersicht steht. -->
-        <button type="button" class="on" data-tb="ueb" onclick="setScreenTab('stats','ueb')" data-i18n="tabOverview">Übersicht</button>
-        <button type="button" data-tb="lst" onclick="setScreenTab('stats','lst')" data-i18n="tabCatchList">Fangliste</button>
+        <button type="button" class="utab on" data-tb="ueb" onclick="setScreenTab('stats','ueb')" data-i18n="tabOverview">Übersicht</button>
+        <button type="button" class="utab" data-tb="lst" onclick="setScreenTab('stats','lst')" data-i18n="tabCatchList">Fangliste</button>
       </div>
     </div>
     <div class="scroll pad">
@@ -2756,7 +2770,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-23.445';
+const BUILD = '2026-07-23.446';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -2896,13 +2910,13 @@ Object.assign(I18N.de, {visDefAudience:"Standard-Publikum", visShareFollowersDef
 Object.assign(I18N.en, {visDefAudience:"Default audience", visShareFollowersDefault:"Share with followers by default", visShareFollowersHint:"Off — new catches are first seen only by your clubs/groups.", visDefWhat:"What I share by default", visWhatMandatory:"Only required", visWhatSome:"Some", visWhatAll:"All", visDefLoc:"Default location", visClubWins:"Club rules always win. You can adjust the location per catch.", visSharingHeading:"Sharing", visShareWithFollowers:"Share with followers", visLocThisCatch:"Location (this catch)", visLocThisCatchHint:"Prefilled from your default. Protect the spot on a single catch here.", visSpotHidden:"Spot hidden"});
 Object.assign(I18N.nl, {visDefAudience:"Standaardpubliek", visShareFollowersDefault:"Standaard met volgers delen", visShareFollowersHint:"Uit — nieuwe vangsten zien eerst alleen je verenigingen/groepen.", visDefWhat:"Wat ik standaard deel", visWhatMandatory:"Alleen verplicht", visWhatSome:"Sommige", visWhatAll:"Alles", visDefLoc:"Standaardlocatie", visClubWins:"Verenigingsregels winnen altijd. De locatie kun je per vangst aanpassen.", visSharingHeading:"Sharing", visShareWithFollowers:"Met volgers delen", visLocThisCatch:"Locatie (deze vangst)", visLocThisCatchHint:"Vooraf ingevuld met je standaard. Bescherm hier de stek bij één vangst.", visSpotHidden:"Stek verborgen"});
 Object.assign(I18N.de, {profSharedCatches:"geteilte Fänge", profFollow:"Folgen", profFollowing:"Folge ich", profRequested:"Angefragt", profBlocked:"Blockiert", profUnavailable:"Nicht verfügbar", profNoCatches:"Noch keine geteilten Fänge.", profRecords:"Rekorde", profCatches:"Fänge", profUnfollow:"Nicht mehr folgen", profBlockAction:"Blockieren", profUnblockAction:"Blockierung aufheben", profRequestSent:"Anfrage gesendet", allSpecies:"Alle Arten", loadingWord:"Lädt …", cancelWord:"Abbrechen", filterSpecies:"Art", latestCatches:"Neueste Fänge", profGateTitle:"Folge {name}, um die Fänge zu sehen", profGateSub:"Nur Follower sehen die geteilten Fänge dieses Anglers — auch außerhalb eurer gemeinsamen Gruppen & Vereine."});
-Object.assign(I18N.de, {followTitle:"Follower", followReqTab:"Anfragen", followFollowersTab:"Follower", followFollowingTab:"Ich folge", followTasksRow:"Follower", followNoReq:"Keine offenen Anfragen.", followNoFollowers:"Noch keine Follower.", followNoFollowing:"Du folgst noch niemandem.", followWantsToFollow:"möchte dir folgen", followFollowsYou:"folgt dir", accept:"Annehmen", decline:"Ablehnen", remove:"Entfernen", navHome:"Home", navProfile:"Profil", navTasks:"Aufgaben", navMore:"Mehr", profMapTab:"Karte", profNetTab:"Netzwerk", profTackleTab:"Tacklebox", profTackleSoon:"Deine Ruten, Rollen, Köder & Ausrüstung — mit Fang-Statistik. Kommt bald.", profNoLoc:"Noch keine Fänge mit Ort.", tasksAdmin:"Verein-Verwaltung", tasksEmpty:"Keine offenen Aufgaben.", profWithdraw:"Anfrage zurückziehen"});
+Object.assign(I18N.de, {followTitle:"Follower", followReqTab:"Anfragen", followFollowersTab:"Follower", followFollowingTab:"Ich folge", followTasksRow:"Follower", followNoReq:"Keine offenen Anfragen.", followNoFollowers:"Noch keine Follower.", followNoFollowing:"Du folgst noch niemandem.", followWantsToFollow:"möchte dir folgen", followFollowsYou:"folgt dir", accept:"Annehmen", decline:"Ablehnen", remove:"Entfernen", navHome:"Home", navProfile:"Profil", navTasks:"Aufgaben", navMore:"Mehr", profMapTab:"Karte", profNetTab:"Netzwerk", profTackleTab:"Tacklebox", profTackleSoon:"Deine Ruten, Rollen, Köder & Ausrüstung — mit Fang-Statistik. Kommt bald.", profNoLoc:"Noch keine Fänge mit Ort.", tasksAdmin:"Verein-Verwaltung", tasksEmpty:"Keine offenen Aufgaben.", profWithdraw:"Anfrage zurückziehen", viewMixed:"Kacheln", viewList:"Liste"});
 Object.assign(I18N.de, {visApproxArea:"Ungefähre Gegend", visLockOnlyMe:"Nur ich", visSumOnlyMe:"Nur ich", visSumFollowers:"Follower", visSumClubsFollowers:"Vereine + Follower", visSumClubsOnly:"Nur Vereine/Gruppen", visNoFollowersYet:"Du hast noch keine Follower — das legt fest, was sie sehen, sobald du welche hast."});
 Object.assign(I18N.en, {profSharedCatches:"shared catches", profFollow:"Follow", profFollowing:"Following", profRequested:"Requested", profBlocked:"Blocked", profUnavailable:"Unavailable", profNoCatches:"No shared catches yet.", profRecords:"Records", profCatches:"Catches", profUnfollow:"Unfollow", profBlockAction:"Block", profUnblockAction:"Unblock", profRequestSent:"Request sent", allSpecies:"All species", loadingWord:"Loading …", cancelWord:"Cancel", filterSpecies:"Species", latestCatches:"Latest catches", profGateTitle:"Follow {name} to see their catches", profGateSub:"Only followers see this angler's shared catches — including outside your shared clubs & groups."});
-Object.assign(I18N.en, {followTitle:"Followers", followReqTab:"Requests", followFollowersTab:"Followers", followFollowingTab:"Following", followTasksRow:"Followers", followNoReq:"No pending requests.", followNoFollowers:"No followers yet.", followNoFollowing:"You're not following anyone yet.", followWantsToFollow:"wants to follow you", followFollowsYou:"follows you", accept:"Accept", decline:"Decline", remove:"Remove", navHome:"Home", navProfile:"Profile", navTasks:"Tasks", navMore:"More", profMapTab:"Map", profNetTab:"Network", profTackleTab:"Tacklebox", profTackleSoon:"Your rods, reels, lures & equipment — with catch stats. Coming soon.", profNoLoc:"No catches with a location yet.", tasksAdmin:"Club admin", tasksEmpty:"No open tasks.", profWithdraw:"Withdraw request"});
+Object.assign(I18N.en, {followTitle:"Followers", followReqTab:"Requests", followFollowersTab:"Followers", followFollowingTab:"Following", followTasksRow:"Followers", followNoReq:"No pending requests.", followNoFollowers:"No followers yet.", followNoFollowing:"You're not following anyone yet.", followWantsToFollow:"wants to follow you", followFollowsYou:"follows you", accept:"Accept", decline:"Decline", remove:"Remove", navHome:"Home", navProfile:"Profile", navTasks:"Tasks", navMore:"More", profMapTab:"Map", profNetTab:"Network", profTackleTab:"Tacklebox", profTackleSoon:"Your rods, reels, lures & equipment — with catch stats. Coming soon.", profNoLoc:"No catches with a location yet.", tasksAdmin:"Club admin", tasksEmpty:"No open tasks.", profWithdraw:"Withdraw request", viewMixed:"Tiles", viewList:"List"});
 Object.assign(I18N.en, {visApproxArea:"Approximate area", visLockOnlyMe:"Only me", visSumOnlyMe:"Only me", visSumFollowers:"Followers", visSumClubsFollowers:"Clubs + followers", visSumClubsOnly:"Clubs/groups only", visNoFollowersYet:"You don't have followers yet — this sets what they'll see once you do."});
 Object.assign(I18N.nl, {profSharedCatches:"gedeelde vangsten", profFollow:"Volgen", profFollowing:"Volg ik", profRequested:"Aangevraagd", profBlocked:"Geblokkeerd", profUnavailable:"Niet beschikbaar", profNoCatches:"Nog geen gedeelde vangsten.", profRecords:"Records", profCatches:"Vangsten", profUnfollow:"Ontvolgen", profBlockAction:"Blokkeren", profUnblockAction:"Deblokkeren", profRequestSent:"Verzoek verstuurd", allSpecies:"Alle soorten", loadingWord:"Laden …", cancelWord:"Annuleren", filterSpecies:"Soort", latestCatches:"Nieuwste vangsten", profGateTitle:"Volg {name} om de vangsten te zien", profGateSub:"Alleen volgers zien de gedeelde vangsten van deze visser — ook buiten jullie gedeelde verenigingen & groepen."});
-Object.assign(I18N.nl, {followTitle:"Volgers", followReqTab:"Verzoeken", followFollowersTab:"Volgers", followFollowingTab:"Ik volg", followTasksRow:"Volgers", followNoReq:"Geen openstaande verzoeken.", followNoFollowers:"Nog geen volgers.", followNoFollowing:"Je volgt nog niemand.", followWantsToFollow:"wil je volgen", followFollowsYou:"volgt jou", accept:"Accepteren", decline:"Afwijzen", remove:"Verwijderen", navHome:"Home", navProfile:"Profiel", navTasks:"Taken", navMore:"Meer", profMapTab:"Kaart", profNetTab:"Netwerk", profTackleTab:"Tacklebox", profTackleSoon:"Je hengels, molens, kunstaas & uitrusting — met vangststatistiek. Binnenkort.", profNoLoc:"Nog geen vangsten met locatie.", tasksAdmin:"Verenigingsbeheer", tasksEmpty:"Geen openstaande taken.", profWithdraw:"Verzoek intrekken"});
+Object.assign(I18N.nl, {followTitle:"Volgers", followReqTab:"Verzoeken", followFollowersTab:"Volgers", followFollowingTab:"Ik volg", followTasksRow:"Volgers", followNoReq:"Geen openstaande verzoeken.", followNoFollowers:"Nog geen volgers.", followNoFollowing:"Je volgt nog niemand.", followWantsToFollow:"wil je volgen", followFollowsYou:"volgt jou", accept:"Accepteren", decline:"Afwijzen", remove:"Verwijderen", navHome:"Home", navProfile:"Profiel", navTasks:"Taken", navMore:"Meer", profMapTab:"Kaart", profNetTab:"Netwerk", profTackleTab:"Tacklebox", profTackleSoon:"Je hengels, molens, kunstaas & uitrusting — met vangststatistiek. Binnenkort.", profNoLoc:"Nog geen vangsten met locatie.", tasksAdmin:"Verenigingsbeheer", tasksEmpty:"Geen openstaande taken.", profWithdraw:"Verzoek intrekken", viewMixed:"Tegels", viewList:"Lijst"});
 Object.assign(I18N.nl, {visApproxArea:"Ongeveer gebied", visLockOnlyMe:"Alleen ik", visSumOnlyMe:"Alleen ik", visSumFollowers:"Volgers", visSumClubsFollowers:"Verenigingen + volgers", visSumClubsOnly:"Alleen verenigingen/groepen", visNoFollowersYet:"Je hebt nog geen volgers — dit bepaalt wat ze straks zien."});
 Object.assign(I18N.de, {visWhatMandatoryHint:"Nur, was deine Vereine verlangen.", visWhatSomeHint:"Dein Zuschnitt — wähle unten.", visWhatAllHint:"Alle Kategorien werden geteilt.", visDefLocHint:"So genau sehen andere deinen Fangort."});
 Object.assign(I18N.en, {visWhatMandatoryHint:"Only what your clubs require.", visWhatSomeHint:"Your selection — choose below.", visWhatAllHint:"All categories are shared.", visDefLocHint:"How precisely others see your spot."});
@@ -4472,7 +4486,7 @@ function renderProfile(){
   const tabs=document.getElementById('prof-tabs'); if(tabs) tabs.style.display=gated?'none':'';
   document.querySelectorAll('#prof-tabs .utab').forEach(b=>{ const k=b.dataset.pt; b.style.display=((k==='net'||k==='tackle')&&!self)?'none':''; });
   const mb=document.getElementById('prof-more-btn'); if(mb) mb.style.display=(p.meta && (p.meta.rel==='accepted'||p.meta.rel==='blocked'))?'':'none';
-  const lstHdr=document.getElementById('prof-lst-hdr'); if(lstHdr) lstHdr.style.display=gated?'none':'';
+  const lstHdr=document.getElementById('prof-lst-hdr'); if(lstHdr) lstHdr.style.display=gated?'none':'flex';
   const curOn=document.querySelector('#prof-tabs .utab.on'); const curTab=curOn?curOn.dataset.pt:'lst';
   const fb=document.getElementById('prof-filter-btn'); if(fb) fb.style.display=(!gated && curTab==='lst' && p.catches && p.catches.length)?'':'none';
   if(gated){
@@ -4529,21 +4543,29 @@ function _profFollowBtn(m){
   if(m.rel==='blocked') return `<button type="button" class="prof-fbtn blocked" onclick="profUnblock()">${esc(t('profBlocked'))}</button>`;
   return `<button type="button" class="prof-fbtn" onclick="profFollow()">${IC_FOLLOW_ADD}${esc(t('profFollow'))}</button>`;
 }
+/* ---- Listen-Ansicht (Mixed-Kacheln ↔ kompakte Liste), pro Scope, gemerkt (localStorage) ---- */
+const _LV_DEFAULT={profile:'mixed', list:'list', stats:'list'};
+function _listView(scope){ try{ if(!state._listView){ state._listView=JSON.parse(localStorage.getItem('bf_listview')||'{}')||{}; } }catch(e){ state._listView={}; } return (state._listView&&state._listView[scope]) || _LV_DEFAULT[scope] || 'list'; }
+function _syncViewTog(scope){ const box=document.getElementById(scope==='profile'?'prof-viewtog':scope+'-viewtog'); if(!box) return; const cur=_listView(scope); box.querySelectorAll('button[data-vm]').forEach(b=>b.classList.toggle('on', b.dataset.vm===cur)); }
+function setListView(scope, mode){ try{ if(!state._listView) state._listView={}; state._listView[scope]=mode; localStorage.setItem('bf_listview', JSON.stringify(state._listView)); }catch(e){} _syncViewTog(scope); try{ haptic(4); }catch(e){} if(scope==='profile'){ try{ renderProfileTiles(); }catch(e){} } else if(scope==='list'){ try{ renderList(); }catch(e){} } }
 function renderProfileTiles(){
   const p=state.profile, host=document.getElementById('prof-gallery'); if(!host) return;
+  try{ _syncViewTog('profile'); }catch(e){}
   if(p.loading){ host.innerHTML=`<div class="prof-empty">${esc(t('loadingWord'))}</div>`; return; }
   const cats=_profCatchesSorted();
   if(!cats.length){ host.innerHTML=`<div class="prof-empty">${esc(activeFilterCount()>0?t('emptyFilter'):t('profNoCatches'))}</div>`; return; }
   try{ _podium={}; }catch(e){}   // kein Vereins-Podium im Profil → keine Medaillen, nur PB-Krone
+  const mode=_listView('profile');
   host.innerHTML=cats.map(c=>{
     const photo=c.photo||(c.photos&&c.photos[0])||null;
-    if(photo){
+    if(photo && mode==='mixed'){
       const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
       const crown=isPb(c)?`<span class="ptile-crown">${CROWN_IC}</span>`:'';
       return `<button type="button" class="ptile" onclick="openProfileCatch('${escAttr(String(c.id))}')"><img src="${escAttr(photo)}" alt="" loading="lazy"><span class="ptile-scrim"></span>${crown}<span class="ptile-band"><span class="ptile-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="ptile-sz">${esc(size)}</span>`:''}<span class="ptile-dt">${esc(fmtDate(c.date))}</span></span></button>`;
     }
-    // kein (geteiltes) Foto → Standard-Zeile wie „Meine Fänge"
-    return `<button type="button" class="catch" onclick="openProfileCatch('${escAttr(String(c.id))}')">${badgeWrap('<span class="thumb">'+FISH_IC+'</span>', c)}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(primaryStr(c))}</span></span><span class="meta">${esc(fmtDate(c.date))}</span></span>${CHEV_IC}</button>`;
+    // Liste-Modus (oder Fang ohne Foto): Standard-Zeile wie „Meine Fänge", Foto als Thumbnail falls vorhanden
+    const thumbInner = photo ? `<img src="${escAttr(photo)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">` : FISH_IC;
+    return `<button type="button" class="catch" onclick="openProfileCatch('${escAttr(String(c.id))}')">${badgeWrap('<span class="thumb">'+thumbInner+'</span>', c)}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(primaryStr(c))}</span></span><span class="meta">${esc(fmtDate(c.date))}</span></span>${CHEV_IC}</button>`;
   }).join('');
 }
 function renderProfileOverview(){
@@ -5056,7 +5078,7 @@ function buildCsv(items, target){
     const d=new Date(c.date), p=n=>String(n).padStart(2,'0');
     const dstr=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
     let wetter=''; if(c.weather&&(c.weather.text||c.weather.manual)){ wetter=c.weather.text||c.weather.manual; } else if(c.weather&&c.weather.cur){ const cw=c.weather.cur, ck=weatherCodeKey(cw.code); wetter=[ck?t(ck):null, cw.temp!=null?Math.round(cw.temp)+' °C':null].filter(Boolean).join(', '); }
-    const bereich = target==='stats' ? (c._ctx||'') : (state.mode==='solo'?t('solo'):(state.club?state.club.name:''));
+    const bereich = target==='stats' ? (c._ctx||'') : target==='profile' ? ((state.profile&&state.profile.meta&&state.profile.meta.name)||'') : (state.mode==='solo'?t('solo'):(state.club?state.club.name:''));
     const vals=[dstr, trSpecies(c.species),
       c.length!=null?c.length:'', c.weight!=null?String(c.weight).replace('.',','):'',
       c.method||'', c.bait||'', c.rod||'', c.boat||'',
@@ -5070,11 +5092,11 @@ function buildCsv(items, target){
   return '﻿'+lines.join('\r\n');
 }
 async function exportCsv(target){
-  let items = (target==='stats' ? myCatches() : state.catches).filter(matchesFilter);
+  let items = (target==='stats' ? myCatches() : target==='profile' ? ((state.profile&&state.profile.catches)||[]) : state.catches).filter(matchesFilter);
   items = sortCatches(items);
   if(!items.length){ alert(t('exportEmpty')); return; }
   const csv=buildCsv(items, target);
-  const fname=(target==='stats'?'meine-faenge':'faenge')+'-'+isoDateOnly(new Date())+'.csv';
+  const fname=(target==='stats'?'meine-faenge':target==='profile'?'profil-faenge':'faenge')+'-'+isoDateOnly(new Date())+'.csv';
   const blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob), a=document.createElement('a');
   a.href=url; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
@@ -5097,13 +5119,13 @@ async function orientedImage(src){
   }
 }
 async function exportPdf(target){
-  let items=(target==='stats'?myCatches():state.catches).filter(matchesFilter); items=sortCatches(items);
+  let items=(target==='stats'?myCatches():target==='profile'?((state.profile&&state.profile.catches)||[]):state.catches).filter(matchesFilter); items=sortCatches(items);
   if(!items.length){ alert(t('exportEmpty')); return; }
   let jsPDFref;
   try{ await ensureJsPDF(); jsPDFref=window.jspdf.jsPDF; }catch(e){ alert(t('exportPdfErr')); return; }
   const doc=new jsPDFref({unit:'mm', format:'a4', compress:true});
   const M=15, pw=210, ph=297, contentW=pw-2*M;
-  const areaName = target==='stats' ? t('myStats') : (state.mode==='solo'?t('solo'):(state.club?state.club.name:t('appName')));
+  const areaName = target==='stats' ? t('myStats') : target==='profile' ? ((state.profile&&state.profile.meta&&state.profile.meta.name)||t('appName')) : (state.mode==='solo'?t('solo'):(state.club?state.club.name:t('appName')));
   const today=new Date();
   doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20); doc.text(t('appName'), M, 18);
   doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(110);
@@ -5319,6 +5341,8 @@ function renderList(){
 
   document.getElementById('sort-list').innerHTML=sortOptionsHtml(); try{ syncSelfield('sort-list'); }catch(e){}
   const list=document.getElementById('catch-list'); list.innerHTML=''; _openSwipe=null;
+  try{ _syncViewTog('list'); }catch(e){}
+  const _lvMode=_listView('list');
   const sorted=sortCatches(items);
   if(sorted.length===0){
     if(cnt===0 && shouldShowWelcome()){ list.innerHTML=welcomeCardHtml(); return; }
@@ -5326,8 +5350,23 @@ function renderList(){
     return;
   }
   sorted.forEach(c=>{
+    const _cov=coverThumbOf(c);
+    // Mixed-Ansicht: Fänge MIT (geteiltem) Foto als große Kachel, tap → Detail (dort Bearbeiten/Löschen).
+    // Fänge ohne Foto fallen in die normale Zeile (mit Swipe für eigene) durch.
+    if(_lvMode==='mixed' && _cov && !c._pending){
+      const size=[c.length!=null?fmtLen(c.length):null, c.weight!=null?fmtWeight(c.weight):null].filter(Boolean).join(' · ');
+      const r=podiumRank(c);
+      const crown=isPb(c)?`<span class="ptile-crown">${CROWN_IC}</span>`:'';
+      const med=r?`<span class="bdg bdg-medal bdg-${r===1?'g':(r===2?'s':'b')}" style="position:absolute; top:9px; left:9px;">${MEDAL_IC}</span>`:'';
+      const meta=[c.angler, fmtDate(c.date)].filter(Boolean).join(' · ');
+      const pb=document.createElement('button'); pb.className='ptile';
+      pb.innerHTML=`${coverImg(c, _cov, 'loading="lazy" decoding="async"')}<span class="ptile-scrim"></span>${crown}${med}<span class="ptile-band"><span class="ptile-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="ptile-sz">${esc(size)}</span>`:''}<span class="ptile-dt">${esc(meta)}</span></span>`;
+      pb.onclick=()=>openDetail(c.id);
+      list.appendChild(pb);
+      return;
+    }
     const b=document.createElement('button'); b.className='catch';
-    const _cov=coverThumbOf(c); const thumb = _cov ? `<span class="thumb">${coverImg(c, _cov, 'loading="lazy" decoding="async"')}</span>` : `<span class="thumb">${FISH_IC}</span>`;
+    const thumb = _cov ? `<span class="thumb">${coverImg(c, _cov, 'loading="lazy" decoding="async"')}</span>` : `<span class="thumb">${FISH_IC}</span>`;
     /* Krone und Medaille sitzen jetzt AM BILD (`badgeWrap`), nicht mehr an der Zeile bzw. neben dem
        Namen. Mit raus: die Medaille inline und das Wort „Vereinsrekord" — JC am 17. Juli: „nein, kann
        raus". Die Medaille am Bild sagt dasselbe, und der Name bekommt seinen Platz zurück. */
