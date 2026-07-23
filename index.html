@@ -1377,9 +1377,9 @@
   .hf-ct{background:var(--teal);color:#04222a;border-radius:999px;padding:0 7px;font-size:.62rem;font-weight:800;}
   .hf-sa{color:var(--teal-bright);font-size:.72rem;font-weight:700;}
   .hf-cv{color:var(--muted);display:flex;align-items:center;}
-  .hf-hero{display:block;width:100%;position:relative;border-radius:14px;overflow:hidden;height:120px;background:linear-gradient(135deg,#0d3346,#0a4a3f 55%,#123b3a);border:none;padding:0;text-align:left;cursor:pointer;margin-bottom:9px;}
+  .hf-hero{display:block;width:100%;position:relative;border-radius:14px;overflow:hidden;aspect-ratio:3 / 2;background:linear-gradient(135deg,#0d3346,#0a4a3f 55%,#123b3a);border:none;padding:0;text-align:left;cursor:pointer;margin-bottom:9px;}
   .hf-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-  .hf-fish{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(99,192,184,.28);} .hf-fish svg{width:40px;height:40px;} .hf-fish img{height:46px;filter:brightness(0);opacity:.5;}
+  .hf-fish{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(99,192,184,.28);z-index:1;} .hf-fish svg{width:40px;height:40px;} .hf-fish img{position:static;inset:auto;width:auto;height:46px;object-fit:contain;filter:brightness(0);opacity:.5;}
   .hf-scrim{position:absolute;left:0;right:0;bottom:0;height:66%;background:linear-gradient(transparent,rgba(2,20,30,.92));}
   .hf-band{position:absolute;left:13px;right:13px;bottom:9px;}
   .hf-sp{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.3rem;line-height:1;color:var(--text);}
@@ -2840,7 +2840,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-23.458';
+const BUILD = '2026-07-23.459';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
