@@ -904,6 +904,8 @@
   #botnav .bn-badge{position:absolute;top:4px;right:calc(50% - 21px);background:var(--amber);color:#04222a;border-radius:8px;font-size:.55rem;font-weight:800;padding:0 5px;min-width:15px;text-align:center;}
   body.nav-on .screen.active .scroll{padding-bottom:64px;}
   body.nav-on .screen.active .pad{padding-bottom:64px;}
+  body.nav-on .fab{bottom:calc(74px + env(safe-area-inset-bottom));}
+  .area-cnt-dot{background:var(--sand);color:var(--text);border:2px solid var(--teal-bright);border-radius:20px;min-width:26px;height:26px;line-height:22px;text-align:center;font-weight:800;font-size:.82rem;padding:0 8px;box-shadow:0 2px 6px rgba(0,0,0,.35);display:inline-block;white-space:nowrap;}
   /* Profile section tabs (underline) + sub-tabs */
   .utabs{display:flex;gap:20px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
   .utabs::-webkit-scrollbar{display:none;}
@@ -2743,7 +2745,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-22.443';
+const BUILD = '2026-07-23.444';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -5609,8 +5611,9 @@ function _detailDrawLoc(lat,lon){
   if(dMarker){ try{ dMap.removeLayer(dMarker); }catch(e){} dMarker=null; }
   if(dAreaCircle){ try{ dMap.removeLayer(dAreaCircle); }catch(e){} dAreaCircle=null; }
   if(_detailIsApprox()){
-    const r=(state.current&&state.current.areaRadius)||2500;
-    dAreaCircle=L.circle([lat,lon],{radius:r, color:'#63c0b8', weight:2, dashArray:'6 6', fillColor:'#63c0b8', fillOpacity:.15, interactive:false}).addTo(dMap);
+    const r=(state.current&&state.current.areaRadius)||5000;
+    // Gefüllte Zone A (JC): klarer Bereich statt dünnem Ring, kein Mittelpunkt.
+    dAreaCircle=L.circle([lat,lon],{radius:r, color:'#51A6A0', weight:2.5, fillColor:'#51A6A0', fillOpacity:.28, interactive:false}).addTo(dMap);
   } else {
     dMarker=L.marker([lat,lon],{icon:fishPinIcon(), keyboard:false}).addTo(dMap);
   }
@@ -5928,8 +5931,8 @@ const CLUSTER_PX=44;   // berühren sich zwei 44-px-Ziele, ist keins mehr sicher
    um einen bestimmten Fang geht, weit genug von der Kontinent-Ansicht, wo Fotos Konfetti wären.
    Geraten, nicht gemessen — JC probiert es am Gerät aus, dann ist es eine Zahl. */
 const FOTO_ZOOM=11;
-function _clusterGruppen(kind){
-  const R=_mapRef[kind]; const rest=(R.pts||[]).slice(), out=[];
+function _clusterGruppen(kind, pts){
+  const R=_mapRef[kind]; const rest=(pts||R.pts||[]).slice(), out=[];
   while(rest.length){
     const a=rest.shift(), g=[a];
     const pa=R.m.latLngToLayerPoint([a.lat,a.lon]);
@@ -5944,7 +5947,20 @@ function _clusterGruppen(kind){
 function drawCatchMarkers(kind){
   const R=_mapRef[kind]; if(!R||!R.m) return;
   R.mk.forEach(m=>{ try{ R.m.removeLayer(m); }catch(e){} }); R.mk=[];
-  _clusterGruppen(kind).forEach(g=>{
+  // Ungefähre (area) Fänge: pro 5-km-Zelle EIN Kreis + Zähler; Tap → Spot-Sheet. Exakte laufen wie bisher
+  // durchs Cluster-System. So ist klar getrennt, was Bereich und was genauer Spot ist.
+  const areaPts=(R.pts||[]).filter(c=>c.locApprox);
+  const exactPts=(R.pts||[]).filter(c=>!c.locApprox);
+  const _cells={};
+  areaPts.forEach(c=>{ const k=(+c.lat).toFixed(3)+','+(+c.lon).toFixed(3); (_cells[k]=_cells[k]||[]).push(c); });
+  Object.keys(_cells).forEach(k=>{ const g=_cells[k], c0=g[0], ll=[+c0.lat,+c0.lon], r=(c0.areaRadius||5000);
+    const circle=L.circle(ll,{radius:r, color:'#51A6A0', weight:2.5, fillColor:'#51A6A0', fillOpacity:.22}).addTo(R.m);
+    const cnt=L.marker(ll,{icon:L.divIcon({className:'area-cnt', html:`<div class="area-cnt-dot">${g.length}</div>`, iconSize:[44,44], iconAnchor:[22,22]}), keyboard:false}).addTo(R.m);
+    const _open=()=>{ try{ openSpotSheet(kind, g, ll); }catch(e){} };
+    circle.on('click', _open); cnt.on('click', _open);
+    R.mk.push(circle); R.mk.push(cnt);
+  });
+  _clusterGruppen(kind, exactPts).forEach(g=>{
     const c0=g[0];
     if(g.length>1){
       /* Der Cluster sitzt im SCHWERPUNKT, nicht auf dem ersten Fang (JC, 18. Juli: „wenn zooming out and
@@ -8817,7 +8833,7 @@ function openDetailObj(c, from, keepEdit){
         ? (editing ? `<div class="dspecs">${locRows.map(_specOne).join('')}</div>`
                    : `<div class="loc-name">${esc(''+locRows[0][2])}</div>`)
         : '')
-        + ((!editing && c.locApprox) ? `<div class="loc-approx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg><span>${esc(t('visApproxArea'))} &middot; &plusmn;2,5 km</span></div>` : '');
+        + ((!editing && c.locApprox) ? `<div class="loc-approx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg><span>${esc(t('visApproxArea'))} &middot; ~5 km</span></div>` : '');
       rows = rows.filter(r=>r[0]!=='water');
     } }
   /* "Am Wasser" (JC): same construction as the water name above — the row leaves #d-rows and renders
