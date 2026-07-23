@@ -2840,7 +2840,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-23.455';
+const BUILD = '2026-07-23.456';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -3875,7 +3875,7 @@ function _homeCard(c, mode){
   if(mode==='mixed'){
     const inner=`<span class="hf-scrim"></span><span class="hf-band"><span class="hf-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="hf-sz">${esc(size)}</span>`:''}<span class="hf-meta">${esc(meta)}</span></span>`;
     if(photo){ return `<button type="button" class="hf-hero" onclick="openHomeFeedCatch('${escAttr(String(c.id))}')"><img src="${escAttr(photo)}" alt="" loading="lazy">${inner}</button>`; }
-    return `<button type="button" class="hf-hero" onclick="openHomeFeedCatch('${escAttr(String(c.id))}')"><span class="hf-fish"><img src="/puffer.png" alt="" loading="lazy"></span>${inner}</button>`;
+    return `<button type="button" class="hf-hero" onclick="openHomeFeedCatch('${escAttr(String(c.id))}')"><span class="hf-fish">${FISH_IC}</span>${inner}</button>`;
   }
   const thumb = photo ? `<span class="thumb"><img src="${escAttr(photo)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"></span>` : `<span class="thumb">${FISH_IC}</span>`;
   return `<button type="button" class="catch" onclick="openHomeFeedCatch('${escAttr(String(c.id))}')">${thumb}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(size)}</span></span><span class="meta">${esc(meta)}</span></span>${CHEV_IC}</button>`;
@@ -3897,7 +3897,7 @@ function _homeMineCard(c, mode){
   if(mode==='mixed'){
     const inner=`<span class="hf-scrim"></span><span class="hf-band"><span class="hf-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="hf-sz">${esc(size)}</span>`:''}<span class="hf-meta">${esc(meta)}</span></span>`;
     if(_cov){ return `<button type="button" class="hf-hero" onclick="openHomeCatch('${escAttr(String(c.id))}')">${coverImg(c,_cov,'loading="lazy"')}${inner}</button>`; }
-    return `<button type="button" class="hf-hero" onclick="openHomeCatch('${escAttr(String(c.id))}')"><span class="hf-fish"><img src="/puffer.png" alt="" loading="lazy"></span>${inner}</button>`;
+    return `<button type="button" class="hf-hero" onclick="openHomeCatch('${escAttr(String(c.id))}')"><span class="hf-fish">${FISH_IC}</span>${inner}</button>`;
   }
   const thumb = _cov ? `<span class="thumb">${coverImg(c,_cov,'loading="lazy" decoding="async"')}</span>` : `<span class="thumb">${FISH_IC}</span>`;
   return `<button type="button" class="catch" onclick="openHomeCatch('${escAttr(String(c.id))}')">${badgeWrap(thumb, c)}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(primaryStr(c))}</span></span><span class="meta">${esc(meta)}</span></span>${CHEV_IC}</button>`;
