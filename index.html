@@ -1400,7 +1400,7 @@
   .catchfs{position:fixed;inset:0;z-index:960;background:#050d13;flex-direction:column;touch-action:none;}
   .catchfs .fs-photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;}
   .catchfs .fs-photo img{max-width:100%;max-height:100%;object-fit:contain;}
-  .catchfs .fs-puffer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;} .catchfs .fs-puffer img{width:auto;height:90px;filter:brightness(0) invert(1);opacity:.35;}
+  .catchfs .fs-puffer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d3346,#0a4a3f 55%,#123b3a);} .catchfs .fs-puffer img{width:auto;height:90px;filter:brightness(0);opacity:.5;}
   .catchfs .fs-top{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;}
   .catchfs .fs-btn{width:36px;height:36px;border-radius:50%;background:rgba(2,20,30,.55);border:none;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;} .catchfs .fs-btn svg{width:20px;height:20px;}
   .catchfs .fs-count{position:absolute;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2;font-size:.74rem;color:#cfe;background:rgba(2,20,30,.55);border-radius:999px;padding:2px 11px;}
@@ -2678,10 +2678,10 @@
   </div>
   <!-- ===== Fullscreen catch viewer (feed) ===== -->
   <div id="catchfs" class="catchfs" style="display:none;">
-    <div class="fs-photo"><img id="fs-img" alt=""><span id="fs-puffer" class="fs-puffer" style="display:none;"><img src="/puffer.png" alt=""></span></div>
+    <div class="fs-photo"><img id="fs-img" alt=""><span id="fs-puffer" class="fs-puffer" style="display:none;"><img src="/mascot.png" alt=""></span></div>
     <div class="fs-top">
       <button type="button" class="fs-btn" onclick="closeCatchFs()" aria-label="Schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <button type="button" class="fs-btn" onclick="fsShare()" aria-label="Teilen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+      <button type="button" id="fs-share" class="fs-btn" onclick="fsShare()" aria-label="Teilen" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
     </div>
     <span id="fs-count" class="fs-count"></span>
     <button type="button" id="fs-prev" class="fs-arrow l" onclick="fsNav(-1)" aria-label="Zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
@@ -2877,7 +2877,7 @@
    Datei, die committet wird, gar nicht hineinschreiben. Datum + laufende Nummer sagt genau das, was die
    Frage „läuft das Update?" braucht, und ist ohne Werkzeug lesbar.
    Format: JJJJ-MM-TT.n — n zählt innerhalb des Tages hoch. */
-const BUILD = '2026-07-23.461';
+const BUILD = '2026-07-23.462';
 try{ const _b=document.getElementById('app-build'); if(_b) _b.textContent='v '+BUILD; }catch(e){}
 const SPECIES = ["Barsch","Zander","Hecht","Rotauge","Rotfeder","Karpfen","Schleie","Aal","Forelle"];
 const SPECIES_TR = {
@@ -3914,7 +3914,7 @@ function _homeCard(c, mode, secKey, idx){
     const inner=`<span class="hf-scrim"></span><span class="hf-band"><span class="hf-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="hf-sz">${esc(size)}</span>`:''}<span class="hf-meta">${esc(meta)}</span></span>`;
     const tap=`openCatchFs('${secKey}',${idx})`;
     if(photo){ return `<button type="button" class="hf-hero" onclick="${tap}">${_feedImg(c, photo)}${inner}</button>`; }
-    return `<button type="button" class="hf-hero" onclick="${tap}"><span class="hf-fish"><img src="/puffer.png" alt="" loading="lazy"></span>${inner}</button>`;
+    return `<button type="button" class="hf-hero" onclick="${tap}"><span class="hf-fish"><img src="/mascot.png" alt="" loading="lazy"></span>${inner}</button>`;
   }
   const thumb = photo ? `<span class="thumb">${_feedImg(c, photo)}</span>` : `<span class="thumb">${FISH_IC}</span>`;
   return `<button type="button" class="catch" onclick="openCatchFs('${secKey}',${idx})">${thumb}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(size)}</span></span><span class="meta">${esc(meta)}</span></span>${CHEV_IC}</button>`;
@@ -3944,7 +3944,7 @@ function _homeMineCard(c, mode, idx){
   if(mode==='mixed'){
     const inner=`<span class="hf-scrim"></span><span class="hf-band"><span class="hf-sp">${esc(trSpecies(c.species))}</span>${size?`<span class="hf-sz">${esc(size)}</span>`:''}<span class="hf-meta">${esc(meta)}</span></span>`;
     if(_cov){ return `<button type="button" class="hf-hero" onclick="openCatchFs('mine',${idx})">${_feedImg(c,_cov)}${inner}</button>`; }
-    return `<button type="button" class="hf-hero" onclick="openCatchFs('mine',${idx})"><span class="hf-fish"><img src="/puffer.png" alt="" loading="lazy"></span>${inner}</button>`;
+    return `<button type="button" class="hf-hero" onclick="openCatchFs('mine',${idx})"><span class="hf-fish"><img src="/mascot.png" alt="" loading="lazy"></span>${inner}</button>`;
   }
   const thumb = _cov ? `<span class="thumb">${_feedImg(c,_cov)}</span>` : `<span class="thumb">${FISH_IC}</span>`;
   return `<button type="button" class="catch" onclick="openCatchFs('mine',${idx})">${badgeWrap(thumb, c)}<span style="flex:1; min-width:0;"><span class="top"><span class="sp">${esc(trSpecies(c.species))}</span><span class="val">${esc(primaryStr(c))}</span></span><span class="meta">${esc(meta)}</span></span>${CHEV_IC}</button>`;
@@ -3998,6 +3998,7 @@ function _renderCatchFs(){
   const ch=document.getElementById('fs-chips'); if(ch) ch.innerHTML=chips.map(x=>`<span class="fs-chip">${esc(x)}</span>`).join('');
   const who=document.getElementById('fs-who'); if(who){ const nm=c.angler||''; const sub=[c._ctxName||c._ctx||c.location, fmtDate(c.date)].filter(Boolean).join(' · '); who.innerHTML=`<span class="fs-av">${esc((nm||'?').slice(0,2).toUpperCase())}</span><span style="min-width:0;"><span class="fs-nm">${esc(nm)}</span><span class="fs-dt">${esc(sub)}</span></span>`; }
   const cnt=document.getElementById('fs-count'); if(cnt) cnt.textContent=(state._fsIdx+1)+' / '+arr.length;
+  const sh=document.getElementById('fs-share'); if(sh) sh.style.display=(state._fsSec==='mine')?'':'none';
   const nav=arr.length>1; const pv=document.getElementById('fs-prev'), nx=document.getElementById('fs-next');
   if(pv) pv.style.display=nav?'flex':'none'; if(nx) nx.style.display=nav?'flex':'none';
 }
